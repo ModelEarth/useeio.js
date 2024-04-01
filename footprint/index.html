@@ -12,6 +12,9 @@
 </head>
 
 <body>
+
+  <!-- Try uncommenting after doing install for node-modules -->
+  <!--
   <div id="mocha"></div>
   <script src="../node_modules/mocha/mocha.js"></script>
   <script src="../node_modules/chai/chai.js"></script>
@@ -27,12 +30,13 @@
     mocha.setup('bdd');
   </script>
 
-<script src="test.model-requests.js"></script>
-<script src="test.matrix-requests.js"></script>
+<script src="model-requests.js"></script>
+<script src="matrix-requests.js"></script>
 
   <script class="mocha-exec">
     mocha.run();
   </script>
+  -->
 
 <style>
   a {
@@ -68,8 +72,8 @@ New: <a href="/data-pipeline/research/economy/">US and All 50 States</a> - <a hr
 <a href="sector_scopes.html">Sector Scopes</a><br>
 <a href="sector_supply_impacts.html">Sector Supply Impacts</a><br>
 <a href="tabulator.html">Tabulator</a> - <a href="/data-pipeline/research/economy/">New: US and All States</a><br>
-<a href="test.matrix-requests.js">Matrix Requests (js)</a><br>
-<a href="test.model-requests.js">Model Requests (js)</a><br>
+<a href="matrix-requests.js">Matrix Requests (js)</a><br>
+<a href="model-requests.js">Model Requests (js)</a><br>
 <br>
 
 Some of the above samples may only send json to the console.log, so view with your browser's inspector.<br><br>
