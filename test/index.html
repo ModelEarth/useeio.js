@@ -3,9 +3,11 @@
 
 <head>
   <meta charset="utf-8" />
-  <title>USEEIO API Tests</title>
+  <title>USEEIO API - OpenFootprint</title>
   <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script type="text/javascript" src="/localsite/js/localsite.js?showheader=true"></script>
+  <link rel="stylesheet" href="/localsite/css/base.css" id="/localsite/css/base.css" />
   <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
 </head>
 
@@ -35,19 +37,26 @@
 <style>
   a {
     text-decoration:none;
-    color: #999;
+    color: #0366d6;
   }
   a:hover {
     text-decoration: underline;
   }
 </style>
 
-<div style="margin:50px;font-family: arial;line-height: 2em;">
+<div class="content contentpadding">
 
-TO DO: Use formatCell() to make numbers simple. (42.2 Billion, etc.)<br>
-The function formatCell() is in the config.js file. The file config.js is already included in all the test pages.<br><br>
+<h1>Open Footprint</h1>
 
-<b>Example Pages</b><br>
+<b>Label Samples</b><br>
+<a href="/io/template/">Open Footprint - Impact Template</a><br>
+<a href="/balance/food_recommendation.html">Open Footprint - Food Nutrition</a><br>
+<br>
+
+<b>Environmentally Extended Input-Output (EEIO)</b><br>
+
+New data: <a href="/data-pipeline/research/economy/">US and All 50 States</a> - <a href="https://github.com/ModelEarth/OpenFootprint/tree/main/impacts/2020">Data Source</a><br><br>
+
 <a href="example_calculation.html">Example Calculation</a><br>
 <a href="example_commodity_vector.html">Example Commodity Vector</a><br>
 <a href="example_demands.html">Example Demands</a><br>
@@ -58,12 +67,16 @@ The function formatCell() is in the config.js file. The file config.js is alread
 <a href="example_sector_purchase_impacts.html">Example Sector Purchase Impacts</a><br>
 <a href="example_sector_scopes.html">Example Sector Scopes</a><br>
 <a href="example_sector_supply_impacts.html">Example Sector Supply Impacts</a><br>
-<a href="example_tabulator.html">Example Tabulator</a><br>
+<a href="example_tabulator.html">Example Tabulator</a> - <a href="/data-pipeline/research/economy/">New: US and All States</a><br>
 <a href="test.matrix-requests.js">Matrix Requests (js)</a><br>
 <a href="test.model-requests.js">Model Requests (js)</a><br>
 <br>
 
-Some of the above samples may only send json to the console.log, so view with your browser's inspector.
+Some of the above samples may only send json to the console.log, so view with your browser's inspector.<br><br>
+
+TO DO: Use formatCell() to make numbers simple. (42.2 Billion, etc.)<br>
+The function formatCell() is in the config.js file. The file config.js is already included in all the example pages.<br><br>
+
 </div>
 
 </body>

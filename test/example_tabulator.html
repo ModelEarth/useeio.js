@@ -28,6 +28,7 @@
       const indicator = (await model.indicators())
         .filter(i => i.code === 'JOBS')[0];
       const impacts = await model.matrix('D');
+
       const tableData = sectors.map(sector => {
         const output = q.get(sector.index, 0);
         const jobs = output * impacts.get(indicator.index, sector.index);
@@ -36,8 +37,9 @@
           output: Math.round(output),
           jobs: Math.round(jobs)
         };
+        // formatCell(input, format)
       });
-
+      
       var table = new Tabulator("#table", {
         height: 500,
         data: tableData,
