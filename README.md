@@ -32,9 +32,9 @@ This project contains a script for downloading a JSON dump of an USEEIO-API inst
 ```
 $ node scripts/dumpjson.js --endpoint {URL}
 ```
+Where `{URL}` is some API endpoint, like https://smmtool.app.cloud.gov/api.
 
-Where `{URL}` is some API endpoint, like https://smmtool.app.cloud.gov/api. You
-can then host the dump locally, e.g. via [htpp-server](https://www.npmjs.com/package/http-server):
+You can then host the dump locally, e.g. via [htpp-server](https://www.npmjs.com/package/http-server):
 
 
 ```bash
