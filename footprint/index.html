@@ -52,9 +52,12 @@
   }
 </style>
 
+
 <div class="content contentpadding">
 
 <h1>Open Footprint</h1>
+
+<div style="float:left; max-width:400px; margin-right:40px">
 
 <b>Label Samples</b><br>
 <a href="/io/template/">Open Footprint - Impact Template Footprint Builder</a><br>
@@ -81,6 +84,41 @@
 <br>
 
 Some of the above samples may only send json to the console.log, so view with your browser's inspector.<br><br>
+
+</div>
+
+
+
+<div style="overflow: auto;">
+<b>Possible SQL table names (<a href="https://model.earth/io/about/matrix/">details</a>)</b><br>
+A matrix - Sector_Sector<br>
+B matrix - Impact_Sector<br>
+C matrix - Characteristic_Impact<br>
+D matrix - ImpactDirect (need to figure out rows and columns)<br>
+q matrix - Commodity (need to figure out rows and columns)<br>
+L matrix - Leontief (need to figure out rows and columns)<br>
+M matrix - ImportsCommodity (need to figure out rows and columns)<br>
+N matrix - <br>
+U matrix - ImpactTotals (need to figure out rows and columns)<br>
+V matrix - Make (need to figure out rows and columns)<br>
+A_d - Sector_Sector_DataQuality<br>
+B_d - Impact_Sector_DataQuality<br>
+L_d - Leontief_DataQuality<br>
+M_d - ImportCommodity_DataQuality<br>
+N_d<br>
+phi - Phi<br>
+Rho - Rho<br>
+U_d - ImpactTotal_DataQuality<br>
+x matrix<br>
+sectors - Sector<br>
+flows - Flow<br>
+indicators - Indicator<br>
+demands - Demand<br>
+
+
+</div>
+<div style="clear:both"></div>
+<br>
 
 TO DO: Use formatCell() to make numbers simple. (42.2 Billion, etc.)<br>
 The function formatCell() is in the config.js file. The file config.js is already included in all the pages.<br><br>
