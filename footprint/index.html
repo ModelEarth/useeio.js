@@ -89,10 +89,15 @@ Some of the above samples may only send json to the console.log, so view with yo
 
 
 <div style="overflow: auto;">
+<!-- USEEIOR - standard for model objects -->
+<a href="https://github.com/USEPA/useeior/blob/master/format_specs/Model.md">USEEIOR model objects</a> could be <a href="https://duckdb.org/docs/api/r.html">sent to DuckDB</a>
+<br><br>
+
 <b>Possible SQL table names (<a href="https://model.earth/io/about/matrix/">details</a>)</b><br>
-A matrix - Sector_Sector<br>
-B matrix - Impact_Sector<br>
-C matrix - Characteristic_Impact<br>
+Sector - <a href="https://github.com/ModelEarth/OpenFootprint/blob/main/impacts/2020/sectorcrosswalk.csv">SectorCrosswalk</a> plus titles for year<br>
+Sector_Sector - A matrix<br>
+Impact_Sector - B matrix<br>
+Characteristic_Impact - C matrix<br>
 D matrix - ImpactDirect (need to figure out rows and columns)<br>
 q matrix - Commodity (need to figure out rows and columns)<br>
 L matrix - Leontief (need to figure out rows and columns)<br>
@@ -113,9 +118,6 @@ sectors - Sector<br>
 flows - Flow<br>
 indicators - Indicator<br>
 demands - Demand<br>
-
-<a href="https://github.com/USEPA/useeior/blob/master/format_specs/Model.md">USEEIOR - standard for model objects</a>
-
 </div>
 <div style="clear:both"></div>
 <br>
