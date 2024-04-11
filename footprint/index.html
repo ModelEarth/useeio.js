@@ -41,6 +41,9 @@
     mocha.run();
   </script>
   -->
+<script>
+loadMarkdown("tables.md", "tablesDiv", "_parent");
+</script>
 
 <style>
   a {
@@ -49,6 +52,14 @@
   }
   a:hover {
     text-decoration: underline;
+  }
+
+  td {
+    border: 1px solid #ccc;
+    padding:  5px;
+  }
+  th,td {
+    align: left;
   }
 </style>
 
@@ -94,30 +105,9 @@ Some of the above samples may only send json to the console.log, so view with yo
 <br><br>
 
 <b>Possible SQL table names (<a href="https://model.earth/io/about/matrix/">details</a>)</b><br>
-Sector - <a href="https://github.com/ModelEarth/OpenFootprint/blob/main/impacts/2020/sectorcrosswalk.csv">SectorCrosswalk</a> plus titles for year<br>
-Sector_Sector - A matrix<br>
-Impact_Sector - B matrix<br>
-Characteristic_Impact - C matrix<br>
-D matrix - ImpactDirect (need to figure out rows and columns)<br>
-q matrix - Commodity (need to figure out rows and columns)<br>
-L matrix - Leontief (need to figure out rows and columns)<br>
-M matrix - ImportsCommodity (need to figure out rows and columns)<br>
-N matrix - <br>
-U matrix - ImpactTotals (need to figure out rows and columns)<br>
-V matrix - Make (need to figure out rows and columns)<br>
-A_d - Sector_Sector_DataQuality<br>
-B_d - Impact_Sector_DataQuality<br>
-L_d - Leontief_DataQuality<br>
-M_d - ImportCommodity_DataQuality<br>
-N_d<br>
-phi - Phi<br>
-Rho - Rho<br>
-U_d - ImpactTotal_DataQuality<br>
-x matrix<br>
-sectors - Sector<br>
-flows - Flow<br>
-indicators - Indicator<br>
-demands - Demand<br>
+
+<div id="tablesDiv"></div>
+
 </div>
 <div style="clear:both"></div>
 <br>
