@@ -2,59 +2,65 @@
 <html>
 
 <head>
-  <meta charset='utf-8'>
-  <title>Tabulator Example</title>
-  <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset='utf-8'>
+<title>Tabulator Example</title>
+<link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <link href="https://unpkg.com/tabulator-tables@5.2.7/dist/css/tabulator.min.css" rel="stylesheet">
-  <script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.2.7/dist/js/tabulator.min.js"></script>
+<link href="https://unpkg.com/tabulator-tables@5.2.7/dist/css/tabulator.min.css" rel="stylesheet">
+<script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.2.7/dist/js/tabulator.min.js"></script>
+
+<script src="../dist/useeio.min.js"></script>
+
+<script type="text/javascript" src="/localsite/js/localsite.js?showheader=true&showsearch=true"></script>
+
+<script src="./config.js"></script>
+<script>
+
+async function main() {
+  // compute the table data
+  const q = await model.matrix('q');
+  const sectors = await model.sectors();
+  const indicator = (await model.indicators())
+    .filter(i => i.code === 'JOBS')[0];
+  const impacts = await model.matrix('D');
+
+  const tableData = sectors.map(sector => {
+    const output = q.get(sector.index, 0);
+    const jobs = output * impacts.get(indicator.index, sector.index);
+    return {
+      ...sector,
+      output: Math.round(output),
+      jobs: Math.round(jobs)
+    };
+    // formatCell(input, format)
+  });
   
-  <script src="../dist/useeio.min.js"></script>
+  var table = new Tabulator("#table", {
+    height: 500,
+    data: tableData,
+    layout: "fitColumns",
+    columns: [
+      { title: "Commodity", field: "name", width: "35%" },
+      { title: "Location", field: "location" },
+      { title: "Total commodity output", field: "output" },
+      { title: "Jobs", field: "jobs" },
+    ],
+  });
+}
+main();
+</script>
+
 </head>
 
 <body>
 
+<div class="contentpadding">
+  We also display from state .csv files <a href="http://localhost:8887/data-pipeline/research/economy/">pre-generated using python</a><br><br>
+
   <div id="table"></div>
+</div>
 
-  <script src="./config.js"></script>
-  <script>
-
-    async function main() {
-
-      // compute the table data
-      const q = await model.matrix('q');
-      const sectors = await model.sectors();
-      const indicator = (await model.indicators())
-        .filter(i => i.code === 'JOBS')[0];
-      const impacts = await model.matrix('D');
-
-      const tableData = sectors.map(sector => {
-        const output = q.get(sector.index, 0);
-        const jobs = output * impacts.get(indicator.index, sector.index);
-        return {
-          ...sector,
-          output: Math.round(output),
-          jobs: Math.round(jobs)
-        };
-        // formatCell(input, format)
-      });
-      
-      var table = new Tabulator("#table", {
-        height: 500,
-        data: tableData,
-        layout: "fitColumns",
-        columns: [
-          { title: "Commodity", field: "name", width: "35%" },
-          { title: "Location", field: "location" },
-          { title: "Total commodity output", field: "output" },
-          { title: "Jobs", field: "jobs" },
-        ],
-      });
-    }
-    main();
-
-  </script>
 
 </body>
 </html>
