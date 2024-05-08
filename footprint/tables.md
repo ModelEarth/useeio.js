@@ -4,7 +4,7 @@
 | Sector_Sector | A matrix |
 | Impact_Sector | B matrix |
 | Characteristic_Impact | C matrix |
-| ImpactDirect (need to figure out rows and columns) | D matrix  |
+| ImpactDirect (need to figure out rows and columns) | [D matrix](../charts/d3/chord-diagram/)  |
 | Commodity (need to figure out rows and columns) | q matrix |
 | Leontief (need to figure out rows and columns) | L matrix |
 | ImportsCommodity (need to figure out rows and columns) | M matrix |
