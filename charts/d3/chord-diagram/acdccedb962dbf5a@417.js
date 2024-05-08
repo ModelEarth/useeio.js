@@ -3,8 +3,8 @@ md`
 <a href="../../../footprint">Footprint</a> - <a href="../chord-diagram-original">View original chord</a>
 <h1>D Matrix</h1>
 TO DO: Add array with colors  
-TO DO: Add array with names pulled from a related matrix file  
-TO DO: Pull D matrix data directly from [Github URL](https://raw.githubusercontent.com/ModelEarth/OpenFootprint/main/impacts/2020/GAEEIOv1.0-s-20/matrix/D.json)  
+TO DO: Add array with names pulled from a [related matrix file](../../../footprint/)  
+TO DO: Pull D matrix data directly from [Github files](https://github.com/ModelEarth/OpenFootprint/tree/main/impacts/2020/GAEEIOv1.0-s-20/matrix) via [D Matrix raw URL](https://raw.githubusercontent.com/ModelEarth/OpenFootprint/main/impacts/2020/GAEEIOv1.0-s-20/matrix/D.json)  
 TO DO: Activate rollovers like [nivo.rocks/chord](https://nivo.rocks/chord/)
 `
 )}

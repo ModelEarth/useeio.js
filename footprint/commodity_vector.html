@@ -27,18 +27,26 @@
     monetary flows related to this vector.
   </p>
 
+  <div id="displayOutput"></div>
+
   <script src="./config.js"></script>
   <script>
     async function main() {
       const q = await model.matrix('q');
       const impacts = await useeio.CommodityVector.directImpactsOf(model, q);
-      console.log(impacts.length);
+      writeToDisplay("impacts.length " + impacts.length + "<br>");
       const upstreams = await useeio.CommodityVector.directRequirementsOf(model, q);
-      console.log(upstreams.length);
+      writeToDisplay("upstreams.length " + upstreams.length + "<br>");
       const downstreams = await useeio.CommodityVector.directDownstreamsOf(model, q);
-      console.log(downstreams.length);
+      writeToDisplay("downstreams.length " + downstreams.length + "<br>");
     }
     main();
+
+    // Function to write to #displayOutput div
+    function writeToDisplay(message) {
+      var displayOutput = document.getElementById("displayOutput");
+      displayOutput.innerHTML += message + "<br>";
+    }
 
   </script>
 
