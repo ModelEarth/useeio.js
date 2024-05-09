@@ -1,3 +1,5 @@
+Important: To avoid breaking Github Pages build, deleted "env" folder from original download.
+
 # Chord diagram
 
 https://observablehq.com/@d3/chord-diagram@417
