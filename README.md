@@ -9,7 +9,7 @@ View [Footprint Sample Links](footprint)
 `useeio.js` is not on `npmjs.org` yet but you can just install it from Github directly:
 
 ```
-$ npm install git+https://github.com/useeio.js/useeio.js.git
+$ npm install git+https://github.com/USEPA/useeio.js.git
 ```
 
 Alternatively, you can download and build it locally.
@@ -19,7 +19,7 @@ You can contribute to the javascript in our [footprint](footprint) folder withou
 
 ```bash
 $ cd {some folder}
-$ git clone https://github.com/useeio.js/useeio.js.git
+$ git clone https://github.com/USEPA/useeio.js.git
 $ cd useeio.js
 $ npm install
 $ npm run build
