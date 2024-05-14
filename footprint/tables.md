@@ -1,5 +1,6 @@
 | | |
 | ----------- | ----------- |
+| Flow (uses UUID) | [flows](https://github.com/USEPA/fedelemflowlist/blob/master/format%20specs/FlowList.md) |
 | Indicator (Includes simple unit) | [indicators](https://github.com/USEPA/useeior/blob/master/format_specs/Model.md#indicators) |
 | SectorCrosswalk (where are titles by year?) | <a href="https://github.com/ModelEarth/OpenFootprint/blob/main/impacts/2020/sectorcrosswalk.csv">SectorCrosswalk</a> |
 | Sector_SectorPerDollar | A matrix |
@@ -21,7 +22,6 @@
 | Sector_Year | Rho |
 | ImpactTotal_DataQuality | U_d |
 | X | x matrix |
-| Flow | flows |
 | Demand | demands |
 
 <br>Rho contains sector-specific currency deflation ratios that can be used to put results into another currency year.
