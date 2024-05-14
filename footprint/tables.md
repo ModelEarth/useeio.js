@@ -1,15 +1,16 @@
 | | |
 | ----------- | ----------- |
+| Indicator (Includes simple unit) | [indicators](https://github.com/USEPA/useeior/blob/master/format_specs/Model.md#indicators) |
 | SectorCrosswalk (where are titles by year?) | <a href="https://github.com/ModelEarth/OpenFootprint/blob/main/impacts/2020/sectorcrosswalk.csv">SectorCrosswalk</a> |
 | Sector_SectorPerDollar | A matrix |
-| Impact_Sector | B matrix |
+| Flow_Sector (Impact Sector) | B matrix |
 | Characteristic_Impact | C matrix |
-| ImpactDirect (need to figure out rows and columns) | [D matrix](../charts/d3/chord-diagram/)  |
-| Commodity (need to figure out rows and columns) | q matrix |
-| Leontief (need to figure out rows and columns) | L matrix |
-| ImportsCommodity (need to figure out rows and columns) | M matrix |
-| ImpactTotals (need to figure out rows and columns) | U matrix |
-| Make (need to figure out rows and columns) | V matrix |
+| Indicator_Sector (ImpactDirect) | [D matrix](../charts/d3/chord-diagram/)  |
+| Commodity | q matrix |
+| Sector_Sector (Leontief) | L matrix |
+| Flow_Sector (Imports Commodity) | M matrix |
+| CommodityValueAdded_IndustryFinalDemand (Impact Totals) | [U matrix](https://github.com/USEPA/useeior/blob/master/format_specs/Model.md#indicators) |
+| Industry_Commodity (Make) | V matrix |
 | Sector\_Sector\_DataQuality | A_d |
 | Impact\_Sector\_DataQuality | B_d |
 | Leontief_DataQuality | L_d |
@@ -21,7 +22,6 @@
 | ImpactTotal_DataQuality | U_d |
 | X | x matrix |
 | Flow | flows |
-| Indicator | indicators |
 | Demand | demands |
 
 <br>Rho contains sector-specific currency deflation ratios that can be used to put results into another currency year.
