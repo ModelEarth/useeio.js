@@ -17,9 +17,11 @@
 | ImportCommodity_DataQuality | M_d |
 | N_d |
 | Phi | phi |
-| Rho | Rho |
+| Rho - sector x year | Rho |
 | ImpactTotal_DataQuality | U_d |
 | X | x matrix |
 | Flow | flows |
 | Indicator | indicators |
 | Demand | demands |
+
+<br>Rho contains sector-specific currency deflation ratios that can be used to put results into another currency year.
