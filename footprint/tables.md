@@ -1,6 +1,6 @@
 | | |
 | ----------- | ----------- |
-| Sector (plus titles for year) | <a href="https://github.com/ModelEarth/OpenFootprint/blob/main/impacts/2020/sectorcrosswalk.csv">SectorCrosswalk</a> |
+| SectorCrosswalk (where are titles by year?) | <a href="https://github.com/ModelEarth/OpenFootprint/blob/main/impacts/2020/sectorcrosswalk.csv">SectorCrosswalk</a> |
 | Sector_SectorPerDollar | A matrix |
 | Impact_Sector | B matrix |
 | Characteristic_Impact | C matrix |
