@@ -14,7 +14,7 @@
 | Industry_Commodity (Make) | V matrix |
 | Sector\_Sector\_DataQuality | A_d |
 | Impact\_Sector\_DataQuality | B_d |
-| Leontief_DataQuality | L_d |
+| SectorSector_DataQuality | L_d |
 | ImportCommodity_DataQuality | M_d |
 | Impact | N matrix |
 | ImpactDomestic | N_d |
