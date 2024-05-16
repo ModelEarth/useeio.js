@@ -6,7 +6,7 @@
 | Sector_SectorPerDollar | A matrix |
 | Flow_Sector (Impact Sector) | B matrix |
 | Characteristic_Impact | C matrix |
-| Indicator_Sector (ImpactDirect) | [D matrix](../charts/d3/chord-diagram/)  |
+| Indicator_SectorDirect (ImpactDirect) | [D matrix](../charts/d3/chord-diagram/)  |
 | Commodity | q matrix |
 | Sector_Sector (Leontief) | L matrix |
 | Flow_Sector (Imports Commodity) | M matrix |
@@ -16,8 +16,8 @@
 | FlowSector\_DataQuality | B_d |
 | SectorSector_DataQuality | L_d |
 | ImportCommodity_DataQuality | M_d |
-| Impact | N matrix |
-| ImpactDomestic | N_d |
+| Indicator_SectorIndirect | N matrix |
+| IndicatorSectorIndirect_DataQuality | N_d |
 | Producer_Purchaser (price ratio) | Phi |
 | Sector_Year | Rho |
 | ImpactTotal_DataQuality | U_d |
