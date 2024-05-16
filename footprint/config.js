@@ -30,21 +30,32 @@ function formatCell(input, format) {
     }
 
     // Format as easy
-    if (input >= 1e9) {
+    if (input >= 1e12) {
+        // Round to billions
+        return (input / 1e12).toFixed(3) + ' Trillion';
+    } else if (input >= 1e9) {
         // Round to billions
         return (input / 1e9).toFixed(1) + ' Billion';
     } else if (input >= 1e6) {
         // Round to millions
         return (input / 1e6).toFixed(1) + ' Million';
-    } else if (input >= 1e3) {
+    } else if (input >= 1000) {
         // Round to thousands
-        return (input / 1e3).toFixed(1) + ' K';
-    } else if (input >= 1) {
-        // Round to one decimal
-        return input.toFixed(1);
+        return (input / 1000).toFixed(1) + ' K';
+    } else if (input >= 0) {
+        // Round to one decimal. Remove .0
+        return input.toFixed(1).replace(/\.0$/, '');
     } else if (input >= 0.0001) {
         // Round to one decimal
         return input.toFixed(4);
+    } else if (input >= -1000) {
+        return (input / 1e3).toFixed(1) + ' K';
+    } else if (input >= -1e9) {
+        // Round to -millions
+        return (input / 1e6).toFixed(1).replace(/\.0$/, '') + ' Million';
+    } else if (input >= -1e12) {
+        // Round to -billions
+        return (input / 1e9).toFixed(1).replace(/\.0$/, '') + ' Billion';
     } else {
         // Format with scientific notation with one digit after decimal
         return input.toExponential(1);

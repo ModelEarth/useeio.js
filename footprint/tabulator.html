@@ -19,11 +19,11 @@
 
 async function main() {
   // compute the table data
-  const q = await model.matrix('q');
+  const q = await model.matrix('q'); // Commodity
   const sectors = await model.sectors();
   const indicator = (await model.indicators())
     .filter(i => i.code === 'JOBS')[0];
-  const impacts = await model.matrix('D');
+  const impacts = await model.matrix('D'); // Indicator_Sector (like industries)
 
   const tableData = sectors.map(sector => {
     const output = q.get(sector.index, 0);
@@ -33,9 +33,15 @@ async function main() {
       output: Math.round(output),
       jobs: Math.round(jobs)
     };
-    // formatCell(input, format)
   });
   
+  //console.log(tableData);
+
+  tableData.forEach(item => { // For each object in array
+    item.jobsEasy = formatCell(item.jobs);
+    item.outputEasy = "$" + formatCell(item.output);
+  }); 
+
   var table = new Tabulator("#table", {
     height: 500,
     data: tableData,
@@ -43,8 +49,25 @@ async function main() {
     columns: [
       { title: "Commodity", field: "name", width: "35%" },
       { title: "Location", field: "location" },
-      { title: "Total commodity output", field: "output" },
-      { title: "Jobs", field: "jobs" },
+      { title: "Output", field: "output", visibleX: false }, // Total commodity output
+      { title: "Output", field: "outputEasy", sorter: function(a, b, aRow, bRow, column, dir, sorterParams) {
+              let aOutput = aRow.getData().output;
+              let bOutput = bRow.getData().output;
+              return aOutput - bOutput; // Sort based on the numeric `output` values
+          }
+      },
+
+      { title: "Jobs", field: "jobs", visibleX: false }, // Hidden column for sorting
+      {
+          title: "Jobs", field: "jobsEasy", sorter: function(a, b, aRow, bRow, column, dir, sorterParams) {
+              // a, b: the display values being compared (jobsEasy)
+              // aRow, bRow: the row components for the values being compared
+              // Access the hidden `jobs` values for sorting
+              let aJobs = aRow.getData().jobs;
+              let bJobs = bRow.getData().jobs;
+              return aJobs - bJobs; // Sort based on the numeric `jobs` values
+          }
+      }
     ],
   });
 }

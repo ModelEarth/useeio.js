@@ -12,8 +12,8 @@
 | Flow_Sector (Imports Commodity) | M matrix |
 | CommodityValueAdded_IndustryFinalDemand (Impact Totals) | [U matrix](https://github.com/USEPA/useeior/blob/master/format_specs/Model.md#indicators) |
 | Industry_Commodity (Make) | V matrix |
-| Sector\_Sector\_DataQuality | A_d |
-| Impact\_Sector\_DataQuality | B_d |
+| SectorSectorPerDollar \_DataQuality | A_d |
+| FlowSector\_DataQuality | B_d |
 | SectorSector_DataQuality | L_d |
 | ImportCommodity_DataQuality | M_d |
 | Impact | N matrix |
