@@ -8,21 +8,22 @@
 | Sector_SectorPerDollar | A matrix |
 | Flow_Sector (Impact Sector) | B matrix |
 | Characteristic_Impact | C matrix |
-| Indicator_SectorDirect (ImpactDirect) | [D matrix](../charts/d3/chord-diagram/)  |
+| Indicator_SectorDirect | [D matrix](../charts/d3/chord-diagram/)  |
 | Commodity | q matrix |
 | Sector_Sector (Leontief) | L matrix |
 | Flow_Sector (Imports Commodity) | M matrix |
-| Commodity_Industry<br>Value Added to FinalDemand (Impact Totals) | [U matrix](https://github.com/USEPA/useeior/blob/master/format_specs/Model.md#indicators) |
+| Indicator_SectorIndirect (Impact Totals) | N matrix |
+| Commodity_Industry<br>Value Added to FinalDemand | [U matrix](https://github.com/USEPA/useeior/blob/master/format_specs/Model.md#indicators) |
 | Industry_Commodity (Make) | V matrix |
+| Industry (total output) | x matrix |
 | SectorSectorPerDollar \_DataQuality | A_d |
 | FlowSector\_DataQuality | B_d |
 | SectorSector_DataQuality | L_d |
 | ImportCommodity_DataQuality | M_d |
-| Indicator_SectorIndirect | N matrix |
 | IndicatorSectorIndirect_DataQuality | N_d |
 | Producer_Purchaser (price ratio) | Phi |
 | Sector_Year | Rho |
-| ImpactTotal_DataQuality | U_d |
-| Industry (total output) | x matrix |
+| CommodityIndustry_DataQuality | U_d |
+
 
 <br>Rho contains sector-specific currency deflation ratios that can be used to put results into another currency year.
