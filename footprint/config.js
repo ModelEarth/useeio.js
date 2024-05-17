@@ -68,3 +68,43 @@ console.log(formatCell(9500000, 'easy'));     // Output: "9.5 Million"
 console.log(formatCell(50000, 'easy'));       // Output: "50.0 K"
 console.log(formatCell(99.99, 'easy') + " - BUG, let's avoid adding .0 when rounding");        // Output: "100.0" - 
 console.log(formatCell(0.0005, 'easy'));      // Output: "5.0e-4"
+
+// NOT USED - Will probably delete. Tabulator Intl.NumberFormat used instead.
+function formatNum(numberString, locale = navigator.language) {
+    if (typeof numberString !== 'string') {
+        numberString = String(numberString);
+    }
+    // Remove existing formatNum or periods
+    let cleanString = numberString.replace(/[,.]/g, '');
+    
+    // Check if the cleaned string is a valid number
+    if (isNaN(cleanString)) {
+        return numberString; // Return the original string if it's not a valid number
+    }
+    // Check if the locale is valid; default to 'en-US' if not
+    if (!locale || typeof locale !== 'string' || !Intl.NumberFormat.supportedLocalesOf([locale]).length) {
+        locale = 'en-US';
+    }
+    // Convert to a number
+    let number = parseFloat(cleanString);
+    
+    // Format the number based on the locale
+    return number.toLocaleString(locale);
+}
+/*
+// US standard (default)
+console.log(formatNum("1234567.89")); // Output: "1,234,567.89"
+
+// German standard
+console.log(formatNum("1234567,89", 'de-DE')); // Output: "1.234.567,89"
+
+// French standard
+console.log(formatNum("1234567.89", 'fr-FR')); // Output: "1 234 567,89"
+
+// Invalid number string remains unchanged
+console.log(formatNum("12a34567.89")); // Output: "12a34567.89"
+
+// Number with existing formatNum/periods
+console.log(formatNum("1,234,567.89", 'en-US')); // Output: "1,234,567.89"
+console.log(formatNum("1.234.567,89", 'de-DE')); // Output: "1.234.567,89"
+*/
