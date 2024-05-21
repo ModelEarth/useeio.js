@@ -16,7 +16,7 @@
 | Commodity_Industry<br>Value Added to FinalDemand | [U matrix](https://github.com/USEPA/useeior/blob/master/format_specs/Model.md#indicators) |
 | Industry_Commodity (Make) | V matrix |
 | Industry (total output) | x matrix |
-| SectorSectorPerDollar \_DataQuality | A_d |
+| SectorSectorPerDollar\_DataQuality | A_d |
 | FlowSector\_DataQuality | B_d |
 | SectorSector_DataQuality | L_d |
 | ImportCommodity_DataQuality | M_d |
