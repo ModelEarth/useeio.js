@@ -1,6 +1,8 @@
 # SQL Tables
 
-Row totals below are for the six .csv files in our [US-2020-17schema](https://github.com/ModelEarth/OpenFootprint/tree/main/impacts/exiobase/US/2020).
+Row totals below are for the 6 .csv files in the [US-2020-17schema](https://github.com/ModelEarth/OpenFootprint/tree/main/impacts/exiobase/US/2020) which merges 2020 Exiobase trade data and US BEA.<!--
+	<a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio/output">Exiobase+BEA output for 2019</a>.
+-->
 
 We'll exclude the Year columns.
 Commodity refers to the 6-character detail sectors.
