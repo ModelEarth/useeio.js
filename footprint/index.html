@@ -43,6 +43,7 @@
   -->
 <script>
 loadMarkdown("tables.md", "tablesDiv", "_parent");
+loadMarkdown("schema.md", "schemaDiv", "_parent");
 loadMarkdown("README.md", "readmeDiv", "_parent");
 </script>
 
@@ -109,6 +110,9 @@ We <a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_fact
 
 Some of the above samples may only send json to the console.log, so view with your browser's inspector.<br><br>
 
+TO DO: Add the function se formatCell() in the config.js file to make numbers simple. (42.2 Billion, etc.)<br> The file config.js is already included in all the pages above.
+<br><br>
+
 </div>
 
 
@@ -128,11 +132,7 @@ An underscore separates the row and column names.<br>
 <div style="clear:both"></div>
 <br>
 
-TO DO: Use formatCell() to make numbers simple. (42.2 Billion, etc.)<br>
-The function formatCell() is in the config.js file. The file config.js is already included in all the pages.
-</div>
-
-<div class="content contentpadding">
+<div id="schemaDiv"></div>
 <div id="readmeDiv"></div>
 </div>
 
