@@ -1,5 +1,9 @@
 # SQL Tables
 
+Database name: **US-2020-17schema** (Which indictes the 2017 schema.)
+
+TO DO: Also create partial databases for other countries with additional downloads from exiobase. (Added a parameter output="notUS" oassed to <a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio">ran exiobase_downloads.py</a> to omit the US-specific BEA data.)
+
 Row totals below are for the 6 .csv files in the [US-2020-17schema](https://github.com/ModelEarth/OpenFootprint/tree/main/impacts/exiobase/US/2020) which merges 2020 Exiobase trade data and US BEA.<!--
 	<a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio/output">Exiobase+BEA output for 2019</a>.
 -->
@@ -42,7 +46,7 @@ Source: US_summary_import_factors_exio_2020_17sch (220 rows)
 CommodityID, FlowUUID, FlowAmount
 Source: US_detail_import_factors_exio_2020_17sch (1490 rows)
 
-**ImportUS** (5-char and fewer sector ID)
+**ImportSectorUS** (5-char and fewer sector ID)
 CountryCode (Region), SectorID, FlowUUID, FlowAmount
 Source: Regional_summary_import_factors_exio_2020_17sch (1515 rows)
 
@@ -55,5 +59,6 @@ CountryCode, CommodityID (BEA Detail), ImportQuantity, ContributionImportSector,
 Omit: Country, Region, Unit, Source, BEA Summary
 Source: country_contributions_by_sector (61675 rows)
 
-**ImportCommodityMultiplierUS** (6-char sector ID)
+**ImportMultiplierUS** (6-char sector ID)
+<!-- If we ever have a 5-char sector multiplier, the 5-char table will be ImportSectorMultiplierUS -->
 CountryCode, CommodityID, FlowUUID, Footprint (EF cryptically stands for Environmental Footprint)
