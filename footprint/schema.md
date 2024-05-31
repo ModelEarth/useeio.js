@@ -105,7 +105,7 @@ ImportContributionsUS:
   source: countrycontributionsby_sector.csv
   columns:
     CountryCode: CountryCode
-    CommodityID: CommodityID (BEA Detail)
+    CommodityID: "BEA Detail"
     ImportQuantity: ImportQuantity
     ContributionImportSector: ContributionImportSector
     ContributionImportCommodity: ContributionImportCommodity
