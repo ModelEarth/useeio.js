@@ -62,3 +62,4 @@ Source: country_contributions_by_sector (61675 rows)
 **ImportMultiplierUS** (6-char sector ID)
 <!-- If we ever have a 5-char sector multiplier, the 5-char table will be ImportSectorMultiplierUS -->
 CountryCode, CommodityID, FlowUUID, Footprint (EF cryptically stands for Environmental Footprint)
+Source: multiplier_df_exio_2020_17sch
