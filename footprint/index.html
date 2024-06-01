@@ -44,6 +44,7 @@
 <script>
 loadMarkdown("tables.md", "tablesDiv", "_parent");
 loadMarkdown("schema.md", "schemaDiv", "_parent");
+loadText("../../OpenFootprint/impacts/exiobase/US-source/create-database.yaml", "yamlDiv", "_parent");
 loadMarkdown("README.md", "readmeDiv", "_parent");
 </script>
 
@@ -117,7 +118,6 @@ TO DO: Create a toggle to move between the simple number display, full numbers a
 TO DO: Use <a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio">generate_import_factors.py</a> to run 2012 to 2016. Try with 2017 schema, and compare to 2012 schema to see if the older data needs it for the sector/commodity names.<br><br> 
 
 TO DO: Pull SQL into our <a href="../../OpenFootprint/trade/">trade flow map</a>. Here's another <a href="https://github.com/ModelEarth/trademapper-js">trade flow map</a> we can expand. It's visible at <a href="https://trademapper.co.uk">trademapper.co.uk</a> with sample data in their <a href="https://github.com/trademapper/trademapper-js/wiki/How-to-use-trademapper">GitHub Wiki</a>.
-<br><br>
 
 </div>
 
@@ -135,6 +135,7 @@ An underscore separates the row and column names.<br>
 <div id="tablesDiv"></div>
 
 </div>
+
 <div style="clear:both"></div>
 <br>
 
@@ -142,8 +143,87 @@ An underscore separates the row and column names.<br>
 #schemaDiv strong {
   font-size: 16px;
 }
+.yamlPre {
+  background-color: #eee;
+  padding: 20px;
+  overflow-y: scroll;
+}
+.dark .yamlPre {
+  background-color: #222;
+}
 </style>
-<div id="schemaDiv"></div><br>
+<div id="schemaDiv"></div>
+
+Integrate Python from <a href="https://chatgpt.com/share/3a89cc73-c839-4592-bc6e-e82a6a8e400b">From ChatGPT</a> - Python also resides in a hidden comment.<br><br>
+
+The following YAML for the SQL insert resides at OpenFootprint/impacts/exibase/US-source/create-database.yaml
+<!--
+import yaml
+import pandas as pd
+import sqlalchemy
+from sqlalchemy import create_engine, Table, MetaData
+
+# Load the YAML file
+with open('create-database.yaml', 'r') as file:
+    config = yaml.safe_load(file)
+
+# Create SQL Alchemy Engine
+engine = create_engine('sqlite:///example.db')
+metadata = MetaData()
+
+# Function to convert column names to CamelCase without underscores
+def to_camel_case(snake_str):
+    components = snake_str.split('_')
+    return components[0].capitalize() + ''.join(x.title() for x in components[1:])
+
+# Process each table in the YAML configuration
+for table_name, table_config in config.items():
+    csv_file = table_config['source']
+    df = pd.read_csv(csv_file)
+
+    columns_map = table_config.get('columns', {})
+    omit_columns = table_config.get('omit', [])
+
+    # Drop omitted columns
+    df.drop(columns=omit_columns, errors='ignore', inplace=True)
+
+    # Rename columns as per the YAML configuration
+    df.rename(columns=columns_map, inplace=True)
+
+    # Generate new column names for remaining columns
+    new_columns = {}
+    for col in df.columns:
+        if col not in columns_map.values():
+            new_columns[col] = to_camel_case(col)
+    df.rename(columns=new_columns, inplace=True)
+
+    # Exclude 'Year' column if not explicitly included in columns_map
+    if 'Year' not in columns_map.values() and 'Year' in df.columns:
+        df.drop(columns=['Year'], inplace=True)
+
+    # Append "US" to the table name
+    table_name = table_name + "US"
+
+    # Insert/Update the data into the database
+    if engine.dialect.has_table(engine, table_name):
+        # Update existing table
+        temp_table_name = table_name + "_temp"
+        df.to_sql(temp_table_name, engine, if_exists='replace', index=False)
+        with engine.connect() as conn:
+            conn.execute(f"""
+                INSERT OR REPLACE INTO {table_name}
+                SELECT * FROM {temp_table_name}
+            """)
+            conn.execute(f"DROP TABLE {temp_table_name}")
+    else:
+        # Create and insert new table
+        df.to_sql(table_name, engine, if_exists='replace', index=False)
+-->
+
+<pre class="yamlPre">
+<div id="yamlDiv"></div>
+</pre>
+
 <div id="readmeDiv"></div>
 </div>
 
