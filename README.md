@@ -34,7 +34,7 @@ $ node scripts/dumpjson.js --endpoint {URL}
 ```
 Where `{URL}` is some API endpoint, like https://smmtool.app.cloud.gov/api.
 
-You can then host the dump locally, e.g. via [htpp-server](https://www.npmjs.com/package/http-server):
+You can then host the dump locally, e.g. via [http-server](https://www.npmjs.com/package/http-server):
 
 
 ```bash
