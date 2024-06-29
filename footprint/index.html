@@ -70,19 +70,20 @@ loadMarkdown("README.md", "readmeDiv", "_parent");
 <div class="content contentpadding">
 
 <a href="/OpenFootprint">Open Data Panels</a><br>
-<h1>US EPA Data + Exiobase</h1>
+<h1>International Trade</h1>
 
-IN PROGRESS - Sahil, Himanshu and Sridevi are sending data to <a href="https://duckdb.org/docs/api/r.html">DuckDB</a> and <a href="https://supabase.com">Supabase</a> for Countries, States and the Earth.<br><br>
+Our SQL Team is sending data to <a href="https://duckdb.org/docs/api/r.html">DuckDB</a> and <a href="https://supabase.com">Supabase</a> for Countries, States and the Earth.<br><br>
 
-<a href="https://colab.research.google.com/drive/1Wm9Bvi9pC66xNtxKHfaJEeIYuXKpb1TA?usp=sharing">Create DuckDB CoLab</a><br>
-<a href="https://colab.research.google.com/drive/1qWgO_UjeoYYB3ZSzT3QdXSfVZb7j09_S?usp=sharing">Create Supabase Colab</a> - Backup create-supabase-bkup.ipynb<br>
+<b>Exiobase + US Bureau of Economic Analysis (BEA) data</b><br>
+<a href="https://colab.research.google.com/drive/1qWgO_UjeoYYB3ZSzT3QdXSfVZb7j09_S?usp=sharing">Generate Supabase Exiobase (Colab)</a> - <a href="https://github.com/ModelEarth/OpenFootprint/tree/main/impacts/exiobase/US-source">Bkup</a><br>
+<a href="https://colab.research.google.com/drive/1Wm9Bvi9pC66xNtxKHfaJEeIYuXKpb1TA?usp=sharing">Generate DuckDB Exiobase (CoLab) - <a href="https://github.com/ModelEarth/OpenFootprint/tree/main/impacts/exiobase/US-source">Bkup</a><br>
 
 <a href="/requests/products/">Harmonized System (HS) codes</a> - Lookups for NAICS-to-International - <a href="https://colab.research.google.com/drive/1etpn1no8JgeUxwLr_5dBFEbt8sq5wd4v?usp=sharing">Our HS CoLab</a><br><br>
 
-Our upcoming <a href="/OpenFootprint/impacts/">Vanilla JavaScript DuckDB Starter</a><br>
+Sample of <a href="/OpenFootprint/impacts/">JavaScript joining DuckDB Parquet tables</a><br>
 <a href="https://model.earth/storm/impact/process.html">SQL Documentation Sample - Storm Tweet Data</a><br><br>
 
-We <a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio">generate_import_factors.py</a> which combines US BEA and <a href="https://exiobase.eu">EXIOBASE</a> data emissions factors for annual trade data. Exiobase provides the equivalent to <a href="https://github.com/USEPA/useeior/blob/master/format_specs/Model.md">M, N, and x</a> which is used in USEEIO models for import emissions factors. Exiobase also provides gross trade data which has no equivalent in USEEIO. Checkout our upcoming SQL Table structure below.<br><br>
+We run <a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio">generate_import_factors.py</a> to combines US BEA and <a href="https://exiobase.eu">EXIOBASE</a> data emissions factors for annual trade data. Exiobase provides the equivalent to <a href="https://github.com/USEPA/useeior/blob/master/format_specs/Model.md">M, N, and x</a> which is used in USEEIO models for import emissions factors. Exiobase also provides gross trade data which has no equivalent in USEEIO.<br><br>
 
 <div style="float:left; max-width:400px; margin-right:40px">
 
