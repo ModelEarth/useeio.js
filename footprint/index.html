@@ -42,7 +42,6 @@
   </script>
   -->
 <script>
-loadMarkdown("tables.md", "tablesDiv", "_parent");
 loadMarkdown("schema.md", "schemaDiv", "_parent");
 loadText("../../OpenFootprint/impacts/exiobase/US-source/create-database.yaml", "yamlDiv", "_parent");
 loadMarkdown("README.md", "readmeDiv", "_parent");
@@ -104,12 +103,14 @@ Our SQL Team is sending data to <a href="https://supabase.com">Supabase</a> and 
 <a href="https://colab.research.google.com/drive/1qWgO_UjeoYYB3ZSzT3QdXSfVZb7j09_S?usp=sharing">Generate Supabase Exiobase (Colab)</a> - <a href="https://github.com/ModelEarth/OpenFootprint/tree/main/impacts/exiobase/US-source">Bkup</a><br>
 <a href="https://colab.research.google.com/drive/1Wm9Bvi9pC66xNtxKHfaJEeIYuXKpb1TA?usp=sharing">Generate DuckDB Exiobase (CoLab) - <a href="https://github.com/ModelEarth/OpenFootprint/tree/main/impacts/exiobase/US-source">Bkup</a><br>
 
-<a href="/requests/products/">Harmonized System (HS) codes</a> - Lookups for NAICS-to-International - <a href="https://colab.research.google.com/drive/1etpn1no8JgeUxwLr_5dBFEbt8sq5wd4v?usp=sharing">Our HS CoLab</a><br><br>
+<a href="/requests/products/">Harmonized System (HS) codes</a> - Lookups for NAICS-to-International - <a href="https://colab.research.google.com/drive/1etpn1no8JgeUxwLr_5dBFEbt8sq5wd4v?usp=sharing">Our HS CoLab</a><br>
+<a href="/io/about/">SQL for USEEIO state models</a><br><br>
 
 Sample of <a href="/OpenFootprint/impacts/">JavaScript joining DuckDB Parquet tables</a><br>
 <a href="https://model.earth/storm/impact/process.html">SQL Documentation Sample - Storm Tweet Data</a><br><br>
 
 We run <a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio">generate_import_factors.py</a> to combines US BEA and <a href="https://exiobase.eu">EXIOBASE</a> data emissions factors for annual trade data. Exiobase provides the equivalent to <a href="https://github.com/USEPA/useeior/blob/master/format_specs/Model.md">M, N, and x</a> which is used in <a href="/io/about/">USEEIO models</a> for import emissions factors. Exiobase also provides gross trade data which has no equivalent in USEEIO.<br><br>
+
 
 <div style="float:left; max-width:400px; margin-right:40px">
 
@@ -149,16 +150,7 @@ TO DO: Pull SQL into our <a href="../../OpenFootprint/trade/">trade flow map</a>
 
 
 <div style="overflow: auto;">
-<!-- USEEIOR - standard for model objects -->
 
-<b>SQL table names</b> - visualized within our <a href="https://model.earth/io/about/matrix/">Matrix Details</a><br>
-<a href="https://github.com/USEPA/useeior/blob/master/format_specs/Model.md">USEEIOR model objects</a>
-<br><br>
-
-An underscore separates the row and column names.<br>
-<a href="/OpenFootprint/impacts/2020/">View 2020 Data</a> (json pulled from API)<br><br>
-
-<div id="tablesDiv"></div>
 
 </div>
 
