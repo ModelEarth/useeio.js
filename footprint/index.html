@@ -64,17 +64,35 @@ loadMarkdown("README.md", "readmeDiv", "_parent");
   th,td {
     align: left;
   }
+  #floatRightID {
+    min-width: 220px;
+    border-left: 1px solid #ccc;
+    padding-left: 30px;
+  }
 </style>
 
 
 <div class="content contentpadding">
 
 <a href="/OpenFootprint">Open Data Panels</a><br>
+
+<div id="floatRightID" class="floatRight">
+  <b>Chart Starters</b><br>
+
+  <a href="../../OpenFootprint/trade/">Trade Flow Map</a><br>
+  <a href="../charts/d3/chord-diagram/">Chord (D3)</a><br><!-- https://nivo.rocks/chord/ -->
+  <a href="../charts/echarts/sankey-nodeAlign-left.html">Sankey (eCharts)</a><br><br>
+
+  <b>Label Samples</b><br>
+  <a href="/io/template/">Footprint Builder</a><br>
+  <a href="/data-commons/docs/food/">Food Nutrition Label</a><br>
+</div>
+
 <h1>International Trade</h1>
 
-Our SQL Team is sending data to <a href="https://duckdb.org/docs/api/r.html">DuckDB</a> and <a href="https://supabase.com">Supabase</a> for Countries, States and the Earth.<br><br>
+Our SQL Team is sending data to <a href="https://supabase.com">Supabase</a> and <a href="https://duckdb.org/docs/api/r.html">DuckDB</a> for Countries, States and the Earth.<br><br>
 
-<b>Exiobase + US Bureau of Economic Analysis (BEA) data</b><br>
+<b>US Bureau of Economic Analysis (BEA) + Exiobase International Trade Data</b><br>
 <a href="https://colab.research.google.com/drive/1qWgO_UjeoYYB3ZSzT3QdXSfVZb7j09_S?usp=sharing">Generate Supabase Exiobase (Colab)</a> - <a href="https://github.com/ModelEarth/OpenFootprint/tree/main/impacts/exiobase/US-source">Bkup</a><br>
 <a href="https://colab.research.google.com/drive/1Wm9Bvi9pC66xNtxKHfaJEeIYuXKpb1TA?usp=sharing">Generate DuckDB Exiobase (CoLab) - <a href="https://github.com/ModelEarth/OpenFootprint/tree/main/impacts/exiobase/US-source">Bkup</a><br>
 
@@ -83,22 +101,12 @@ Our SQL Team is sending data to <a href="https://duckdb.org/docs/api/r.html">Duc
 Sample of <a href="/OpenFootprint/impacts/">JavaScript joining DuckDB Parquet tables</a><br>
 <a href="https://model.earth/storm/impact/process.html">SQL Documentation Sample - Storm Tweet Data</a><br><br>
 
-We run <a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio">generate_import_factors.py</a> to combines US BEA and <a href="https://exiobase.eu">EXIOBASE</a> data emissions factors for annual trade data. Exiobase provides the equivalent to <a href="https://github.com/USEPA/useeior/blob/master/format_specs/Model.md">M, N, and x</a> which is used in USEEIO models for import emissions factors. Exiobase also provides gross trade data which has no equivalent in USEEIO.<br><br>
+We run <a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio">generate_import_factors.py</a> to combines US BEA and <a href="https://exiobase.eu">EXIOBASE</a> data emissions factors for annual trade data. Exiobase provides the equivalent to <a href="https://github.com/USEPA/useeior/blob/master/format_specs/Model.md">M, N, and x</a> which is used in <a href="/io/about/">USEEIO models</a> for import emissions factors. Exiobase also provides gross trade data which has no equivalent in USEEIO.<br><br>
 
 <div style="float:left; max-width:400px; margin-right:40px">
 
 <a href="https://github.com/modelearth/useeio.js">USEEIO.js GitHub Repo</a> and 
 <a href="https://smmtool.app.cloud.gov/">API</a><br><br>
-
-<b>Chart Starters</b><br>
-
-<a href="../../OpenFootprint/trade/">Trade Flow Map</a><br>
-<a href="../charts/d3/chord-diagram/">Chord (D3)</a><br><!-- https://nivo.rocks/chord/ -->
-<a href="../charts/echarts/sankey-nodeAlign-left.html">Sankey (eCharts)</a><br><br>
-
-<b>Label Samples</b><br>
-<a href="/io/template/">Footprint Builder</a><br>
-<a href="/OpenFootprint/">Open Footprint Data</a><br><br>
 
 <b>Environmentally Extended Input-Output (EEIO)</b><br>
 
