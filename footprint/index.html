@@ -108,7 +108,10 @@ loadMarkdown("README.md", "readmeDiv", "_parent");
 <b>US Bureau of Economic Analysis (BEA) + Exiobase International Trade Data</b><br>
 Our SQL Team is sending data to <a href="https://supabase.com">Supabase</a> and <a href="https://duckdb.org/docs/api/r.html">DuckDB</a> for Countries, States and the Earth.<br><br>
 
-<b>Development</b><br>
+We first gnerate CSV files by running <a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio">generate_import_factors.py</a> to combines US BEA and <a href="https://exiobase.eu">EXIOBASE</a> data emissions factors for annual trade data. Exiobase provides the equivalent to <a href="https://github.com/USEPA/useeior/blob/master/format_specs/Model.md">M, N, and x</a> which is used in the <a href="/io/about/">USEEIO models</a> for import emissions factors. Exiobase also provides gross trade data which has no equivalent in USEEIO.<br><br>
+
+<b>Pulling data into state SQL databases</b><br>
+For easy comprehension by elementary school students<br>
 <a href="/OpenFootprint/prep/sql/supabase">Supabase Data Loader notes</a><br>
 <a href="/OpenFootprint/prep/">DuckDB notes (and older Supabase notes)</a><br>
 <a href="/requests/products/">Harmonized System (HS) codes</a> - <a href="https://colab.research.google.com/drive/1etpn1no8JgeUxwLr_5dBFEbt8sq5wd4v?usp=sharing">Our HS CoLab</a><br>
@@ -119,21 +122,12 @@ Our SQL Team is sending data to <a href="https://supabase.com">Supabase</a> and 
 <a href="https://colab.research.google.com/drive/1qWgO_UjeoYYB3ZSzT3QdXSfVZb7j09_S?usp=sharing">Generate Supabase Exiobase (Colab)</a> - <a href="https://github.com/ModelEarth/OpenFootprint/tree/main/impacts/exiobase/US-source">Bkup</a><br>
 <a href="https://colab.research.google.com/drive/1Wm9Bvi9pC66xNtxKHfaJEeIYuXKpb1TA?usp=sharing">Generate DuckDB Exiobase (CoLab) - <a href="https://github.com/ModelEarth/OpenFootprint/tree/main/impacts/exiobase/US-source">Bkup</a><br><br>
 
-<b>State Models</b><br>
-<a href="/io/about/">USEEIO state models</a><br>
-<a href="https://colab.research.google.com/drive/1CYKNTnLiZ_PbP5WS_dMVtYyYDIAFwzq8?usp=sharing" target="useeio_colab">Generate Supabase USEEIO (CoLab)</a> (Upcoming)<br><br>
+<b>State Models - US Environmentally Extended Input-Output</b> (US EEIO)<br>
+<a href="/io/about/">USEEIO state models</a> - Upcoming SQL tables<br>
+<a href="https://colab.research.google.com/drive/1CYKNTnLiZ_PbP5WS_dMVtYyYDIAFwzq8?usp=sharing" target="useeio_colab">Generate Supabase USEEIO (CoLab)</a> - Upcoming python to migrate from matrix to SQL tables<br>
+<a href="/data-pipeline/research/economy/">Commodities for US and All 50 States (uses python to pull from matrix files)</a> - <a href="https://github.com/ModelEarth/OpenFootprint/tree/main/impacts/2020">2020 Data Source</a><br><br>
 
 
-We run <a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio">generate_import_factors.py</a> to combines US BEA and <a href="https://exiobase.eu">EXIOBASE</a> data emissions factors for annual trade data. Exiobase provides the equivalent to <a href="https://github.com/USEPA/useeior/blob/master/format_specs/Model.md">M, N, and x</a> which is used in the <a href="/io/about/">USEEIO models</a> for import emissions factors. Exiobase also provides gross trade data which has no equivalent in USEEIO.<br><br>
-
-
-<div style="float:left; max-width:400px; margin-right:40px">
-
-<b>Environmentally Extended Input-Output (EEIO)</b><br>
-
-<a href="/data-pipeline/research/economy/">US and All 50 States</a> - <a href="https://github.com/ModelEarth/OpenFootprint/tree/main/impacts/2020">Data Source</a><br><br>
-
-</div>
 
 
 <div style="clear:both"></div>
