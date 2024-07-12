@@ -96,19 +96,24 @@ loadMarkdown("README.md", "readmeDiv", "_parent");
 </div>
 
 <h1>International Trade</h1>
-
-Our SQL Team is sending data to <a href="https://supabase.com">Supabase</a> and <a href="https://duckdb.org/docs/api/r.html">DuckDB</a> for Countries, States and the Earth.<br>
-<a href="/OpenFootprint/prep/">Our Supabase/DuckDB notes</a><br><br>
-
 <b>US Bureau of Economic Analysis (BEA) + Exiobase International Trade Data</b><br>
-<a href="https://colab.research.google.com/drive/1qWgO_UjeoYYB3ZSzT3QdXSfVZb7j09_S?usp=sharing">Generate Supabase Exiobase (Colab)</a> - <a href="https://github.com/ModelEarth/OpenFootprint/tree/main/impacts/exiobase/US-source">Bkup</a><br>
-<a href="https://colab.research.google.com/drive/1Wm9Bvi9pC66xNtxKHfaJEeIYuXKpb1TA?usp=sharing">Generate DuckDB Exiobase (CoLab) - <a href="https://github.com/ModelEarth/OpenFootprint/tree/main/impacts/exiobase/US-source">Bkup</a><br>
+Our SQL Team is sending data to <a href="https://supabase.com">Supabase</a> and <a href="https://duckdb.org/docs/api/r.html">DuckDB</a> for Countries, States and the Earth.<br><br>
 
-<a href="/requests/products/">Harmonized System (HS) codes</a> - Lookups for NAICS-to-International - <a href="https://colab.research.google.com/drive/1etpn1no8JgeUxwLr_5dBFEbt8sq5wd4v?usp=sharing">Our HS CoLab</a><br>
-<a href="/io/about/">SQL for USEEIO state models</a> - <a href="https://colab.research.google.com/drive/1CYKNTnLiZ_PbP5WS_dMVtYyYDIAFwzq8?usp=sharing" target="useeio_colab">Generate Supabase USEEIO (CoLab)</a><br><br>
-
-Sample of <a href="/OpenFootprint/impacts/">JavaScript joining DuckDB Parquet tables</a><br>
+<b>Development</b><br>
+<a href="/OpenFootprint/prep/sql/supabase">Supabase Data Loader notes</a><br>
+<a href="/OpenFootprint/prep/">DuckDB notes (and older Supabase notes)</a><br>
+<a href="/requests/products/">Harmonized System (HS) codes</a> - <a href="https://colab.research.google.com/drive/1etpn1no8JgeUxwLr_5dBFEbt8sq5wd4v?usp=sharing">Our HS CoLab</a><br>
+<a href="/OpenFootprint/impacts/">Sample of JavaScript joining DuckDB Parquet tables</a><br>
 <a href="https://model.earth/storm/impact/process.html">SQL Documentation Sample - Storm Tweet Data</a><br><br>
+
+<b>Python to pull CSV files into SQL</b><br>
+<a href="https://colab.research.google.com/drive/1qWgO_UjeoYYB3ZSzT3QdXSfVZb7j09_S?usp=sharing">Generate Supabase Exiobase (Colab)</a> - <a href="https://github.com/ModelEarth/OpenFootprint/tree/main/impacts/exiobase/US-source">Bkup</a><br>
+<a href="https://colab.research.google.com/drive/1Wm9Bvi9pC66xNtxKHfaJEeIYuXKpb1TA?usp=sharing">Generate DuckDB Exiobase (CoLab) - <a href="https://github.com/ModelEarth/OpenFootprint/tree/main/impacts/exiobase/US-source">Bkup</a><br><br>
+
+<b>State Models</b><br>
+<a href="/io/about/">USEEIO state models</a><br>
+<a href="https://colab.research.google.com/drive/1CYKNTnLiZ_PbP5WS_dMVtYyYDIAFwzq8?usp=sharing" target="useeio_colab">Generate Supabase USEEIO (CoLab)</a> (Upcoming)<br><br>
+
 
 We run <a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio">generate_import_factors.py</a> to combines US BEA and <a href="https://exiobase.eu">EXIOBASE</a> data emissions factors for annual trade data. Exiobase provides the equivalent to <a href="https://github.com/USEPA/useeior/blob/master/format_specs/Model.md">M, N, and x</a> which is used in <a href="/io/about/">USEEIO models</a> for import emissions factors. Exiobase also provides gross trade data which has no equivalent in USEEIO.<br><br>
 
@@ -122,41 +127,10 @@ We run <a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_
 
 <a href="/data-pipeline/research/economy/">US and All 50 States</a> - <a href="https://github.com/ModelEarth/OpenFootprint/tree/main/impacts/2020">Data Source</a><br><br>
 
-<a href="calculation.html">Impact Calculation</a><br>
-<a href="tabulator.html">Commodities</a></a><br>
-<a href="commodity_vector.html">Commodity Vector</a><br>
-<a href="demands.html">Demands</a><br>
-<a href="model_info.html">Model Info</a><br>
-<a href="naics_map.html">Naics Map</a><br>
-<a href="sector_crosswalk.html">Sector Crosswalk</a><br>
-<a href="sector_profile.html">Sector Profile</a><br>
-<a href="sector_purchase_impacts.html">Sector Purchase Impacts</a><br>
-<a href="sector_scopes.html">Sector Scopes</a><br>
-<a href="sector_supply_impacts.html">Sector Supply Impacts</a><br>
-<a href="matrix-requests.js">Matrix Requests (js)</a><br>
-<a href="model-requests.js">Model Requests (js)</a><br>
-<br>
-
-Some of the above samples only send json to the console.log, so view with your browser's inspector.<br><br>
-
-TO DO: Use the function formatCell() in config.js to make numbers simple in the pages above (42.2 Billion, etc.). The config.js file is included in all the pages above.<br><br>
-
-TO DO: Create a toggle to move between the simple number display, full numbers and scietific notation. Place in the upper right above a <a href="tabulator.html">tabulator.html</a> on all the pages above and hide the two extra columns.<br><br>
-
-TO DO: Use <a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio">generate_import_factors.py</a> to run 2012 to 2016. Try with 2017 schema, and compare to 2012 schema to see if the older data needs it for the sector/commodity names.<br><br> 
-
-TO DO: Pull SQL into our <a href="../../OpenFootprint/trade/">trade flow map</a>. Here's another <a href="https://github.com/ModelEarth/trademapper-js">trade flow map</a> we can expand. It's visible at <a href="https://trademapper.co.uk">trademapper.co.uk</a> with sample data in their <a href="https://github.com/trademapper/trademapper-js/wiki/How-to-use-trademapper">GitHub Wiki</a>.
-
 </div>
 
-
-<div style="overflow: auto;">
-
-
-</div>
 
 <div style="clear:both"></div>
-<br>
 
 <style>
 #schemaDiv strong {
@@ -171,6 +145,7 @@ TO DO: Pull SQL into our <a href="../../OpenFootprint/trade/">trade flow map</a>
   background-color: #222;
 }
 </style>
+
 <div id="schemaDiv"></div>
 
 Integrate Python from <a href="https://chatgpt.com/share/3a89cc73-c839-4592-bc6e-e82a6a8e400b">From ChatGPT</a> - Python also resides in a hidden comment.<br><br>
@@ -247,6 +222,41 @@ for table_name, table_config in config.items():
 </pre>
 
 <div id="readmeDiv"></div>
+
+<h1>useeio.js review files</h1>
+
+You can view the frontend widgets at <a href="https://model.earth/io/charts">model.earth/io/charts</a><br>
+The IO charts use the <a href="../dist/useeio.min.js">dist/useeio.min.js file</a> generated by <a href="../">running the build</a><br><br>
+
+<b>Currently Broken since EPI API key now required</b><br>
+TO DO: Convert these to toggle to json output from API.<br><br>
+
+<a href="calculation.html">Impact Calculation</a><br>
+<a href="tabulator.html">Commodities</a></a><br>
+<a href="commodity_vector.html">Commodity Vector</a><br>
+<a href="demands.html">Demands</a><br>
+<a href="model_info.html">Model Info</a><br>
+<a href="naics_map.html">Naics Map</a><br>
+<a href="sector_crosswalk.html">Sector Crosswalk</a><br>
+<a href="sector_profile.html">Sector Profile</a><br>
+<a href="sector_purchase_impacts.html">Sector Purchase Impacts</a><br>
+<a href="sector_scopes.html">Sector Scopes</a><br>
+<a href="sector_supply_impacts.html">Sector Supply Impacts</a><br>
+<a href="matrix-requests.js">Matrix Requests (js)</a><br>
+<a href="model-requests.js">Model Requests (js)</a><br>
+<br>
+
+Some of the above samples only send json to the console.log, so view with your browser's inspector.<br><br>
+
+TO DO: Use the function formatCell() in config.js to make numbers simple in the pages above (42.2 Billion, etc.). The config.js file is included in all the pages above.<br><br>
+
+TO DO: Create a toggle to move between the simple number display, full numbers and scietific notation. Place in the upper right above a <a href="tabulator.html">tabulator.html</a> on all the pages above and hide the two extra columns.<br><br>
+
+TO DO: Use <a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio">generate_import_factors.py</a> to run 2012 to 2016. Try with 2017 schema, and compare to 2012 schema to see if the older data needs it for the sector/commodity names.<br><br> 
+
+TO DO: Pull SQL into our <a href="../../OpenFootprint/trade/">trade flow map</a>. Here's another <a href="https://github.com/ModelEarth/trademapper-js">trade flow map</a> we can expand. It's visible at <a href="https://trademapper.co.uk">trademapper.co.uk</a> with sample data in their <a href="https://github.com/trademapper/trademapper-js/wiki/How-to-use-trademapper">GitHub Wiki</a>.
+
+
 </div>
 
 </body>

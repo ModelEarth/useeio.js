@@ -1,6 +1,6 @@
 # SQL Tables
 
-Database name: **US-2020-17schema** (Which indictes the 2017 schema.)
+Database name: **US-2020-17schema** (Which indicates the 2017 schema.)
 
 TO DO: Also output partial databases for other countries with additional downloads from exiobase. (Add a parameter output="notUS" passed to <a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio">ran exiobase_downloads.py</a> to omit the US-specific BEA data.)
 
