@@ -84,6 +84,15 @@ loadMarkdown("README.md", "readmeDiv", "_parent");
 <a href="/OpenFootprint">Open Data Panels</a><br>
 
 <div id="floatRightID" class="floatRight">
+  <b>GitHub Repos</b><br>
+  <a href="https://github.com/modelearth/useeio.js">useeio.js</a><br>
+  <a href="https://github.com/modelearth/useeio-widgets">useeio-widgets</a><br>
+  <a href="https://github.com/modelearth/localsite">localsite repo</a><br>
+  <a href="https://github.com/modelearth/io">io repo</a><br><br>
+  <!-- no longer available, use other API
+<a href="https://smmtool.app.cloud.gov/">API</a><br><br>
+  -->
+
   <b>Chart Starters</b><br>
 
   <a href="../../OpenFootprint/trade/">Trade Flow Map</a><br>
@@ -115,13 +124,10 @@ Our SQL Team is sending data to <a href="https://supabase.com">Supabase</a> and 
 <a href="https://colab.research.google.com/drive/1CYKNTnLiZ_PbP5WS_dMVtYyYDIAFwzq8?usp=sharing" target="useeio_colab">Generate Supabase USEEIO (CoLab)</a> (Upcoming)<br><br>
 
 
-We run <a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio">generate_import_factors.py</a> to combines US BEA and <a href="https://exiobase.eu">EXIOBASE</a> data emissions factors for annual trade data. Exiobase provides the equivalent to <a href="https://github.com/USEPA/useeior/blob/master/format_specs/Model.md">M, N, and x</a> which is used in <a href="/io/about/">USEEIO models</a> for import emissions factors. Exiobase also provides gross trade data which has no equivalent in USEEIO.<br><br>
+We run <a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio">generate_import_factors.py</a> to combines US BEA and <a href="https://exiobase.eu">EXIOBASE</a> data emissions factors for annual trade data. Exiobase provides the equivalent to <a href="https://github.com/USEPA/useeior/blob/master/format_specs/Model.md">M, N, and x</a> which is used in the <a href="/io/about/">USEEIO models</a> for import emissions factors. Exiobase also provides gross trade data which has no equivalent in USEEIO.<br><br>
 
 
 <div style="float:left; max-width:400px; margin-right:40px">
-
-<a href="https://github.com/modelearth/useeio.js">USEEIO.js GitHub Repo</a> and 
-<a href="https://smmtool.app.cloud.gov/">API</a><br><br>
 
 <b>Environmentally Extended Input-Output (EEIO)</b><br>
 
@@ -148,12 +154,14 @@ We run <a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_
 
 <div id="schemaDiv"></div>
 
-Integrate Python from <a href="https://chatgpt.com/share/3a89cc73-c839-4592-bc6e-e82a6a8e400b">From ChatGPT</a> - Python also resides in a hidden comment.<br><br>
-
 Commodity.csv for CommodityNames from <a href="https://www.bea.gov/industry/input-output-accounts-data">BEA input-output (ImportMatrices_Before_Redefinitions_DET_2017.xlsx</a>.<br>
 TO DO: From BEA API within <a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio">generate_import_factors.py</a> generate Sector.csv with 2 to 5 character SectorID and SectorName column.<br><br>
 
-The following YAML for the SQL insert resides at <a href="https://github.com/ModelEarth/OpenFootprint/blob/main/impacts/exiobase/US-source/create-database.yaml">OpenFootprint/impacts/exibase/US-source/create-database.yaml</a>
+<h3>YAML used by SQL insert</h3>
+
+The following YAML for the SQL insert resides at <a href="https://github.com/ModelEarth/OpenFootprint/blob/main/impacts/exiobase/US-source/create-database.yaml">OpenFootprint/impacts/exibase/US-source/create-database.yaml</a><br>
+Created with python from <a href="https://chatgpt.com/share/3a89cc73-c839-4592-bc6e-e82a6a8e400b">From ChatGPT</a> which resides here in a hidden comment.<br>
+
 <!--
 import yaml
 import pandas as pd

@@ -14,10 +14,12 @@ Sector refers to the 5-character and fewer sectors.
 Region is referred to as Import.
 National is omitted from the table names.
 
-We'll remove underscores and use CamelCase with clear naming.
+We remove underscores and use CamelCase for column names.
 
 Country abbreviations (Example: US) are appended to country-specific tables.
 This structure supports pulling all the country data into one database.
+
+### Table Names
 
 **Country** (Includes country and region and rest of world)
 CountryCode (2-char), Country, Region (2-char)
@@ -59,7 +61,6 @@ CountryCode, CommodityID (BEA Detail), ImportQuantity, ContributionImportSector,
 Omit: Country, Region, Unit, Source, BEA Summary
 Source: country_contributions_by_sector (61675 rows)
 
-**ImportMultiplierUS** (6-char sector ID)
-<!-- If we ever have a 5-char sector multiplier, the 5-char table will be ImportSectorMultiplierUS -->
+**ImportMultiplierUS** (6-char sector ID)<!-- If we ever have a 5-char sector multiplier, the 5-char table will be ImportSectorMultiplierUS -->
 CountryCode, CommodityID, FlowUUID, Footprint (EF stands for Environmental Footprint)
 Source: multiplier_df_exio_2020_17sch
