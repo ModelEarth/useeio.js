@@ -2,10 +2,10 @@
 
 Database name: **US-2020-17schema** (Which indicates the 2017 schema.)
 
-TO DO: Also output partial databases for other countries with additional downloads from exiobase. (Add a parameter output="notUS" passed to <a href="https://github.com/ModelEarth/USEEIO/tree/import\_factors/import\_factors\_exio">ran exiobase\_downloads.py</a> to omit the US-specific BEA data.)
+TO DO: Also output partial databases for other countries with additional downloads from exiobase. (Add a parameter output="notUS" passed to <a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio">ran exiobase\_downloads.py</a> to omit the US-specific BEA data.)
 
 Row totals below are for the 6 .csv files in the [US-2020-17schema](https://github.com/ModelEarth/OpenFootprint/tree/main/impacts/exiobase/US/2020) which merges 2020 Exiobase trade data and US BEA.<!--
-	<a href="https://github.com/ModelEarth/USEEIO/tree/import\_factors/import\_factors\_exio/output">Exiobase+BEA output for 2019</a>.
+	<a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio/output">Exiobase+BEA output for 2019</a>.
 -->
 
 We'll exclude the Year columns.
