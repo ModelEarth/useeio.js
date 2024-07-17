@@ -109,7 +109,7 @@ loadMarkdown("README.md", "readmeDiv", "_parent");
 <b>US Bureau of Economic Analysis (BEA) + Exiobase International Trade Data</b><br>
 Our SQL Team is sending data to <a href="/OpenFootprint/prep/sql/supabase/">Supabase</a> and <a href="/OpenFootprint/prep/sql/duckdb/">DuckDB</a> for Countries, States and the Earth.<br><br>
 
-We first generate CSV files by running <a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio">generate_import_factors.py</a> to combines US BEA and <a href="https://exiobase.eu">EXIOBASE</a> data emissions factors for annual trade data. Exiobase provides the equivalent to <a href="https://github.com/USEPA/useeior/blob/master/format_specs/Model.md">M, N, and x</a> which is used in the <a href="/io/about/">USEEIO models</a> for import emissions factors. Exiobase also provides gross trade data which has no equivalent in USEEIO.<br><br>
+<a href="/OpenFootprint/impacts/">Our SQL and javascript TO DOs</a><br><br>
 
 <b>Pulling data into state SQL databases</b><br>
 For easy comprehension by elementary school students<br>
@@ -129,6 +129,7 @@ For easy comprehension by elementary school students<br>
 <a href="/data-pipeline/research/economy/">Commodities for US and All 50 States (uses python to pull from matrix files)</a> - <a href="https://github.com/ModelEarth/OpenFootprint/tree/main/impacts/2020">2020 Data Source</a><br><br>
 
 
+Our Data Prep Steps: We first generate CSV files by running <a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio">generate_import_factors.py</a> to combines US BEA and <a href="https://exiobase.eu">EXIOBASE</a> data emissions factors for annual trade data. Exiobase provides the equivalent to <a href="https://github.com/USEPA/useeior/blob/master/format_specs/Model.md">M, N, and x</a> which is used in the <a href="/io/about/">USEEIO models</a> for import emissions factors. Exiobase also provides gross trade data which has no equivalent in USEEIO.<br><br>
 
 
 <div style="clear:both"></div>
