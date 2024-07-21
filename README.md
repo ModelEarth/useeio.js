@@ -32,9 +32,12 @@ This project contains a script for downloading a JSON dump of an USEEIO-API inst
 ```
 $ node scripts/dumpjson.js --endpoint {URL}
 ```
-Where `{URL}` is some API endpoint, like https://smmtool.app.cloud.gov/api.
+Where `{URL}` is some API endpoint. Formerly https://smmtool.app.cloud.gov/api.
+If the API requires a key, append --apikey [Add API key here]
+You can [register for an API key](https://github.com/USEPA/USEEIO_API/wiki/Use-the-API) via the US EPA's contact link.
 
-You can then host the dump locally, e.g. via [http-server](https://www.npmjs.com/package/http-server):
+You can then host the json files locally, e.g. via [http-server](https://www.npmjs.com/package/http-server).  
+The state json files are also pre-generated for you at [https://model.earth/OpenFootprint/impacts](https://model.earth/OpenFootprint/impacts)
 
 
 ```bash
