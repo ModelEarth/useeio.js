@@ -1,23 +1,20 @@
+<style>
+#schemaDiv strong {
+  font-size: 16px;
+}
+.yamlPre {
+  background-color: #eee;
+  padding: 20px;
+  overflow-y: scroll;
+}
+.dark .yamlPre {
+  background-color: #222;
+}
+</style>
+
 # SQL Tables
 
-Database name: **US-2020-17schema** (Which indicates the 2017 schema.)
-
-TO DO: Also output partial databases for other countries with additional downloads from exiobase. (Add a parameter output="notUS" passed to <a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio">ran exiobase\_downloads.py</a> to omit the US-specific BEA data.)
-
-Row totals below are for the 6 .csv files in the [US-2020-17schema](https://github.com/ModelEarth/OpenFootprint/tree/main/impacts/exiobase/US/2020) which merges 2020 Exiobase trade data and US BEA.<!--
-	<a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio/output">Exiobase+BEA output for 2019</a>.
--->
-
-We'll exclude the Year columns.
-Commodity refers to the 6-character detail sectors.
-Sector refers to the 5-character and fewer sectors.
-Region is referred to as Import.
-National is omitted from the table names.
-
-We remove underscores and use CamelCase for column names.
-
-Country abbreviations (Example: US) are appended to country-specific tables.
-This structure supports pulling all the country data into one database.
+Row totals below are for the 6 .csv files in the [US-2020-17schema](https://github.com/ModelEarth/OpenFootprint/tree/main/impacts/exiobase/US-source/2022) which merges 2020 Exiobase trade data and US BEA.
 
 ### Table Names
 
@@ -67,4 +64,5 @@ Source: country\_contributions\_by\_sector (61675 rows)
 CountryCode, CommodityID, FlowUUID, Footprint (EF stands for Environmental Footprint)
 Source: multiplier\_df\_exio\_2020\_17sch
 
-Commodity.csv for CommodityNames from <a href="https://www.bea.gov/industry/input-output-accounts-data">BEA input-output (ImportMatrices_Before_Redefinitions_DET_2017.xlsx</a>.
+Commodity.csv for CommodityNames could be from <a href="https://www.bea.gov/industry/input-output-accounts-data">BEA input-output (ImportMatrices_Before_Redefinitions_DET_2017.xlsx</a>.
+[The Concordance raw files](https://github.com/insongkim/concordance/tree/master/data-raw) is another option for category names. See our [Harmonized System (HS) page](/OpenFootprint/harmonized-system).

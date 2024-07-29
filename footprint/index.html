@@ -43,6 +43,7 @@
   </script>
   -->
 <script>
+loadMarkdown("international.md", "internationalDiv", "_parent");
 loadMarkdown("schema.md", "schemaDiv", "_parent");
 loadText("../../OpenFootprint/impacts/exiobase/US-source/create-database.yaml", "yamlDiv", "_parent");
 loadMarkdown("README.md", "readmeDiv", "_parent");
@@ -105,50 +106,12 @@ loadMarkdown("README.md", "readmeDiv", "_parent");
   <a href="/data-commons/docs/food/">Food Nutrition Label</a>
 </div>
 
-<h1>International Trade Flow</h1>
-<b>US Bureau of Economic Analysis (BEA) + Exiobase International Trade Data</b><br>
-Our SQL Team has been generating <a href="/OpenFootprint/prep/sql/supabase/">Supabase</a> and <a href="/OpenFootprint/prep/sql/duckdb/">DuckDB</a> databases for Countries, States and the Earth.<br><br>
-
-<b>TO DO</b><br>
-<a href="/OpenFootprint/impacts/">Our SQL and javascript TO DOs</a><br>
-<a href="#reports">Our REACT and javascript TO DOs</a><br><br>
-
-<b>Pulling data into state SQL databases</b><br>
-New simple table names - for use by elementary school students<br>
-<a href="/OpenFootprint/prep/sql/supabase/">Supabase Data Loader</a><br>
-<a href="/OpenFootprint/prep/sql/duckdb/">DuckDB Data Loader</a><br>
-<a href="/requests/products/">Harmonized System (HS) codes</a> - <a href="https://colab.research.google.com/drive/1etpn1no8JgeUxwLr_5dBFEbt8sq5wd4v?usp=sharing">Our HS CoLab</a><br>
-<a href="/OpenFootprint/impacts/">Sample of JavaScript joining DuckDB Parquet tables</a><br>
-<a href="https://model.earth/storm/impact/process.html">SQL Documentation Sample - Storm Tweet Data</a><br><br>
-
-<b>Python to pull CSV files into SQL</b><br>
-<a href="https://colab.research.google.com/drive/1qWgO_UjeoYYB3ZSzT3QdXSfVZb7j09_S?usp=sharing">Generate Supabase Exiobase (Colab)</a> - <a href="https://github.com/ModelEarth/OpenFootprint/tree/main/impacts/exiobase/US-source">Bkup</a><br>
-<a href="https://colab.research.google.com/drive/1Wm9Bvi9pC66xNtxKHfaJEeIYuXKpb1TA?usp=sharing">Generate DuckDB Exiobase (CoLab) - <a href="https://github.com/ModelEarth/OpenFootprint/tree/main/impacts/exiobase/US-source">Bkup</a><br><br>
-
-<b>State Models - US Environmentally Extended Input-Output</b> (US EEIO)<br>
-<a href="/io/about/">USEEIO state models</a> - Upcoming SQL tables<br>
-<a href="https://colab.research.google.com/drive/1CYKNTnLiZ_PbP5WS_dMVtYyYDIAFwzq8?usp=sharing" target="useeio_colab">Generate Supabase USEEIO (CoLab)</a> - Upcoming python to migrate from matrix to SQL tables<br>
-<a href="/data-pipeline/research/economy/">Commodities for US and All 50 States (uses python to pull from matrix files)</a> - <a href="https://github.com/ModelEarth/OpenFootprint/tree/main/impacts/2020">2020 Data Source</a><br><br>
-
-
-Our Data Prep Steps: We first generate CSV files by running <a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio">generate_import_factors.py</a> to combines US BEA and <a href="https://exiobase.eu">EXIOBASE</a> data emissions factors for annual trade data. Exiobase provides the equivalent to <a href="https://github.com/USEPA/useeior/blob/master/format_specs/Model.md">M, N, and x</a> which is used in the <a href="/io/about/">USEEIO models</a> for import emissions factors. Exiobase also provides gross trade data which has no equivalent in USEEIO.<br><br>
+<div id="internationalDiv"></div>
 
 
 <div style="clear:both"></div>
 
-<style>
-#schemaDiv strong {
-  font-size: 16px;
-}
-.yamlPre {
-  background-color: #eee;
-  padding: 20px;
-  overflow-y: scroll;
-}
-.dark .yamlPre {
-  background-color: #222;
-}
-</style>
+
 
 <div id="schemaDiv"></div>
 
