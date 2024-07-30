@@ -4,8 +4,10 @@
 Our SQL Team has been generating <a href="/OpenFootprint/prep/sql/supabase/">Supabase</a> and <a href="/OpenFootprint/prep/sql/duckdb/">DuckDB</a> databases for Countries, States and the Earth.
 
 <b>TO DO</b>
+We're aiming to create [interactive versions](/OpenFootprint/impacts/) of the [three Exiobase charts](https://exiobase.eu)
 <a href="/OpenFootprint/impacts/">Our SQL and javascript TO DOs</a>
-<a href="#reports">Our REACT and javascript TO DOs</a>
+<a href="#reports">Our Javascript USEEIO TO DOs</a>
+<a href="/io/charts/">Our React USEEIO widget TO DOs</a>
 
 <b>Pulling data into state SQL databases</b>
 New simple table names - for use by elementary school students
