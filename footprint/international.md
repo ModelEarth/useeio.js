@@ -1,13 +1,19 @@
 
 <h1>International Trade Flow</h1>
 <b>US Bureau of Economic Analysis (BEA) + Exiobase International Trade Data</b>
-Our SQL Team has been generating <a href="/OpenFootprint/prep/sql/supabase/">Supabase</a> and <a href="/OpenFootprint/prep/sql/duckdb/">DuckDB</a> databases for Countries, States and the Earth.
+Our SQL Team has been generating <a href="/OpenFootprint/prep/sql/supabase/">Supabase</a> and <a href="/OpenFootprint/prep/sql/duckdb/">DuckDB</a> databases for US Imports.
 
-<b>TO DO</b>
-We're aiming to create [interactive versions](/OpenFootprint/impacts/) of the [three Exiobase charts](https://exiobase.eu)
-<a href="/OpenFootprint/impacts/">Our SQL and javascript TO DOs</a>
-<a href="#reports">Our Javascript USEEIO TO DOs</a>
-<a href="/io/charts/">Our React USEEIO widget TO DOs</a>
+
+TO DO: Create [interactive versions](/OpenFootprint/impacts/) of the [three Exiobase charts](https://exiobase.eu)
+
+TO DO: Update Exiobase pull to generate trade inflow CSV files for all countries by adding parameters to <a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio">generate\_import\_factors.py</a>. Send each country to a 2-char folder.
+
+TO DO: Generate for [US States from Matrix table files](/io/about/) with new [50 State USEEIO json](https://github.com/ModelEarth/OpenFootprint/tree/main/impacts/2020)
+
+TO DO: <a href="/OpenFootprint/impacts/">More SQL and javascript</a>
+
+<!--<a href="#reports">Our Javascript USEEIO TO DOs</a>-->
+<!--<a href="/io/charts/">Our React USEEIO widget TO DOs</a>-->
 
 <b>Pulling data into state SQL databases</b>
 New simple table names - for use by elementary school students
