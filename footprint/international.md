@@ -20,6 +20,10 @@ New simple table names - for use by elementary school students
 <a href="/OpenFootprint/prep/sql/supabase/">Supabase Data Loader</a>
 <a href="/OpenFootprint/prep/sql/duckdb/">DuckDB Data Loader</a>
 <a href="/requests/products/">Harmonized System (HS) codes</a> - <a href="https://colab.research.google.com/drive/1etpn1no8JgeUxwLr_5dBFEbt8sq5wd4v?usp=sharing">Our HS CoLab</a>
+
+<b>View SQL Data</b>
+[Javascript with Supabase](/OpenFootprint/impacts) and [Just Tables](/OpenFootprint/prep/sql/supabase/SupabaseWebpage.html)
+[Our DuckDB parquet tables in ObservableHQ](https://observablehq.com/d/2898d01446cefef1)
 <a href="/OpenFootprint/impacts/">Sample of JavaScript joining DuckDB Parquet tables</a>
 <a href="https://model.earth/storm/impact/process.html">SQL Documentation Sample - Storm Tweet Data</a>
 
@@ -31,6 +35,10 @@ New simple table names - for use by elementary school students
 <a href="/io/about/">USEEIO state models</a> - Upcoming SQL tables
 <a href="https://colab.research.google.com/drive/1CYKNTnLiZ_PbP5WS_dMVtYyYDIAFwzq8?usp=sharing" target="useeio_colab">Generate Supabase USEEIO (CoLab)</a> - Upcoming python to migrate from matrix to SQL tables
 <a href="/data-pipeline/research/economy/">Commodities for US and All 50 States (uses python to pull from matrix files)</a> - <a href="https://github.com/ModelEarth/OpenFootprint/tree/main/impacts/2020">2020 Data Source</a>
+<!--
+2019 data - Wes and Ben say to just host 2019 here
+<a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio/output">Exiobase+BEA output for 2019</a>.
+-->
 
 # Our Trade Data Pipeline
 
@@ -39,13 +47,6 @@ We first generate six [US-2020-17schema CSV files](https://github.com/ModelEarth
 Exiobase provides the equivalent to <a href="https://github.com/USEPA/useeior/blob/master/format_specs/Model.md">M, N, and x</a> which is used in the <a href="/io/about/">USEEIO models</a> for import emissions factors. Exiobase also provides gross trade data which has no equivalent in USEEIO.
 
 
-
-TO DO: Also output partial databases for other countries with additional downloads from exiobase. (Add a parameter output="notUS" passed to <a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio">ran exiobase\_downloads.py</a> to omit the US-specific BEA data.)
-
-
-<!--
-	<a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio/output">Exiobase+BEA output for 2019</a>.
--->
 
 **Data Prep Notes**
 - We remove underscores and use CamelCase for column names.
