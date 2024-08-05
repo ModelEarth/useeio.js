@@ -6,7 +6,7 @@ Our SQL Team has been generating <a href="/OpenFootprint/prep/sql/supabase/">Sup
 
 TO DO: Create [interactive versions](/OpenFootprint/impacts/) of the [three Exiobase charts](https://exiobase.eu)
 
-TO DO: Update Exiobase pull to generate trade inflow CSV files for all countries by adding parameters to <a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio">generate\_import\_factors.py</a>. Send each country to a 2-char folder.
+TO DO: Update Exiobase pull to generate trade inflow CSV files for all countries by adding parameters to <a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio">generate\_import\_factors.py</a>. Send each country to a 2-char folder. Ruolin, Nancy, Yuhao.
 
 TO DO: Generate for [US States from Matrix table files](/io/about/) with new [50 State USEEIO json](https://github.com/ModelEarth/OpenFootprint/tree/main/impacts/2020)
 
