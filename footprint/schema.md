@@ -23,9 +23,6 @@ CountryCode (2-char), Country, Region (2-char)
 
 **Sector** (5-char and fewer sector ID)
 SectorID, SectorName
-[Source](https://github.com/ModelEarth/OpenFootprint/blob/main/impacts/2020/USEEIOv2.0.1-411/sectors.json) - We'll find a .csv file instead in the USEPA repos.
-
-TO DO: From BEA API within <a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio">generate\_import\_factors.py</a> generate Sector.csv with 2 to 5 character SectorID and SectorName column.
 
 **Commodity** (6-char sector ID)
 CommodityID, CommodityName
