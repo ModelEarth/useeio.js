@@ -10,7 +10,7 @@ TO DO: Update Exiobase pull to generate trade inflow CSV files for all countries
 
 TO DO: Generate for [US States from Matrix table files](/io/about/) with new [50 State USEEIO json](https://github.com/ModelEarth/OpenFootprint/tree/main/impacts/2020)
 
-TO DO: <a href="/OpenFootprint/impacts/">More SQL and javascript</a>
+TO DO: <a href="/OpenFootprint/prep/">More cool SQL and javascript projects</a>
 
 <!--<a href="#reports">Our Javascript USEEIO TO DOs</a>-->
 <!--<a href="/io/charts/">Our React USEEIO widget TO DOs</a>-->
@@ -23,7 +23,7 @@ New simple table names - for use by elementary school students
 
 <b>View SQL Data</b>
 [Javascript with Supabase](/OpenFootprint/impacts) and [Just Tables](/OpenFootprint/prep/sql/supabase/SupabaseWebpage.html)
-[Our DuckDB parquet tables in ObservableHQ](https://observablehq.com/d/2898d01446cefef1)
+Our DuckDB parquet tables in [ObservableHQ Dashboard](https://observablehq.com/d/2898d01446cefef1) and [Static Framework](/data-commons/dist/innovation/)
 <a href="/OpenFootprint/impacts/">Sample of JavaScript joining DuckDB Parquet tables</a>
 <a href="https://model.earth/storm/impact/process.html">SQL Documentation Sample - Storm Tweet Data</a>
 
