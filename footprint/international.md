@@ -17,8 +17,8 @@ TO DO: <a href="/OpenFootprint/prep/">More cool SQL and javascript projects</a>
 
 <b>Pulling data into state SQL databases</b>
 New simple table names - for use by elementary school students
-<a href="/OpenFootprint/prep/sql/supabase/">Supabase Data Loader</a>
-<a href="/OpenFootprint/prep/sql/duckdb/">DuckDB Data Loader</a>
+<a href="/OpenFootprint/prep/sql/supabase/">Supabase from .csv files</a>
+<a href="/OpenFootprint/prep/sql/duckdb/">DuckDB from .csv files</a>
 <a href="/requests/products/">Harmonized System (HS) codes</a> - <a href="https://colab.research.google.com/drive/1etpn1no8JgeUxwLr_5dBFEbt8sq5wd4v?usp=sharing">Our HS CoLab</a>
 
 <b>View SQL Data</b>
