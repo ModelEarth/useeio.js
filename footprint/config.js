@@ -12,10 +12,27 @@ const model = useeio.modelOf({
 });
 */
 
+/*
+// Public API Discontinued. Use asJsonFiles instead.
 const model = useeio.modelOf({
   endpoint: 'https://smmtool.app.cloud.gov/api',
   model: 'USEEIOv2.0.1-411',
   asJsonFiles: false,
+});
+*/
+
+const model = useeio.modelOf({
+  //endpoint: 'http://localhost:8887/OpenFootprint/impacts/2020',
+
+  // CORS error
+  endpoint: 'https://raw.githubusercontent.com/ModelEarth/OpenFootprint/main/impacts/2020',
+  endpoint: 'https://model.earth/OpenFootprint/main/impacts/2020',
+
+  // So clone the OpenFootprint repo into the same webroot.
+  endpoint: '/OpenFootprint/impacts/2020',
+
+  model: 'USEEIOv2.0.1-411',
+  asJsonFiles: true,
 });
 
 function formatCell(input, format) {
