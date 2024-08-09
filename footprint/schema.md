@@ -27,37 +27,38 @@ SectorID, SectorName
 **Commodity** (6-char sector ID)
 CommodityID, CommodityName
 
-**Flow**
-FlowUUID, Flowable, Unit, Context
+**Factor**
+FactorID, FactorName, Unit, Context
+<!-- FlowUUID, Flowable, Unit, Context -->
 
-**FlowInfo** (Only 1 row and 2 columns)
+**FactorInfo** (Only 1 row and 2 columns)
 Every country in a database will be tracked with the same currency.
 ReferenceCurrency = "USD"
 PriceType = "Basic"
 
-**SectorUS** (5-char and fewer sector ID)
-SectorID, FlowUUID, FlowAmount
+**SectorFactor** (5-char and fewer sector ID)
+SectorID, FactorID, FactorAmount
 Omit: Unit ReferenceCurrency PriceType 
 Source: US\_summary\_import\_factors\_exio\_2020\_17sch (220 rows)
 
-**CommodityUS** (6-char sector ID)
-CommodityID, FlowUUID, FlowAmount
+**CommodityFactor (Detail)** (6-char sector ID)
+CommodityID, FactorID, FactorAmount
 Source: US\_detail\_import\_factors\_exio\_2020\_17sch (1490 rows)
 
-**ImportSectorUS** (5-char and fewer sector ID)
-CountryCode (Region), SectorID, FlowUUID, FlowAmount
+**ImportSectorFactor** (5-char and fewer sector ID)
+CountryCode (Region), SectorID, FactorID, FactorAmount
 Source: Regional\_summary\_import\_factors\_exio\_2020\_17sch (1515 rows)
 
-**ImportCommodityUS** (6-char sector ID)
-CountryCode (Region), CommodityID, FlowUUID, FlowAmount
+**ImportCommodityFactor (ImportDetail)** (6-char sector ID)
+CountryCode (Region), CommodityID, FactorID, FactorAmount
 Source: Regional\_detail\_import\_factors\_exio\_2020\_17sch (10405 rows)
 
-**ImportContributionsUS** (6-char sector ID)
+**ImportContributions** (6-char sector ID)
 CountryCode, CommodityID (BEA Detail), ImportQuantity, ContributionImportSector, ContributionImportCommodity, ContributionSector, ContributionCommodity
 Omit: Country, Region, Unit, Source, BEA Summary
 Source: country\_contributions\_by\_sector (61675 rows)
 
-**ImportMultiplierUS** (6-char sector ID)<!-- If we ever have a 5-char sector multiplier, the 5-char table will be ImportSectorMultiplierUS -->
+**ImportMultiplier** (6-char sector ID)<!-- If we ever have a 5-char sector multiplier, the 5-char table will be ImportSectorMultiplierUS -->
 CountryCode, CommodityID, FlowUUID, Footprint (EF stands for Environmental Footprint)
 Source: multiplier\_df\_exio\_2020\_17sch
 

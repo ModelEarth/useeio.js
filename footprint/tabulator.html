@@ -17,13 +17,27 @@
 <script src="./config.js"></script>
 <script>
 
-
+function documentReady(callback) {
+    if (document.readyState === "loading") {
+        // The document is still loading, wait for it to finish
+        document.addEventListener("DOMContentLoaded", callback);
+    } else {
+        // The DOM is already fully loaded
+        callback();
+    }
+}
 
 let tableData = [];
 async function main() {
   // compute the table data
   const q = await model.matrix('q'); // Commodity
   const sectors = await model.sectors();
+  documentReady(function() {
+    const notesDiv = document.getElementById("notes");
+    if (notesDiv) {
+        notesDiv.innerHTML = "<br>From OpenFootprint/impacts/2020/USEEIOv2.0.1-411/sectors.json<br>" + JSON.stringify(sectors, null, 2);
+    }
+  });
   const indicator = (await model.indicators())
     .filter(i => i.code === 'JOBS')[0];
   const impacts = await model.matrix('D'); // Indicator_Sector (like industries)
@@ -123,6 +137,9 @@ function updateTable(locale) {
   We also display from state .csv files <a href="http://localhost:8887/data-pipeline/research/economy/">pre-generated using python</a><br><br>
 
   <div id="table" style="clear:both"></div>
+
+  <div id="notes" style="clear:both"></div>
+
 </div>
 
 <script>
