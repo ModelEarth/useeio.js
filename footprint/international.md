@@ -1,5 +1,8 @@
 
 <h1>International Trade Flow</h1>
+
+Checkout our [Trade Flow Project Overview](/OpenFootprint/prep/) - Three Charts using International Exiobase Data
+
 <b>US Bureau of Economic Analysis (BEA) + Exiobase International Trade Data</b>
 Our SQL Team has been generating <a href="/OpenFootprint/prep/sql/supabase/">Supabase</a> and <a href="/OpenFootprint/prep/sql/duckdb/">DuckDB</a> databases for US Imports.
 
