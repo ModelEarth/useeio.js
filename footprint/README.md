@@ -17,5 +17,5 @@ Center for Environmental Solutions and Emergency Response (CESER)
 Office of Research and Development
 US Environmental Protection Agency
 
-[Participate through DemocracyLab](https://www.democracylab.org/projects/834) - [Contact our Team](/io/team/) - [International Trade Data](/OpenFootprint/trade/)
+[Participate through DemocracyLab](https://www.democracylab.org/projects/834) - [Contact our Team](/io/team/) - [International Trade Flow](/OpenFootprint/trade/)
 <br>
