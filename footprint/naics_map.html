@@ -13,8 +13,21 @@
   <script>
     (async () => {
       const naics = await useeio.NaicsMap.of(model);
-      console.log(naics.toBea("562"));
-      console.log(naics.toBea(["922140", "922160"]));
+      // console.log(naics.toBea("562"));
+      // console.log(naics.toBea(["922140", "922160"]));
+      data1 = naics.toBea("562")
+      data2 = naics.toBea(["922140", "922160"])
+      console.log(data1)
+      console.log(data2)
+
+      const pre1 = document.createElement('pre');
+      const pre2 = document.createElement('pre');
+
+      pre1.textContent = JSON.stringify(data1, null, 2);
+      pre2.textContent = JSON.stringify(data2, null, 2);
+
+      document.body.appendChild(pre1);
+      document.body.appendChild(pre2);
     })();
   </script>
 

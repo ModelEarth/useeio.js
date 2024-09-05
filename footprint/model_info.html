@@ -5,15 +5,38 @@
   <title>Model Info</title>
   <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="https://unpkg.com/tabulator-tables@5.2.7/dist/css/tabulator.min.css" rel="stylesheet">
+  <script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.2.7/dist/js/tabulator.min.js"></script>
+
+  <script type="text/javascript" src="https://model.earth/localsite/js/localsite.js?showheader=true&showsearch=true"></script>
   <script src="../dist/useeio.js"></script>
 </head>
 <body>
-
+  <div id="table" style="margin:0px 20px 20px 20px"></div>
   <script src="./config.js"></script>
   <script>
     (async () => {
       const info = await model.info();
       console.log(info);
+      // const pre = document.createElement('pre');
+      // pre.textContent = JSON.stringify(info, null, 2);
+      // document.body.appendChild(pre);
+     
+      const tableData = Object.entries(info).map(([key, value])=>({ key, value}));
+
+      console.log(tableData);
+
+      // Initialize the Tabulator table
+      new Tabulator("#table", {
+        data: tableData, 
+        layout: "fitColumns", 
+        columns: [ 
+          {title: "Model Attributes", field: "key"},
+          {title: "Value", field: "value"},
+        ],
+      });
+
     })();
   </script>
 
