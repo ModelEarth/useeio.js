@@ -5,13 +5,37 @@
   <title>Naics Map</title>
   <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://unpkg.com/tabulator-tables@5.2.7/dist/css/tabulator.min.css" rel="stylesheet">
+  <script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.2.7/dist/js/tabulator.min.js"></script>
+
+  <script type="text/javascript" src="https://model.earth/localsite/js/localsite.js?showheader=true&showsearch=true"></script>
   <script src="../dist/useeio.js"></script>
 </head>
 <body>
+  <input type="text" id="naicsInput" placeholder="Enter NAICS Code">
+  <button id="fetchButton">Fetch Data</button>
+  <div id="naicsTable"></div>
 
   <script src="./config.js"></script>
   <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const naics = await useeio.NaicsMap.of(model);
+
+      document.getElementById('fetchButton').addEventListener('click', async () => {
+        const inputCode = document.getElementById('naicsInput').value;
+        const data = await naics.toBea(inputCode); // Assuming toBea returns an array of objects suitable for Tabulator
+
+        // Initialize Tabulator on naicsTable div
+        new Tabulator("#naicsTable", {
+          data: data.map(code => ({ code })), // Map your data to the format expected by Tabulator
+          autoColumns: true, // Automatically create columns from data keys
+        });
+      });
+    });
+  </script>
+  <!-- <script>
     (async () => {
+      console.log(model);
       const naics = await useeio.NaicsMap.of(model);
       // console.log(naics.toBea("562"));
       // console.log(naics.toBea(["922140", "922160"]));
@@ -20,16 +44,21 @@
       console.log(data1)
       console.log(data2)
 
-      const pre1 = document.createElement('pre');
-      const pre2 = document.createElement('pre');
+      // Function to display codes with line returns
+      function displayCodes(codes) {
+        const container = document.createElement('div');
+        codes.forEach(code => {
+          const line = document.createElement('p');
+          line.textContent = code;
+          container.appendChild(line);
+        });
+        document.body.appendChild(container);
+      }
 
-      pre1.textContent = JSON.stringify(data1, null, 2);
-      pre2.textContent = JSON.stringify(data2, null, 2);
-
-      document.body.appendChild(pre1);
-      document.body.appendChild(pre2);
+      displayCodes(data1);
+      displayCodes(data2);
     })();
-  </script>
+  </script> -->
 
 </body>
 </html>

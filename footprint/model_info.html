@@ -13,7 +13,7 @@
   <script src="../dist/useeio.js"></script>
 </head>
 <body>
-  <div id="table" style="margin:0px 20px 20px 20px"></div>
+  <div id="modelInfoDisplay" style="margin:0px 20px 20px 20px"></div>
   <script src="./config.js"></script>
   <script>
     (async () => {
@@ -28,7 +28,7 @@
       console.log(tableData);
 
       // Initialize the Tabulator table
-      new Tabulator("#table", {
+      new Tabulator("#modelInfoDisplay", {
         data: tableData, 
         layout: "fitColumns", 
         columns: [ 

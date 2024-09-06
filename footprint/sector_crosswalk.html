@@ -19,49 +19,28 @@
     (async () => {
       const crosswalk = await model.sectorCrosswalk();
       console.log(crosswalk.header);
-      // for (let i = 0; i < 10; i++) {
-      //   console.log(crosswalk.mappings[i]);
-      // }
-      // const displayDiv = document.getElementById('crosswalkDisplay');
-
-      // // Create and append the header
-      // const header = document.createElement('h2');
-      // header.textContent = 'Sector Crosswalk Data';
-      // displayDiv.appendChild(header);
-
-      // // Create and append a list for the mappings
-      // const list = document.createElement('ul');
-      // displayDiv.appendChild(list);
-
-      // // Assuming crosswalk.mappings is an array of objects or strings
-      // for (let i = 0; i < crosswalk.mappings.length && i < 10; i++) {
-      //   const item = document.createElement('li');
-      //   item.textContent = typeof crosswalk.mappings[i] === 'object' ? 
-      //     JSON.stringify(crosswalk.mappings[i]) : 
-      //     crosswalk.mappings[i];
-      //   list.appendChild(item);
-      // }
-      // Map crosswalk.header to create columns configuration
-    const columns = crosswalk.header.map(header => ({
-      title: header,
-      field: header,
-    }));
-    console.log(columns);
-    // Prepare tableData by ensuring each mapping object has keys matching the headers
-    const tableData = crosswalk.mappings.slice(0, 10).map(mapping => {
-      const mapped = {};
-      crosswalk.header.forEach((header, index) => {
-        mapped[header] = mapping[index];
+     
+      const columns = crosswalk.header.map(header => ({
+        title: header,
+        field: header,
+      }));
+      console.log(columns);
+      
+      // Prepare tableData by ensuring each mapping object has keys matching the headers
+      const tableData = crosswalk.mappings.slice(0, 10).map(mapping => {
+        const mapped = {};
+        crosswalk.header.forEach((header, index) => {
+          mapped[header] = mapping[index];
+        });
+        return mapped;
       });
-      return mapped;
-    });
 
-    // Initialize Tabulator on the div with id "crosswalkDisplay"
-    new Tabulator("#crosswalkDisplay", {
-      data: tableData, // Assign data to table
-      columns: columns, // Use dynamically created columns configuration
-      layout: "fitColumns", // Fit columns to width of table
-    });
+      // Initialize the Tabulator table
+      new Tabulator("#crosswalkDisplay", {
+        data: tableData, 
+        columns: columns, 
+        layout: "fitColumns", 
+      });
     })();
   </script>
 
