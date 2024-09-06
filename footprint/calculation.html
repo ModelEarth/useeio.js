@@ -22,52 +22,62 @@
 
   <script src="./config.js"></script>
   <script>
+    document.addEventListener('hashChangeEvent', function (elem) {
+      console.log("useeio.js detects URL hashChangeEvent");
+      hashChangedUseeio();
+    }, false);
+    function hashChangedUseeio() {
+        model = getModel();
+        pageScript();
+    }
 
-    (async () => {
+    function pageScript() {
+      (async () => {
 
-      // try to find a demand vector
-      const info = document.getElementById("info");
-      const demandId = await model.findDemand({
-        location: "US",
-        system: "Complete",
-        type: "Consumption",
-      });
+        // try to find a demand vector
+        const info = document.getElementById("info");
+        const demandId = await model.findDemand({
+          location: "US",
+          system: "Complete",
+          type: "Consumption",
+        });
 
-      if (!demandId) {
-        info.textContent = "Failed to load demand";
-        return;
-      }
-      info.textContent = `Calculating results for demand: ${demandId} ...`;
-
-      // get the demand vector and calculate results
-      const demand = await model.demand(demandId);
-      const result = await model.calculate({
-        perspective: 'direct',
-        demand,
-      });
-
-      // map results to a table
-      const indicators = await model.indicators();
-      const totals = indicators.map(indicator => {
-        return {
-          name: `${indicator.name} - ${indicator.code}`,
-          result: result.totals[indicator.index],
-          unit: indicator.unit,
+        if (!demandId) {
+          info.textContent = "Failed to load demand";
+          return;
         }
-      });
-      info.textContent = `Results for demand: ${demandId}`;
-      new Tabulator("#table", {
-        data: totals,
-        layout: "fitColumns",
-        columns: [
-          { title: "Indicator", field: "name" },
-          { title: "Result", field: "result" },
-          { title: "Unit", field: "unit" },
-        ],
-      });
+        info.textContent = `Calculating results for demand: ${demandId} ...`;
 
-    })();
+        // get the demand vector and calculate results
+        const demand = await model.demand(demandId);
+        const result = await model.calculate({
+          perspective: 'direct',
+          demand,
+        });
 
+        // map results to a table
+        const indicators = await model.indicators();
+        const totals = indicators.map(indicator => {
+          return {
+            name: `${indicator.name} - ${indicator.code}`,
+            result: result.totals[indicator.index],
+            unit: indicator.unit,
+          }
+        });
+        info.textContent = `Results for demand: ${demandId}`;
+        new Tabulator("#table", {
+          data: totals,
+          layout: "fitColumns",
+          columns: [
+            { title: "Indicator", field: "name" },
+            { title: "Result", field: "result" },
+            { title: "Unit", field: "unit" },
+          ],
+        });
+
+      })();
+    }
+    pageScript();
   </script>
 
 </body>
