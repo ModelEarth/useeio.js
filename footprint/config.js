@@ -12,11 +12,6 @@ const model = useeio.modelOf({
 });
 */
 
-document.addEventListener('hashChangeEvent', function (elem) {
-  console.log("useeio.js config.js detects URL hashChangeEvent");
-  hashChangedUseeio();
-}, false);
-
 /*
 // Public API Discontinued. Use asJsonFiles instead.
 const model = useeio.modelOf({

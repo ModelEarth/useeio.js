@@ -22,6 +22,10 @@
 
   <script src="./config.js"></script>
   <script>
+    document.addEventListener('hashChangeEvent', function (elem) {
+      console.log("useeio.js detects URL hashChangeEvent");
+      hashChangedUseeio();
+    }, false);
     function hashChangedUseeio() {
         model = getModel();
         pageScript();
