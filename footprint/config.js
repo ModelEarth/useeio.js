@@ -12,6 +12,11 @@ const model = useeio.modelOf({
 });
 */
 
+document.addEventListener('hashChangeEvent', function (elem) {
+  console.log("useeio.js config.js detects URL hashChangeEvent");
+  hashChangedUseeio();
+}, false);
+
 /*
 // Public API Discontinued. Use asJsonFiles instead.
 const model = useeio.modelOf({
@@ -21,19 +26,29 @@ const model = useeio.modelOf({
 });
 */
 
-const model = useeio.modelOf({
-  //endpoint: 'http://localhost:8887/OpenFootprint/impacts/2020',
+let model = getModel();
+function getModel() {
+    let theModel = "USEEIOv2.0.1-411";
+    let hash = getHash();
+    if (hash.state) { // Prior to 2024 states were GA, ME, MN, OR, WA
+        let thestate = hash.state.split(",")[0].toUpperCase();
+        theModel = thestate + "EEIOv1.0-s-20"
+    }
 
-  // CORS error
-  endpoint: 'https://raw.githubusercontent.com/ModelEarth/OpenFootprint/main/impacts/2020',
-  endpoint: 'https://model.earth/OpenFootprint/main/impacts/2020',
+    return useeio.modelOf({
+      //endpoint: 'http://localhost:8887/OpenFootprint/impacts/2020',
 
-  // So clone the OpenFootprint repo into the same webroot.
-  endpoint: '/OpenFootprint/impacts/2020',
+      // CORS error
+      endpoint: 'https://raw.githubusercontent.com/ModelEarth/OpenFootprint/main/impacts/2020',
+      endpoint: 'https://model.earth/OpenFootprint/main/impacts/2020',
 
-  model: 'USEEIOv2.0.1-411',
-  asJsonFiles: true,
-});
+      // So clone the OpenFootprint repo into the same webroot.
+      endpoint: '/OpenFootprint/impacts/2020',
+
+      model: theModel,
+      asJsonFiles: true,
+    });
+}
 
 function formatCell(input, format) {
     // If format is none or blank, return input as it is.
