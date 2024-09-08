@@ -60,7 +60,7 @@ async function main() {
 
 
   // Initial table update with user's locale
-  displayTable(navigator.language);
+  displayTable(navigator.language, true);
 }
 main();
 
@@ -73,7 +73,7 @@ function displayTable(locale, isEasyFormat) {
       title: "Output", // Total commodity output
       field: isEasyFormat ? "outputEasy" : "output",
       hozAlign: "right",
-      width: isEasyFormat ? undefined : "160", // Adjust width if necessary
+      // width: isEasyFormat ? undefined : "160", 
       formatter: isEasyFormat ? undefined : function(cell, formatterParams) {
         var value = cell.getValue();
         return new Intl.NumberFormat(locale).format(value);
@@ -88,6 +88,7 @@ function displayTable(locale, isEasyFormat) {
       title: "Jobs",
       field: isEasyFormat ? "jobsEasy" : "jobs",
       hozAlign: "right",
+      // width: isEasyFormat ? undefined : "160",
       formatter: isEasyFormat ? undefined : function(cell, formatterParams) {
         var value = cell.getValue();
         return new Intl.NumberFormat(locale).format(value);
@@ -189,6 +190,7 @@ function updateTable(locale) {
   <div id="table" style="clear:both"></div>
 
   <div id="notes" style="clear:both"></div>
+
 
 </div>
 
