@@ -31,8 +31,9 @@
       console.log(columns);
       
       // Prepare tableData by ensuring each mapping object has keys matching the headers
-      // Slice prevents page timeout due to large dataset
-      const tableData = crosswalk.mappings.slice(0, 100).map(mapping => {
+      // Slice prevents page timeout due to large dataset if pagination is not used
+      //const tableData = crosswalk.mappings.slice(0, 100).map(mapping => {
+      const tableData = crosswalk.mappings.map(mapping => {
         const mapped = {};
         crosswalk.header.forEach((header, index) => {
           mapped[header] = mapping[index];
@@ -44,7 +45,9 @@
       new Tabulator("#crosswalkDisplay", {
         data: tableData, 
         columns: columns, 
-        layout: "fitColumns"
+        layout: "fitColumns",
+        pagination: "local",  // Enable pagination
+        paginationSize: 100,  // Show all rows
       });
     })();
   </script>
