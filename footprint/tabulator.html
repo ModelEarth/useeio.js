@@ -116,16 +116,23 @@ function displayTable(locale, isEasyFormat) {
   ];
 
   // Initialize or update the Tabulator table with the new columns
-  if (table) {
-  table.setColumns(columns); // If table already exists, update columns
-  } else {
-    table = new Tabulator("#table", {
+  // if (table) {
+  // table.setColumns(columns); // If table already exists, update columns
+  // } else {
+  //   table = new Tabulator("#table", {
+  //     height: 500,
+  //     data: tableData,
+  //     layout: "fitColumns",
+  //     columns: columns
+  //   });
+  // }
+
+  table = new Tabulator("#table", {
       height: 500,
       data: tableData,
       layout: "fitColumns",
       columns: columns
     });
-  }
 }
 
 // Update the table with the selected locale
