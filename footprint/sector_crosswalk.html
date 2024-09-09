@@ -31,8 +31,8 @@
       console.log(columns);
       
       // Prepare tableData by ensuring each mapping object has keys matching the headers
+      // Slice prevents page timeout due to large dataset
       const tableData = crosswalk.mappings.slice(0, 100).map(mapping => {
-      //const tableData = crosswalk.mappings.map(mapping => {
         const mapped = {};
         crosswalk.header.forEach((header, index) => {
           mapped[header] = mapping[index];
