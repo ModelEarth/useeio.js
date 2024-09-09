@@ -17,7 +17,15 @@
     5-char Sectors (BEA_Summary) and 6-char Commodities (BEA_Detail)
   </div>
 
-  <div id="crosswalkDisplay" style="margin:0px 20px 20px 20px"></div>
+  <div style="margin:0px 20px 20px 20px">
+
+    <div class="tabulator" style="border-bottom:none"><div class="tabulator-footer" style="border:none"><div class="tabulator-footer-contents"><span class="tabulator-paginator">
+        <div id="pagination-controls"></div>
+    </span></div></div></div>
+
+    
+    <div id="crosswalkDisplay"></div>
+  </div>
   <script src="./config.js"></script>
   <script>
     (async () => {
@@ -48,7 +56,11 @@
         layout: "fitColumns",
         pagination: "local",  // Enable pagination
         paginationSize: 100,  // Show all rows
+      
+        // Move pagination above table
+        paginationElement: document.getElementById("pagination-controls"),
       });
+
     })();
   </script>
   
