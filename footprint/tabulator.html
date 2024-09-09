@@ -10,12 +10,23 @@
 <link href="https://unpkg.com/tabulator-tables@5.2.7/dist/css/tabulator.min.css" rel="stylesheet">
 <script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.2.7/dist/js/tabulator.min.js"></script>
 
-<script src="../dist/useeio.min.js"></script>
-
+<!-- <script src="../dist/useeio.min.js"></script> -->
+<script src="../dist/useeio.js"></script>
 <script type="text/javascript" src="/localsite/js/localsite.js?showheader=true&showsearch=true"></script>
 
 <script src="./config.js"></script>
 <script>
+
+function handleHashChange(){
+  console.log("URL hash changed");
+  hashChangedUseeio();
+}
+document.addEventListener('hashChangeEvent', handleHashChange, false);
+
+function hashChangedUseeio() {
+    model = getModel();
+    main();
+}
 
 function documentReady(callback) {
     if (document.readyState === "loading") {
@@ -52,7 +63,7 @@ async function main() {
     };
   });
   
-  console.log(tableData);
+  console.log("the table data is：", tableData);
   tableData.forEach(item => { // For each object in array
     item.jobsEasy = formatCell(item.jobs);
     item.outputEasy = "$" + formatCell(item.output);
@@ -115,44 +126,6 @@ function displayTable(locale, isEasyFormat) {
       columns: columns
     });
   }
-  // table = new Tabulator("#table", {
-  //   height: 500,
-  //   data: tableData,
-  //   layout: "fitColumns",
-  //   columns: [
-  //     { title: "Commodity", field: "name", width: "35%" },
-  //     { title: "Location", field: "location", hozAlign: "right", width: "80" },
-  //     { title: "Output", field: "output", hozAlign: "right", width: "160", visibleX: false, 
-  //       formatter: function(cell, formatterParams) {
-  //           var value = cell.getValue();
-  //           return new Intl.NumberFormat(navigator.language).format(value);
-  //       }
-  //     }, // Total commodity output
-  //     { title: "Output", field: "outputEasy", hozAlign: "right", sorter: function(a, b, aRow, bRow, column, dir, sorterParams) {
-  //             let aOutput = aRow.getData().output;
-  //             let bOutput = bRow.getData().output;
-  //             return aOutput - bOutput; // Sort based on the numeric `output` values
-  //         }
-  //     },
-
-  //     { title: "Jobs", field: "jobs", hozAlign: "right", visibleX: false, 
-  //       formatter: function(cell, formatterParams) {
-  //           var value = cell.getValue();
-  //           return new Intl.NumberFormat(navigator.language).format(value);
-  //       }
-  //      }, // Hidden column for sorting
-  //     {
-  //         title: "Jobs", field: "jobsEasy", hozAlign: "right", sorter: function(a, b, aRow, bRow, column, dir, sorterParams) {
-  //             // a, b: the display values being compared (jobsEasy)
-  //             // aRow, bRow: the row components for the values being compared
-  //             // Access the hidden `jobs` values for sorting
-  //             let aJobs = aRow.getData().jobs;
-  //             let bJobs = bRow.getData().jobs;
-  //             return aJobs - bJobs; // Sort based on the numeric `jobs` values
-  //         }
-  //     }
-  //   ],
-  // });
 }
 
 // Update the table with the selected locale
