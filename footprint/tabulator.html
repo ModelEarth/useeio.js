@@ -10,12 +10,23 @@
 <link href="https://unpkg.com/tabulator-tables@5.2.7/dist/css/tabulator.min.css" rel="stylesheet">
 <script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.2.7/dist/js/tabulator.min.js"></script>
 
-<script src="../dist/useeio.min.js"></script>
-
+<!-- <script src="../dist/useeio.min.js"></script> -->
+<script src="../dist/useeio.js"></script>
 <script type="text/javascript" src="/localsite/js/localsite.js?showheader=true&showsearch=true"></script>
 
 <script src="./config.js"></script>
 <script>
+
+function handleHashChange(){
+  console.log("URL hash changed");
+  hashChangedUseeio();
+}
+document.addEventListener('hashChangeEvent', handleHashChange, false);
+
+function hashChangedUseeio() {
+    model = getModel();
+    main();
+}
 
 function documentReady(callback) {
     if (document.readyState === "loading") {
@@ -52,57 +63,69 @@ async function main() {
     };
   });
   
-  console.log(tableData);
+  console.log("the table data is：", tableData);
   tableData.forEach(item => { // For each object in array
     item.jobsEasy = formatCell(item.jobs);
     item.outputEasy = "$" + formatCell(item.output);
   }); 
 
+
   // Initial table update with user's locale
-  displayTable(navigator.language);
+  displayTable(navigator.language, true);
 }
 main();
 
 var table;
-function displayTable(locale) {
-  table = new Tabulator("#table", {
-    height: 500,
-    data: tableData,
-    layout: "fitColumns",
-    columns: [
-      { title: "Commodity", field: "name", width: "35%" },
-      { title: "Location", field: "location", hozAlign: "right", width: "80" },
-      { title: "Output", field: "output", hozAlign: "right", width: "160", visibleX: false, 
-        formatter: function(cell, formatterParams) {
-            var value = cell.getValue();
-            return new Intl.NumberFormat(navigator.language).format(value);
-        }
-      }, // Total commodity output
-      { title: "Output", field: "outputEasy", hozAlign: "right", sorter: function(a, b, aRow, bRow, column, dir, sorterParams) {
-              let aOutput = aRow.getData().output;
-              let bOutput = bRow.getData().output;
-              return aOutput - bOutput; // Sort based on the numeric `output` values
-          }
+function displayTable(locale, isEasyFormat) {
+  const columns = [
+    { title: "Commodity", field: "name", width: "35%" },
+    { title: "Location", field: "location", hozAlign: "right", width: "80" },
+    {
+      title: "Output", // Total commodity output
+      field: isEasyFormat ? "outputEasy" : "output",
+      hozAlign: "right",
+      // width: isEasyFormat ? undefined : "160", 
+      formatter: isEasyFormat ? undefined : function(cell, formatterParams) {
+        var value = cell.getValue();
+        return new Intl.NumberFormat(locale).format(value);
       },
+      sorter: isEasyFormat ? function(a, b, aRow, bRow, column, dir, sorterParams) {
+        let aOutput = aRow.getData().output;
+        let bOutput = bRow.getData().output;
+        return aOutput - bOutput; // Sort based on the numeric `output` values
+      } : undefined
+    },
+    {
+      title: "Jobs",
+      field: isEasyFormat ? "jobsEasy" : "jobs",
+      hozAlign: "right",
+      // width: isEasyFormat ? undefined : "160",
+      formatter: isEasyFormat ? undefined : function(cell, formatterParams) {
+        var value = cell.getValue();
+        return new Intl.NumberFormat(locale).format(value);
+      },
+      sorter: isEasyFormat ? function(a, b, aRow, bRow, column, dir, sorterParams) {
+        // a, b: the display values being compared (jobsEasy)
+        // aRow, bRow: the row components for the values being compared
+        // Access the hidden `jobs` values for sorting
+        let aJobs = aRow.getData().jobs;
+        let bJobs = bRow.getData().jobs;
+        return aJobs - bJobs; // Sort based on the numeric `jobs` values
+      } : undefined
+    }
+  ];
 
-      { title: "Jobs", field: "jobs", hozAlign: "right", visibleX: false, 
-        formatter: function(cell, formatterParams) {
-            var value = cell.getValue();
-            return new Intl.NumberFormat(navigator.language).format(value);
-        }
-       }, // Hidden column for sorting
-      {
-          title: "Jobs", field: "jobsEasy", hozAlign: "right", sorter: function(a, b, aRow, bRow, column, dir, sorterParams) {
-              // a, b: the display values being compared (jobsEasy)
-              // aRow, bRow: the row components for the values being compared
-              // Access the hidden `jobs` values for sorting
-              let aJobs = aRow.getData().jobs;
-              let bJobs = bRow.getData().jobs;
-              return aJobs - bJobs; // Sort based on the numeric `jobs` values
-          }
-      }
-    ],
-  });
+  // Initialize or update the Tabulator table with the new columns
+  if (table) {
+  table.setColumns(columns); // If table already exists, update columns
+  } else {
+    table = new Tabulator("#table", {
+      height: 500,
+      data: tableData,
+      layout: "fitColumns",
+      columns: columns
+    });
+  }
 }
 
 // Update the table with the selected locale
@@ -130,8 +153,9 @@ function updateTable(locale) {
 </head>
 
 <body>
-
+<!-- <select id="number-format-select"></select> -->
 <div class="contentpadding">
+  <div style="margin-bottom: 10px; float:right"><select id="number-format-select"></select></div>
   <div style="margin-bottom: 10px; float:right"><select id="locale-select"></select></div>
 
   We also display from state .csv files <a href="http://localhost:8887/data-pipeline/research/economy/">pre-generated using python</a><br><br>
@@ -139,6 +163,7 @@ function updateTable(locale) {
   <div id="table" style="clear:both"></div>
 
   <div id="notes" style="clear:both"></div>
+
 
 </div>
 
@@ -161,6 +186,25 @@ localeSelect.value = navigator.language;
 localeSelect.addEventListener("change", function() {
     updateTable(this.value);
 });
+
+// for selecting the number format
+let numberFormatToggle = document.getElementById("number-format-select");
+let formats = ["simple", "full "]
+formats.forEach(format => {
+    let option = document.createElement("option");
+    option.value = format;
+    option.textContent = format;
+    numberFormatToggle.appendChild(option);
+});
+
+// Add event listener to update table when number format is changed
+numberFormatToggle.addEventListener("change", function() {
+    // Convert the selected format to a boolean
+    let isSimpleFormat = this.value === "simple";
+   
+    displayTable(navigator.language, isSimpleFormat);
+});
+
 </script>
 
 </body>
