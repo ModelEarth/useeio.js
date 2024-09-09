@@ -5,15 +5,18 @@
   <title>Sector Crosswalks</title>
   <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script type="text/javascript" src="https://model.earth/localsite/js/localsite.js?showheader=true&showsearch=true"></script>
   <script src="../dist/useeio.js"></script>
   <link href="https://unpkg.com/tabulator-tables@5.2.7/dist/css/tabulator.min.css" rel="stylesheet">
   <script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.2.7/dist/js/tabulator.min.js"></script>
-
-  <script type="text/javascript" src="https://model.earth/localsite/js/localsite.js?showheader=true&showsearch=true"></script>
-  <script src="../dist/useeio.js"></script>
+  
 </head>
 <body>
+  
+  <div style="margin:0px 20px 20px 20px">
+    <h2>NAICS to Sector Crosswalk</h2>
+    5-char Sectors (BEA_Summary) and 6-char Commodities (BEA_Detail)
+  </div>
+
   <div id="crosswalkDisplay" style="margin:0px 20px 20px 20px"></div>
   <script src="./config.js"></script>
   <script>
@@ -28,7 +31,8 @@
       console.log(columns);
       
       // Prepare tableData by ensuring each mapping object has keys matching the headers
-      const tableData = crosswalk.mappings.slice(0, 10).map(mapping => {
+      const tableData = crosswalk.mappings.slice(0, 100).map(mapping => {
+      //const tableData = crosswalk.mappings.map(mapping => {
         const mapped = {};
         crosswalk.header.forEach((header, index) => {
           mapped[header] = mapping[index];
@@ -40,10 +44,11 @@
       new Tabulator("#crosswalkDisplay", {
         data: tableData, 
         columns: columns, 
-        layout: "fitColumns", 
+        layout: "fitColumns"
       });
     })();
   </script>
+  
 
 </body>
 </html>
