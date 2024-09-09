@@ -23,42 +23,17 @@
 
       document.getElementById('fetchButton').addEventListener('click', async () => {
         const inputCode = document.getElementById('naicsInput').value;
-        const data = await naics.toBea(inputCode); // Assuming toBea returns an array of objects suitable for Tabulator
+        const data = await naics.toBea(inputCode); 
 
-        // Initialize Tabulator on naicsTable div
+        // Initialize Tabulator 
         new Tabulator("#naicsTable", {
-          data: data.map(code => ({ code })), // Map your data to the format expected by Tabulator
-          autoColumns: true, // Automatically create columns from data keys
+          data: data.map(code => ({ code })), 
+          autoColumns: true, 
         });
       });
     });
   </script>
-  <!-- <script>
-    (async () => {
-      console.log(model);
-      const naics = await useeio.NaicsMap.of(model);
-      // console.log(naics.toBea("562"));
-      // console.log(naics.toBea(["922140", "922160"]));
-      data1 = naics.toBea("562")
-      data2 = naics.toBea(["922140", "922160"])
-      console.log(data1)
-      console.log(data2)
-
-      // Function to display codes with line returns
-      function displayCodes(codes) {
-        const container = document.createElement('div');
-        codes.forEach(code => {
-          const line = document.createElement('p');
-          line.textContent = code;
-          container.appendChild(line);
-        });
-        document.body.appendChild(container);
-      }
-
-      displayCodes(data1);
-      displayCodes(data2);
-    })();
-  </script> -->
+  
 
 </body>
 </html>
