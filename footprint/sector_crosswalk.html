@@ -33,7 +33,7 @@
   <script>
     (async () => {
       const crosswalk = await model.sectorCrosswalk();
-      console.log(crosswalk.header);
+      console.log("log out the crosswalk", crosswalk);
      
       const columns = crosswalk.header.map(header => ({
         title: header,
@@ -51,6 +51,7 @@
         });
         return mapped;
       });
+      console.log("the table data is", tableData);
 
       // Initialize the Tabulator table
       new Tabulator("#crosswalkDisplay", {

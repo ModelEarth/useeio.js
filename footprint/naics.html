@@ -14,21 +14,62 @@
 </head>
 <body>
   <input type="text" id="naicsInput" placeholder="Enter NAICS Code">
-  <button id="fetchButton">Fetch Data</button>
-  <div id="naicsTable"></div>
-
+  <button id="fetchButton" style="margin-bottom: 20px">Fetch Data</button>
+  <div id="naicsTable" style="margin-bottom: 20px"></div>
+  <div id="naicsCodeDisplay"></div>
   <script src="./config.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       const naics = await useeio.NaicsMap.of(model);
+      const crosswalk = await model.sectorCrosswalk();
+      const uniqueNaicsCode = new Set();
+      crosswalk.mappings.forEach(mapping => {
+        uniqueNaicsCode.add(mapping[0]);
+      });
+      const uniqueNaicsCodeArray = Array.from(uniqueNaicsCode);
+
+      console.log("uniqueNaicsCodeArray", uniqueNaicsCodeArray);
+
+      new Tabulator("#naicsCodeDisplay", {
+        data: uniqueNaicsCodeArray.map(code => ({ naicsCode: code })), 
+        columns: [
+          {title: "NAICS Code", field: "naicsCode", cellClick: async (e, cell) => {
+            const naicsCode = cell.getData().naicsCode;
+            const data = await naics.toBea(naicsCode);
+            console.log("the fetched data from clicking the cell is: ", data);
+
+            // Update naicsTable with the new code
+            new Tabulator("#naicsTable", {
+              data: data.map(code => ({ BEA_detail: code })),
+              autoColumns: true,
+            });
+          }}
+        ],
+        autoColumns: true, 
+        pagination: "local",
+        paginationSize: 10,
+        // cellClick: async(e, cell) => {
+        //   const naicsCode = cell.getRow().getData().naicsCode;
+        //   const data = await naics.toBea(naicsCode);
+        //   consoel.log("the fetched data from clicking the cell is: ", data);
+
+        //   // update naicsTable with the new code
+        //   new Tabulator("#naicsTable", {
+        //     data: data.map(code => ({ BEA_detail: code })), 
+        //     autoColumns: true, 
+        //   });
+        // }
+      });
 
       document.getElementById('fetchButton').addEventListener('click', async () => {
         const inputCode = document.getElementById('naicsInput').value;
         const data = await naics.toBea(inputCode); 
+        console.log(naics);
+        console.log("the fetched data from pressing the button is: ", data);
 
         // Initialize Tabulator 
         new Tabulator("#naicsTable", {
-          data: data.map(code => ({ code })), 
+          data: data.map(code => ({ BEA_detail: code })), 
           autoColumns: true, 
         });
       });
