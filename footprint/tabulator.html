@@ -67,29 +67,31 @@ async function main() {
   tableData.forEach(item => { // For each object in array
     item.jobsEasy = formatCell(item.jobs);
     item.outputEasy = "$" + formatCell(item.output);
+    item.jobScientific = formatCell(item.jobs,'scientific');
+    item.outputScientific = formatCell(item.output,'scientific');
   }); 
 
 
   // Initial table update with user's locale
-  displayTable(navigator.language, true);
+  displayTable(navigator.language, "simple");
 }
 main();
 
 var table;
-function displayTable(locale, isEasyFormat) {
+function displayTable(locale, formatType) {
   const columns = [
     { title: "Commodity", field: "name", width: "35%" },
     { title: "Location", field: "location", hozAlign: "right", width: "80" },
     {
       title: "Output", // Total commodity output
-      field: isEasyFormat ? "outputEasy" : "output",
+      field: formatType === "simple" ? "outputEasy" : (formatType === "full" ? "output" : "outputScientific"),
       hozAlign: "right",
       // width: isEasyFormat ? undefined : "160", 
-      formatter: isEasyFormat ? undefined : function(cell, formatterParams) {
+      formatter: formatType === "simple" ? undefined : function(cell, formatterParams) {
         var value = cell.getValue();
         return new Intl.NumberFormat(locale).format(value);
       },
-      sorter: isEasyFormat ? function(a, b, aRow, bRow, column, dir, sorterParams) {
+      sorter: formatType === "simple" ? function(a, b, aRow, bRow, column, dir, sorterParams) {
         let aOutput = aRow.getData().output;
         let bOutput = bRow.getData().output;
         return aOutput - bOutput; // Sort based on the numeric `output` values
@@ -97,14 +99,14 @@ function displayTable(locale, isEasyFormat) {
     },
     {
       title: "Jobs",
-      field: isEasyFormat ? "jobsEasy" : "jobs",
+      field: formatType === "simple" ? "jobsEasy" : (formatType === "full" ? "jobs" : "jobScientific"),
       hozAlign: "right",
       // width: isEasyFormat ? undefined : "160",
-      formatter: isEasyFormat ? undefined : function(cell, formatterParams) {
+      formatter: formatType === "simple" ? undefined : function(cell, formatterParams) {
         var value = cell.getValue();
         return new Intl.NumberFormat(locale).format(value);
       },
-      sorter: isEasyFormat ? function(a, b, aRow, bRow, column, dir, sorterParams) {
+      sorter: formatType === "simple" ? function(a, b, aRow, bRow, column, dir, sorterParams) {
         // a, b: the display values being compared (jobsEasy)
         // aRow, bRow: the row components for the values being compared
         // Access the hidden `jobs` values for sorting
@@ -115,17 +117,6 @@ function displayTable(locale, isEasyFormat) {
     }
   ];
 
-  // Initialize or update the Tabulator table with the new columns
-  // if (table) {
-  // table.setColumns(columns); // If table already exists, update columns
-  // } else {
-  //   table = new Tabulator("#table", {
-  //     height: 500,
-  //     data: tableData,
-  //     layout: "fitColumns",
-  //     columns: columns
-  //   });
-  // }
 
   table = new Tabulator("#table", {
     height: 500,
@@ -144,14 +135,7 @@ function updateTable(locale) {
             return new Intl.NumberFormat(locale, { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0  }).format(value);
         }
     });
-    /*
-    table.updateColumnDefinition("output", {
-        formatter: function(cell, formatterParams) {
-            var value = cell.getValue();
-            return new Intl.NumberFormat(locale).format(value);
-        }
-    });
-    */
+
     table.redraw();
 }
 
@@ -196,7 +180,7 @@ localeSelect.addEventListener("change", function() {
 
 // for selecting the number format
 let numberFormatToggle = document.getElementById("number-format-select");
-let formats = ["simple", "full "]
+let formats = ["simple", "full", "scientific"];
 formats.forEach(format => {
     let option = document.createElement("option");
     option.value = format;
@@ -206,10 +190,9 @@ formats.forEach(format => {
 
 // Add event listener to update table when number format is changed
 numberFormatToggle.addEventListener("change", function() {
-    // Convert the selected format to a boolean
-    let isSimpleFormat = this.value === "simple";
-   
-    displayTable(navigator.language, isSimpleFormat);
+    // // Convert the selected format to a boolean
+    // let isSimpleFormat = this.value === "simple";
+    displayTable(navigator.language, this.value);
 });
 
 </script>

@@ -94,7 +94,7 @@ function formatCell(input, format) {
 //console.log(formatCell(50000, 'easy'));       // Output: "50.0 K"
 //console.log(formatCell(99.99, 'easy') + " - BUG, let's avoid adding .0 when rounding");        // Output: "100.0" - 
 //console.log(formatCell(0.0005, 'easy'));      // Output: "5.0e-4"
-
+// console.log(formatCell(45000000, 'scientific')); // Output: "4.5e+7"
 // NOT USED - Will probably delete. Tabulator Intl.NumberFormat used instead.
 function formatNum(numberString, locale = navigator.language) {
     if (typeof numberString !== 'string') {
