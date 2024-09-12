@@ -21,6 +21,8 @@ US Environmental Protection Agency
 
 [The 2024 State Models Report map JPEG images](https://doi.org/10.6084/m9.figshare.c.7041473) document the following factors for indicating environmental pressure intensity.
 
+All the maps of per dollar produced in a year by a state are derived using the N matrix values from the respective state model for the state commodity and state location and (e.g. 23/US-GA).  Other figures might be derived from calculations with model matrices.
+
 **The N matrix** containing **direct and indirect impact coefficients** for different commodities for duplicating the report. These coefficients capture environmental pressure activities like emission and resource use associated with both direct and indirect activities. N matrix gives us the direct and indirect impact coeff for all 411 sectors, whose API we can use to rank environmental pressure intensity per state. As N matrix uses equivalency/$ as its value unit, it will be useful for calculation of total environmental impact attributed to each sector. 
 
 **Make Matrix (V)** -  contains the total production or output of commodities by industry (sector) in each state (useful for associating production activities with environmental pressures).  
@@ -36,6 +38,10 @@ US Environmental Protection Agency
 **"final\_demand\_meta" matrix** to indicate consumption-based environmental pressure.  
 
 **A (Direct Requirements)** for calculating direct environmental pressure intensities.  
+
+The US EPA provides [USEEIO-State R code](https://github.com/usepa/USEEIO-State) related to these figures to help make the calculation procedures consistent.
+
+Send specific questions to USEEIO@epa.gov
 <br>
 
 ---
