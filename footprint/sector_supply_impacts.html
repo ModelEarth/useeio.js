@@ -69,7 +69,8 @@
 
       info.innerHTML = `Supply chain impacts of: ${sector.name}.`;
       if (hash.state) {
-        info.innerHTML += ` View <a href="tabulator.html#state=${hash.state}">top commodities in ${hash.state}</a>`;
+        let thestate = hash.state.split(",")[0].toUpperCase();
+        info.innerHTML += ` View <a href="tabulator.html#state=${thestate}">top commodities in ${thestate}</a>`;
       }
       const tableConfig = {
         data: results,
