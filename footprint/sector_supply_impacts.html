@@ -15,14 +15,23 @@
 </head>
 
 <body>
-
-  <p id="info" style="padding-left:20px;">Loading ...</p>
-  <div id="table"></div>
+  <div style="padding-left:60px;padding-right:18px;">
+    <div id="relocatedStateMenu"></div>
+    <p id="info">Loading ...</p>
+    <div id="table"></div>
+  </div>
+  
 
   <script src="./config.js"></script>
   <script>
+    document.addEventListener('hashChangeEvent', hashChangedUseeio, false);
+    function hashChangedUseeio() {
+      console.log("URL hash changed");
+      model = getModel();
+      main();
+    }
     async function main() {
-
+      let hash = getUrlHash();
       const info = document.getElementById("info");
       const demandId = await model.findDemand({
         system: "Complete",
@@ -58,7 +67,10 @@
         results.push(result);
       }
 
-      info.textContent = `Supply chain impacts of: ${sector.name}`;
+      info.innerHTML = `Supply chain impacts of: ${sector.name}.`;
+      if (hash.state) {
+        info.innerHTML += ` View <a href="tabulator.html#state=${hash.state}">top commodities in ${hash.state}</a>`;
+      }
       const tableConfig = {
         data: results,
         layout: "fitColumns",

@@ -16,16 +16,11 @@
 
 <script src="./config.js"></script>
 <script>
-
-function handleHashChange(){
-  console.log("URL hash changed");
-  hashChangedUseeio();
-}
-document.addEventListener('hashChangeEvent', handleHashChange, false);
-
+document.addEventListener('hashChangeEvent', hashChangedUseeio, false);
 function hashChangedUseeio() {
-    model = getModel();
-    main();
+  console.log("URL hash changed");
+  model = getModel();
+  main();
 }
 
 function documentReady(callback) {
@@ -182,6 +177,7 @@ function updateTable(locale) {
   <div style="margin-bottom: 10px; float:right"><select id="number-format-select"></select></div>
   <div style="margin-bottom: 10px; float:right"><select id="locale-select"></select></div>
 
+  <div id="relocatedStateMenu"></div>
   We also display from state .csv files <a href="http://localhost:8887/data-pipeline/research/economy/">pre-generated using python</a><br><br>
 
   <div id="table" style="clear:both"></div>
