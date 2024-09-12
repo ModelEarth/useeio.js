@@ -21,14 +21,17 @@ const model = useeio.modelOf({
 });
 */
 let model = getModel();
-function getModel() {
-    let theModel = "USEEIOv2.0.1-411";
+function getModelFolderName() {
     let hash = getUrlHash();
+    let theModel = "USEEIOv2.0.1-411";
     if (hash.state) { // Prior to 2024 states were GA, ME, MN, OR, WA
         let thestate = hash.state.split(",")[0].toUpperCase();
         theModel = thestate + "EEIOv1.0-s-20"
     }
-
+    return theModel;
+}
+function getModel() {
+    let theModel = getModelFolderName()
     return useeio.modelOf({
       //endpoint: 'http://localhost:8887/OpenFootprint/impacts/2020',
 

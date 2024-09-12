@@ -41,7 +41,8 @@ async function main() {
   documentReady(function() {
     const notesDiv = document.getElementById("notes");
     if (notesDiv) {
-        notesDiv.innerHTML = "<br>From OpenFootprint/impacts/2020/USEEIOv2.0.1-411/sectors.json<br>" + JSON.stringify(sectors, null, 2);
+        notesDiv.innerHTML = "<br>From OpenFootprint/impacts/2020/" + getModelFolderName() + "/sectors.json<br>"
+        // + JSON.stringify(sectors, null, 2);
     }
   });
   const indicator = (await model.indicators())
