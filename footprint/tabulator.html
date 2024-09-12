@@ -80,7 +80,8 @@ function displayTable(locale, formatType) {
     { title: "Location", field: "location", hozAlign: "right", width: "80" },
     {
       title: "Output", // Total commodity output
-      field: formatType === "simple" ? "outputEasy" : "output",
+      fieldX: formatType === "simple" ? "outputEasy" : "output",
+      field: "output",
       hozAlign: "right",
       maxWidth: "150px",
       // width: isEasyFormat ? undefined : "160", 
@@ -196,7 +197,7 @@ var localeSelect = document.getElementById("locale-select");
 var locales = ["en-US", "fr-FR", "de-DE", "es-ES", "it-IT", "ja-JP", "ko-KR", "zh-CN"];
 
 locales.forEach(locale => {
-    var option = document.createElement("option");
+    let option = document.createElement("option");
     option.value = locale;
     option.textContent = locale;
     localeSelect.appendChild(option);
