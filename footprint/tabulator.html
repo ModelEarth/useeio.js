@@ -81,6 +81,7 @@ function displayTable(locale, formatType) {
       title: "Output", // Total commodity output
       field: formatType === "simple" ? "outputEasy" : "output",
       hozAlign: "right",
+      maxWidth: "150px",
       // width: isEasyFormat ? undefined : "160", 
       formatter: function(cell, formatterParams){
         var value = cell.getValue();
@@ -112,6 +113,7 @@ function displayTable(locale, formatType) {
       title: "Jobs",
       field: formatType === "simple" ? "jobsEasy" : "jobs",
       hozAlign: "right",
+      maxWidth: "100px",
       // width: isEasyFormat ? undefined : "160",
       formatter: function(cell, formatterParams) {
         var value = cell.getValue();
