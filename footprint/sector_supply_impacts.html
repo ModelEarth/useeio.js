@@ -16,7 +16,7 @@
 
 <body>
 
-  <p id="info">Loading ...</p>
+  <p id="info" style="padding-left:20px;">Loading ...</p>
   <div id="table"></div>
 
   <script src="./config.js"></script>
@@ -63,14 +63,15 @@
         data: results,
         layout: "fitColumns",
         columns: [
-          { title: "Sector", field: "sector" },
-          { title: "Total score", field: "total" },
+          { title: "Sector", field: "sector", minWidth: 200 },
+          { title: "Total score", field: "total", minWidth: 120 },
         ],
       };
       for (const indicator of indicators) {
         tableConfig.columns.push({
           title: indicator.code,
-          field: indicator.code
+          field: indicator.code,
+          minWidth:90
         });
       }
       new Tabulator("#table", tableConfig);
