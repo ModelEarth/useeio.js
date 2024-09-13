@@ -8,9 +8,7 @@ View [Footprint Sample Links](footprint)
 
 `useeio.js` is not on `npmjs.org` yet but you can just install it from Github directly:
 
-```
-$ npm install git+https://github.com/USEPA/useeio.js.git
-```
+	npm install git+https://github.com/USEPA/useeio.js.git
 
 Alternatively, you can download and build it locally.
 Warning: We are avoiding this currently since the `dist` folder gets deleted. An [issue has been posted](https://github.com/USEPA/useeio.js/issues/2).
@@ -19,27 +17,24 @@ You can contribute to the javascript in our [footprint](footprint) folder withou
 
 npm ci (clean install) is similar to npm install, but doesn't modify the package-lock.json. If dependencies in the package lock do not match those in package.json, npm ci will exit with an error, instead of updating the package lock.  If you're upgrading, npm install will make a lot of changes in package-lock.json.
 
-```bash
-$ cd {some folder}
-$ git clone https://github.com/USEPA/useeio.js.git
-$ cd useeio.js
-$ npm ci
-$ npm run build
-```
+To build, run the followin in the useeio.js folder.
+
+	npm ci
+	npm run build
+
 
 
 ## Dump API data locally
 This project contains a script for downloading a JSON dump of an USEEIO-API instance:
 
-```
-$ node scripts/dumpjson.js --endpoint {URL}
-```
+	node scripts/dumpjson.js --endpoint {URL}
+
 Where `{URL}` is some API endpoint. Formerly https://smmtool.app.cloud.gov/api.
 If the API requires a key, append --apikey [Add API key here]
 You can [register for an API key](https://github.com/USEPA/USEEIO_API/wiki/Use-the-API) via the US EPA's contact link.
 
 You can then host the json files locally, e.g. via [http-server](https://www.npmjs.com/package/http-server).  
-The state json files are also pre-generated for you at [https://model.earth/OpenFootprint/impacts](https://model.earth/OpenFootprint/impacts)
+The 50 state json files are also pre-generated for you at [https://model.earth/OpenFootprint/impacts](https://model.earth/OpenFootprint/impacts)
 
 
 ```bash
