@@ -17,11 +17,13 @@ Warning: We are avoiding this currently since the `dist` folder gets deleted. An
 
 You can contribute to the javascript in our [footprint](footprint) folder without building.
 
+npm ci (clean install) is similar to npm install, but doesn't modify the package-lock.json. If dependencies in the package lock do not match those in package.json, npm ci will exit with an error, instead of updating the package lock.  If you're upgrading, npm install will make a lot of changes in package-lock.json.
+
 ```bash
 $ cd {some folder}
 $ git clone https://github.com/USEPA/useeio.js.git
 $ cd useeio.js
-$ npm install
+$ npm ci
 $ npm run build
 ```
 
