@@ -33,8 +33,12 @@ Where `{URL}` is some API endpoint. Formerly https://smmtool.app.cloud.gov/api.
 If the API requires a key, append --apikey [Add API key here]
 You can [register for an API key](https://github.com/USEPA/USEEIO_API/wiki/Use-the-API) via the US EPA's contact link.
 
-You can then host the json files locally, e.g. via [http-server](https://www.npmjs.com/package/http-server).  
-The 50 state json files are also pre-generated for you at [https://model.earth/OpenFootprint/impacts](https://model.earth/OpenFootprint/impacts)
+
+The 50 state json files are pre-generated for you at [https://model.earth/OpenFootprint/impacts](https://model.earth/OpenFootprint/impacts)
+
+Model.earth developers use the following [http-server setup steps](https://model.earth/localsite/start/steps/) with port 8887.
+
+Alternatively you can host the json files via [npm http-server](https://www.npmjs.com/package/http-server) and the following: 
 
 
 ```bash
