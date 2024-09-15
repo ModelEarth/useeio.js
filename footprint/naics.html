@@ -26,6 +26,21 @@
       crosswalk.mappings.forEach(mapping => {
         uniqueNaicsCode.add(mapping[0]);
       });
+
+      window.fetchAndDisplayNaicsData = async (naicsCode) => {
+        try {
+          const data = await naics.toBea(naicsCode);
+          console.log("Fetched data for NAICS code", naicsCode, ":", data);
+          // Update naicsTable with the fetched data
+          new Tabulator("#naicsTable", {
+            data: data.map(code => ({ BEA_detail: code })),
+            autoColumns: true,
+          });
+        } catch (error) {
+          console.error("Error fetching data for NAICS code", naicsCode, ":", error);
+        }
+      };
+
       const uniqueNaicsCodeArray = Array.from(uniqueNaicsCode);
 
       console.log("uniqueNaicsCodeArray", uniqueNaicsCodeArray);
@@ -33,17 +48,27 @@
       new Tabulator("#naicsCodeDisplay", {
         data: uniqueNaicsCodeArray.map(code => ({ naicsCode: code })), 
         columns: [
-          {title: "NAICS Code", field: "naicsCode", cellClick: async (e, cell) => {
-            const naicsCode = cell.getData().naicsCode;
-            const data = await naics.toBea(naicsCode);
-            console.log("the fetched data from clicking the cell is: ", data);
+          {title: "NAICS Code", field: "naicsCode", 
+          // cellClick: async function(e, cell){
+          //   const naicsCode = cell.getData();
+          //   console.log("the clicked cell is: ", naicsCode);
+          //   try {
+          //       const data = await naics.toBea(naicsCode);
+          //       console.log("the fetched data from clicking the cell is: ", data);
+          //   } catch (error) {
+          //       console.error("Error fetching data: ", error);
+          //   }
+          formatter: function(cell, formatterParams, onRendered){
+            console.log("cell value: ", cell.getValue());
+            return `<a href="#" onclick="fetchAndDisplayNaicsData('${cell.getValue()}'); return false;">${cell.getValue()}</a>`
+          }
 
             // Update naicsTable with the new code
-            new Tabulator("#naicsTable", {
-              data: data.map(code => ({ BEA_detail: code })),
-              autoColumns: true,
-            });
-          }}
+            // new Tabulator("#naicsTable", {
+            //   data: data.map(code => ({ BEA_detail: code })),
+            //   autoColumns: true,
+            // });
+          }
         ],
         autoColumns: true, 
         pagination: "local",
@@ -63,15 +88,16 @@
 
       document.getElementById('fetchButton').addEventListener('click', async () => {
         const inputCode = document.getElementById('naicsInput').value;
-        const data = await naics.toBea(inputCode); 
-        console.log(naics);
-        console.log("the fetched data from pressing the button is: ", data);
+        // const data = await naics.toBea(inputCode); 
+        // console.log(naics);
+        // console.log("the fetched data from pressing the button is: ", data);
 
-        // Initialize Tabulator 
-        new Tabulator("#naicsTable", {
-          data: data.map(code => ({ BEA_detail: code })), 
-          autoColumns: true, 
-        });
+        // // Initialize Tabulator 
+        // new Tabulator("#naicsTable", {
+        //   data: data.map(code => ({ BEA_detail: code })), 
+        //   autoColumns: true, 
+        // });
+        await fetchAndDisplayNaicsData(inputCode);
       });
     });
   </script>
