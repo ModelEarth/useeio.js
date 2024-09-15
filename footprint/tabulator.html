@@ -80,14 +80,17 @@ function displayTable(locale, formatType) {
     { title: "Location", field: "location", hozAlign: "right", width: "80" },
     {
       title: "Output", // Total commodity output
-      fieldX: formatType === "simple" ? "outputEasy" : "output",
-      field: "output",
+      field: formatType === "simple" ? "outputEasy" : ( formatType === "full" ? "output" : (
+        formatType === "scientific" ? "output" : "N/A"
+      )),
+      // field: "output",
+      // field: "output",
       hozAlign: "right",
       maxWidth: "150px",
       // width: isEasyFormat ? undefined : "160", 
       formatter: function(cell, formatterParams){
         var value = cell.getValue();
-        console.log("formatter: value is: ", value);
+       
         if (formatType === "full"){
           return new Intl.NumberFormat(navigator.language).format(value);
         } else if (formatType === "scientific"){
