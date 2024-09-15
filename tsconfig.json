@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "module": "ESNext",
-    "target": "es5",
+    "target": "ES5",  
     "lib": [
       "es2015",
       "dom"
@@ -9,6 +9,9 @@
     "outDir": "./dist",
     "strict": true,
     "noFallthroughCasesInSwitch": true,
+    "importHelpers": true,  
+    "moduleResolution": "node",  
+    "esModuleInterop": true  
   },
   "include": [
     "src/useeio.ts"
