@@ -4,25 +4,37 @@ API](https://github.com/USEPA/USEEIO_API) that runs in the browser. It is writte
 
 View [Footprint Sample Links](footprint)
 
-## Usage
+## Impact Reports
+
+You can contribute to the javascript reports in our [footprint](footprint) folder without building.
+
+## Build Usage
+
+When model versions change, you can build useeio.min.js locally to update it in [io charts](https://model.earth/io/charts/).
+
+<!--
+Warning: We are avoiding this currently since the `dist` folder gets deleted. An [issue has been posted](https://github.com/USEPA/useeio.js/issues/2).
+-->
+
+<!-- npm install was required after updates for tsconfig.js and package.js to resolve https://github.com/USEPA/useeio.js/issues/2
+
+We could show this after package-lock.json is updated in parent repo.
+`npm ci` (clean install) is similar to `npm install`, but doesn't modify the package-lock.json. If dependencies in the package lock do not match those in package.json, npm ci will exit with an error, instead of updating the package lock.  If you're upgrading, npm install will make a lot of changes in package-lock.json.
+-->
+
+To build, run the following in the useeio.js folder.
+
+	npm install
+	npm run build
+
+
+## Install option
 
 `useeio.js` is not on `npmjs.org` yet but you can just install it from Github directly:
 
 	npm install git+https://github.com/USEPA/useeio.js.git
 
-Alternatively, you can download and build it locally.
-Warning: We are avoiding this currently since the `dist` folder gets deleted. An [issue has been posted](https://github.com/USEPA/useeio.js/issues/2).
-
-You can contribute to the javascript in our [footprint](footprint) folder without building.
-
-`npm ci` (clean install) is similar to `npm install`, but doesn't modify the package-lock.json. If dependencies in the package lock do not match those in package.json, npm ci will exit with an error, instead of updating the package lock.  If you're upgrading, npm install will make a lot of changes in package-lock.json.
-
-To build, run the followin in the useeio.js folder.
-
-	npm ci
-	npm run build
-
-
+<!-- Not sure when we'd do the above command -->
 
 ## Dump API data locally
 This project contains a script for downloading a JSON dump of an USEEIO-API instance:
