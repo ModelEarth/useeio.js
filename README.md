@@ -34,7 +34,9 @@ To build, run the following in the useeio.js folder.
 
 	npm install git+https://github.com/USEPA/useeio.js.git
 
-<!-- Not sure when we'd do the above command -->
+Note that useeio-widgets package.json contains a useeio.js dependency:
+
+	"useeio": "github:USEPA/useeio.js"
 
 ## Dump API data locally
 This project contains a script for downloading a JSON dump of an USEEIO-API instance:
