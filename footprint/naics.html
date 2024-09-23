@@ -40,6 +40,28 @@
         uniqueNaicsCode.add(mapping[0]);
       });
 
+      // function tofetch EPA sectors
+      async function getEpaSectors() {
+        const sectorsJsonFile = "/io/build/api/USEEIOv2.0.1-411/sectors.json";
+        try {
+          const response = await fetch(sectorsJsonFile);
+          const data = await response.json();
+          return data.filter(obj => obj.location !== "RoUS");
+        } catch (error) {
+          console.error("Error fetching EPA sectors:", error);
+          return [];
+        }
+      }
+
+      // Fetch EPA sectors
+      const epaSectors = await getEpaSectors();
+
+      // Function to find sector name by code
+      function findSectorName(code) {
+        const sector = epaSectors.find(s => s.code === code);
+        return sector ? sector.name : "Unknown";
+      }
+
       window.fetchAndDisplayNaicsData = async (naicsCode) => {
         try {
           const data = await naics.toBea(naicsCode);
@@ -48,10 +70,12 @@
           new Tabulator("#naicsTable", {
             data: data.map(item => ({ 
               naicsCode: naicsCode,
-              BEA_detail: item })),
+              BEA_detail: item,
+              sectorName: findSectorName(item)})),
             columns: [
               { title: "NAICS Code", field: "naicsCode" },
-              { title: "BEA Detail", field: "BEA_detail" }
+              { title: "BEA Detail", field: "BEA_detail" },
+              { title: "Sector Name", field: "sectorName" }
             ],
             layout: "fitColumns",
             pagination: "local",
