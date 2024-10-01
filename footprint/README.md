@@ -83,6 +83,34 @@ The US EPA provides [USEEIO-State R code](https://github.com/usepa/USEEIO-State)
 Send specific questions to USEEIO@epa.gov
 <br>
 
+
+## Build for new State Models
+
+Fork the useeio-widgets repo (it's in sync with the parent USEPA repo)
+https://github.com/modelEarth/useeio-widgets
+
+Change line 37 in package.json to use modelearth rather than USEPA
+https://github.com/ModelEarth/useeio-widgets/blob/master/package.json
+
+"useeio": "github:modelearth/useeio.js"
+
+Before and after building useeio-widgets, point this page at the new state models in OpenFootprint
+http://localhost:8887/useeio-widgets/build/iochart.html#indicators=ENRG,GHG,VADD
+
+Before and after build useeio-widgets, copy the "useeio-widgets/build/useeio_widgets.js" file into a fork of the "io" repo and replace "io/build/useeio_widgets.js" and see if anything changes in Github Desktop.  (Copy it before building to first see if EPA already made a change. Not likely.)
+
+https://github.com/ModelEarth/io/tree/main/build/lib
+
+This is a page to test with locally to see if values appear in the middle column. This page already points at the new state models and the middle column values are 0 as a result:
+http://localhost:8887/io/build/iochart.html#indicators=ENRG,GHG,VADD
+https://model.earth/io/build/iochart.html#indicators=ENRG,GHG,VADD
+
+Here's a documentation page I created with info on the build.
+You can add notes here:
+https://model.earth/io/charts/
+
+We're not sure if the useeio.js build Lakshit achieved will incorporate changes needed for the new state models.  If the useeio_widgets.js file doesn't change we'll need to figure out what needs to be done for the new 50 state model structure.
+
 ---
 
 [Participate through DemocracyLab](https://www.democracylab.org/projects/834) - [Contact our Team](/io/team/) - [International Trade Flow](/OpenFootprint/trade/)
