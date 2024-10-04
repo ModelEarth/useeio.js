@@ -102,7 +102,7 @@ Add at line 27. You will then see $0 in the center column.
 	// To test state data - Use GA, ME, MN, OR, WA for ones in API folder.
 	modelID = "GAEEIOv1.0";
 
-Before and after building useeio-widgets, copy the "useeio-widgets/build/useeio_widgets.js" file into a fork of the "io" repo and replace "io/build/useeio_widgets.js" and see if anything changes in Github Desktop.  (Copy it before building to first see if EPA already made a change. Not likely.)
+Before and after building useeio-widgets, copy the "useeio-widgets/build/lib\useeio\_widgets.js" file into a fork of the "io" repo and replace "io/build/useeio_widgets.js" and see if anything changes in Github Desktop.  (Copy it before building to first see if EPA already made a change. Not likely.)
 
 https://github.com/ModelEarth/io/tree/main/build/lib
 
