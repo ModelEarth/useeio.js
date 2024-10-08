@@ -110,7 +110,7 @@ Here's a page to test with locally to see if values appear in the middle column.
 
 Info on the charts: [model.earth/io/charts](https://model.earth/io/charts/) and the [build steps](https://model.earth/io/charts/react/)
 
-We're not sure if the useeio.js build Lakshit achieved will incorporate changes needed for the new state models.  If the useeio_widgets.js file doesn't change we'll need to figure out what needs to be done for the new 50 state model structure.
+We're not sure if the [useeio.js tslib fix](https://github.com/USEPA/useeio.js/issues/2) Lakshit achieved will incorporate changes needed for the new state models.  If the useeio_widgets.js file doesn't change we'll need to figure out what needs to be done for the new 50 state model structure.
 
 ---
 
