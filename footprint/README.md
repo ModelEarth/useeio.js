@@ -106,21 +106,24 @@ https://github.com/ModelEarth/useeio-widgets/blob/master/package.json
 		modelID = "GAEEIOv1.0";
 REACT WIDGET ISSUE: You will then see $0 in the center column.
 
-5. Make a local copy of "useeio-widgets/build/lib/useeio\_widgets.js" in the "io" repo and replace "io/build/useeio\_widgets.js" and see if anything changes in Github Desktop.  
-[https://github.com/ModelEarth/io/tree/main/build/lib](https://github.com/ModelEarth/io/tree/main/build/lib)  
+5. Make a local copy of "useeio-widgets/build/lib/useeio\_widgets.js" in the "io" repo and replace "io/build/useeio\_widgets.js". You can see what changes using the diff in Github Desktop.  
+
+6. Now [run the useeio_widgets build steps](https://model.earth/io/charts/react/).
 <br>BUILD ISSUE:  
-The size of useeio-widgets.js increases from 3.3 MB to 13.6 MB
+The size of useeio-widgets.js increases from 3.12 MB and 3.3 MB to 13.6 MB
+
+
+7. If the output is small again, we'll place the resulting [useeio_widgets.js file in io/build/lib](https://github.com/ModelEarth/io/tree/main/build/lib)  
 
 Here's a page to test with locally to see if values appear in the middle column. This page already points at the new state models and the middle column values are 0 as a result:
 [http://localhost:8887/io/build/iochart.html#indicators=ENRG,GHG,VADD](http://localhost:8887/io/build/iochart.html#indicators=ENRG,GHG,VADD)
 [https://model.earth/io/build/iochart.html#indicators=ENRG,GHG,VADD](https://model.earth/io/build/iochart.html#indicators=ENRG,GHG,VADD)
 
-Info on the charts: [model.earth/io/charts](https://model.earth/io/charts/) and the [build steps](https://model.earth/io/charts/react/)
-
+Info on the USEEIO widget charts: [model.earth/io/charts](https://model.earth/io/charts/).
+<br>
 
 
 ---
 
 [Participate through DemocracyLab](https://www.democracylab.org/projects/834) - [Contact our Team](/io/team/) - [International Trade Flow](/OpenFootprint/trade/)
-<br>
 
