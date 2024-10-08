@@ -1,7 +1,6 @@
+<a href="../">USEEIO.js Intro</a> - [State Models](/io/about/) and [International Trade Flow](/OpenFootprint/trade/)
 
 <h1>USEEIO Javascript (useeio.js)</h1>
-
-[State Models](/io/about/)
 
 <h3>Updates to useeio.js report samples</h3>
 
