@@ -93,27 +93,22 @@ https://github.com/modelearth/useeio-widgets
 https://github.com/ModelEarth/useeio-widgets/blob/master/package.json  
 "useeio": "github:modelearth/useeio.js"
 
-3. Before and after building useeio-widgets, point  at the new state models in OpenFootprint
-http://localhost:8887/useeio-widgets/build/iochart.html#indicators=ENRG,GHG,VADD
+3. Before and after [building useeio-widgets](https://model.earth/io/charts/react/), point [iochart.html](http://localhost:8887/useeio-widgets/build/iochart.html#indicators=ENRG,GHG,VADD) at the new state models in OpenFootprint and add at line 27:  
+
+		// To test state data - Use GA, ME, MN, OR, WA for ones in API folder.
+		modelID = "GAEEIOv1.0";
+REACT WIDGET ISSUE: You will then see $0 in the center column.
+
+5. Make a local copy of "useeio-widgets/build/lib/useeio\_widgets.js" in the "io" repo and replace "io/build/useeio\_widgets.js" and see if anything changes in Github Desktop.  
+[https://github.com/ModelEarth/io/tree/main/build/lib](https://github.com/ModelEarth/io/tree/main/build/lib)  
 <br>BUILD ISSUE:  
 The size of useeio-widgets.js increases from 3.3 MB to 13.6 MB
 
-Add at line 27. You will then see $0 in the center column.
+Here's a page to test with locally to see if values appear in the middle column. This page already points at the new state models and the middle column values are 0 as a result:
+[http://localhost:8887/io/build/iochart.html#indicators=ENRG,GHG,VADD](http://localhost:8887/io/build/iochart.html#indicators=ENRG,GHG,VADD)
+[https://model.earth/io/build/iochart.html#indicators=ENRG,GHG,VADD](https://model.earth/io/build/iochart.html#indicators=ENRG,GHG,VADD)
 
-	// To test state data - Use GA, ME, MN, OR, WA for ones in API folder.
-	modelID = "GAEEIOv1.0";
-
-Before and after building useeio-widgets, copy the "useeio-widgets/build/lib/useeio\_widgets.js" file into a fork of the "io" repo and replace "io/build/useeio\_widgets.js" and see if anything changes in Github Desktop.  (Copy it before building to first see if EPA already made a change. Probably not yet.)
-
-https://github.com/ModelEarth/io/tree/main/build/lib
-
-This is a page to test with locally to see if values appear in the middle column. This page already points at the new state models and the middle column values are 0 as a result:
-http://localhost:8887/io/build/iochart.html#indicators=ENRG,GHG,VADD
-https://model.earth/io/build/iochart.html#indicators=ENRG,GHG,VADD
-
-Here's a documentation page I created with info on the build.
-You can add notes here:
-https://model.earth/io/charts/
+Info on the charts: [model.earth/io/charts](https://model.earth/io/charts/) and the [build steps](https://model.earth/io/charts/react/)
 
 We're not sure if the useeio.js build Lakshit achieved will incorporate changes needed for the new state models.  If the useeio_widgets.js file doesn't change we'll need to figure out what needs to be done for the new 50 state model structure.
 
