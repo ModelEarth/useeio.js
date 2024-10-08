@@ -86,23 +86,24 @@ Send specific questions to USEEIO@epa.gov
 
 ## Build for new State Models
 
-Fork the useeio-widgets repo (it's in sync with the parent USEPA repo)
-https://github.com/modelEarth/useeio-widgets
+1. Fork the useeio-widgets repo (Have Loren sync with the parent USEPA repo.)
+https://github.com/modelearth/useeio-widgets
 
-Change line 37 in package.json to use modelearth rather than USEPA
-https://github.com/ModelEarth/useeio-widgets/blob/master/package.json
-
+2. Change line 37 in package.json to use modelearth rather than USEPA
+https://github.com/ModelEarth/useeio-widgets/blob/master/package.json  
 "useeio": "github:modelearth/useeio.js"
 
-Before and after building useeio-widgets, point this page at the new state models in OpenFootprint
+3. Before and after building useeio-widgets, point  at the new state models in OpenFootprint
 http://localhost:8887/useeio-widgets/build/iochart.html#indicators=ENRG,GHG,VADD
+<br>BUILD ISSUE:  
+The size of useeio-widgets.js increases from 3.3 MB to 13.6 MB
 
 Add at line 27. You will then see $0 in the center column.
 
 	// To test state data - Use GA, ME, MN, OR, WA for ones in API folder.
 	modelID = "GAEEIOv1.0";
 
-Before and after building useeio-widgets, copy the "useeio-widgets/build/lib\useeio\_widgets.js" file into a fork of the "io" repo and replace "io/build/useeio_widgets.js" and see if anything changes in Github Desktop.  (Copy it before building to first see if EPA already made a change. Not likely.)
+Before and after building useeio-widgets, copy the "useeio-widgets/build/lib/useeio\_widgets.js" file into a fork of the "io" repo and replace "io/build/useeio\_widgets.js" and see if anything changes in Github Desktop.  (Copy it before building to first see if EPA already made a change. Probably not yet.)
 
 https://github.com/ModelEarth/io/tree/main/build/lib
 
