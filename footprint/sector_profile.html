@@ -16,70 +16,79 @@
 
 <body>
 
+<div class="content contentpadding">
+  <div id="relocatedStateMenu"></div>
   <p id="info">Loading ...</p>
   <div id="table"></div>
+</div>
 
-  <script src="./config.js"></script>
-  <script>
+<script src="./config.js"></script>
+<script>
+document.addEventListener('hashChangeEvent', hashChangedUseeio, false);
+function hashChangedUseeio() {
+  console.log("URL hash changed");
+  model = getModel();
+  main();
+}
 
-    function norm100(nums) {
-      let max = 0;
-      for (const num of nums) {
-        max = Math.max(Math.abs(num), max);
-      }
-      if (max === 0) {
-        return nums;
-      }
-      const norm = [];
-      for (const num of nums) {
-        norm.push(100 * num / max)
-      }
-      return norm;
+function norm100(nums) {
+  let max = 0;
+  for (const num of nums) {
+    max = Math.max(Math.abs(num), max);
+  }
+  if (max === 0) {
+    return nums;
+  }
+  const norm = [];
+  for (const num of nums) {
+    norm.push(100 * num / max)
+  }
+  return norm;
+}
+
+async function main() {
+
+  const info = document.getElementById("info");
+  const demandId = await model.findDemand({
+    system: "Complete",
+    type: "Consumption",
+  });
+  if (!demandId) {
+    info.textContent = "Failed to load demand";
+    return;
+  }
+
+  const sectors = await model.sectors();
+  const i = Math.round(Math.random() * (sectors.length - 1));
+  const sector = sectors[i];
+  info.textContent = `Analyzing sector '${sector.name}' based on ${demandId}`;
+
+  const analysis = await useeio.SectorAnalysis.of(model, sector, demandId);
+  const indicators = await model.indicators();
+  const direct = norm100(await analysis.getEnvironmentalProfile(true));
+  const total = norm100(await analysis.getEnvironmentalProfile(false));
+  const results = indicators.map(i => {
+    return {
+      indicator: `${i.code} - ${i.name}`,
+      direct: direct[i.index],
+      total: total[i.index],
     }
+  });
 
-    (async () => {
+  info.innerHTML = `<h1>${sector.name}</h1>Environmental profile of based on ${demandId} for <b>${sector.id}</b>`;
+  new Tabulator("#table", {
+    data: results,
+    layout: "fitColumns",
+    columns: [
+      { title: "Indicator", field: "indicator" },
+      { title: "Direct", field: "direct", formatter: "progress" },
+      { title: "Total", field: "total", formatter: "progress" },
+    ],
+  });
 
-      const info = document.getElementById("info");
-      const demandId = await model.findDemand({
-        system: "Complete",
-        type: "Consumption",
-      });
-      if (!demandId) {
-        info.textContent = "Failed to load demand";
-        return;
-      }
-
-      const sectors = await model.sectors();
-      const i = Math.round(Math.random() * (sectors.length - 1));
-      const sector = sectors[i];
-      info.textContent = `Analyzing sector '${sector.name}' based on ${demandId}`;
-
-      const analysis = await useeio.SectorAnalysis.of(model, sector, demandId);
-      const indicators = await model.indicators();
-      const direct = norm100(await analysis.getEnvironmentalProfile(true));
-      const total = norm100(await analysis.getEnvironmentalProfile(false));
-      const results = indicators.map(i => {
-        return {
-          indicator: `${i.code} - ${i.name}`,
-          direct: direct[i.index],
-          total: total[i.index],
-        }
-      });
-
-      info.textContent = `Environmental profile of ${sector.name} based on ${demandId}`;
-      new Tabulator("#table", {
-        data: results,
-        layout: "fitColumns",
-        columns: [
-          { title: "Indicator", field: "indicator" },
-          { title: "Direct", field: "direct", formatter: "progress" },
-          { title: "Total", field: "total", formatter: "progress" },
-        ],
-      });
-
-    })();
-
-  </script>
+}
+main();
+</script>
 
 </body>
 </html>

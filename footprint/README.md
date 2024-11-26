@@ -57,6 +57,8 @@ US Environmental Protection Agency
 
 ### State Models Report
 
+[ERG Adds New Data to National GHG Emissions Accounting Data Set](https://www.erg.com/news/erg-adds-new-data-national-ghg-emissions-accounting-data-set)
+
 [The 2024 State Models Report map JPEG images](https://doi.org/10.6084/m9.figshare.c.7041473) document the following factors for indicating environmental pressure intensity.
 
 All the maps of per dollar produced in a year by a state are derived using the N matrix values from the respective state model for the state commodity and state location and (e.g. 23/US-GA).  Other figures might be derived from calculations with model matrices.
