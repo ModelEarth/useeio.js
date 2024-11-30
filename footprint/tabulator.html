@@ -73,91 +73,90 @@ async function main() {
 }
 main();
 
-var table;
+var table
 function displayTable(locale, formatType) {
   const columns = [
     { title: "Commodity", field: "name", width: "35%" },
-    { title: "Location", field: "location", hozAlign: "right", width: "80" },
+    { title: "Location", field: "location", hozAlign: "right", width: 80 },
     {
-      title: "Output", // Total commodity output
-      field: formatType === "simple" ? "outputEasy" : ( formatType === "full" ? "output" : (
-        formatType === "scientific" ? "output" : "N/A"
-      )),
-      // field: "output",
-      // field: "output",
+      title: "Output",
+      field:
+        formatType === "simple"
+          ? "outputEasy"
+          : formatType === "full"
+          ? "output"
+          : formatType === "scientific"
+          ? "output"
+          : "N/A",
       hozAlign: "right",
       maxWidth: "150px",
-      // width: isEasyFormat ? undefined : "160", 
-      formatter: function(cell, formatterParams){
+      formatter: function (cell, formatterParams) {
         var value = cell.getValue();
-       
-        if (formatType === "full"){
-          return new Intl.NumberFormat(navigator.language).format(value);
-        } else if (formatType === "scientific"){
-          // Convert the value to scientific notation
-          let scientificValue = Number(value).toExponential(1);
 
-          // Split the string into base and exponent parts
-          let parts = scientificValue.split('e+');
+        if (formatType === "full") {
+          return new Intl.NumberFormat(navigator.language).format(value);
+        } else if (formatType === "scientific") {
+          let scientificValue = Number(value).toExponential(1);
+          let parts = scientificValue.split("e+");
           let base = parts[0];
           let exponent = parts[1];
-          
-          // Return the formatted string with exponent in <sup> tags
           return `${base}&times;10<sup>${exponent}</sup>`;
         }
         return value;
       },
-      
-      sorter: formatType === "simple" ? function(a, b, aRow, bRow, column, dir, sorterParams) {
-        let aOutput = aRow.getData().output;
-        let bOutput = bRow.getData().output;
-        return aOutput - bOutput; // Sort based on the numeric `output` values
-      } : undefined
+      sorter:
+        formatType === "simple"
+          ? function (a, b, aRow, bRow, column, dir, sorterParams) {
+              let aOutput = aRow.getData().output;
+              let bOutput = bRow.getData().output;
+              return aOutput - bOutput; // Sort based on the numeric `output` values
+            }
+          : undefined,
     },
     {
       title: "Jobs",
       field: formatType === "simple" ? "jobsEasy" : "jobs",
       hozAlign: "right",
       maxWidth: "100px",
-      // width: isEasyFormat ? undefined : "160",
-      formatter: function(cell, formatterParams) {
+      formatter: function (cell, formatterParams) {
         var value = cell.getValue();
-        if (formatType === "full"){
+        if (formatType === "full") {
           return new Intl.NumberFormat(locale).format(value);
-        } else if (formatType === "scientific"){
-          // similar to the output formatter
+        } else if (formatType === "scientific") {
           let scientificValue = Number(value).toExponential(1);
-          let parts = scientificValue.split('e+');
+          let parts = scientificValue.split("e+");
           let base = parts[0];
           let exponent = parts[1];
           return `${base}&times;10<sup>${exponent}</sup>`;
         }
         return value;
-        
       },
-      
-      
-      // formatType === "simple" ? undefined : function(cell, formatterParams) {
-      //   var value = cell.getValue();
-      //   return new Intl.NumberFormat(locale).format(value);
-      // },
-      sorter: formatType === "simple" ? function(a, b, aRow, bRow, column, dir, sorterParams) {
-        // a, b: the display values being compared (jobsEasy)
-        // aRow, bRow: the row components for the values being compared
-        // Access the hidden `jobs` values for sorting
-        let aJobs = aRow.getData().jobs;
-        let bJobs = bRow.getData().jobs;
-        return aJobs - bJobs; // Sort based on the numeric `jobs` values
-      } : undefined
-    }
+      sorter:
+        formatType === "simple"
+          ? function (a, b, aRow, bRow, column, dir, sorterParams) {
+              let aJobs = aRow.getData().jobs;
+              let bJobs = bRow.getData().jobs;
+              return aJobs - bJobs; // Sort based on the numeric `jobs` values
+            }
+          : undefined,
+    },
+    {
+      title: "Actions",
+      field: "actions",
+      hozAlign: "center",
+      formatter: function (cell, formatterParams) {
+        const sector = cell.getRow().getData(); // Get the row data
+        return `<a href="sector_profile.html#industry=${sector.index}" target="_blank">View Profile</a>`;
+      },
+      width: 100,
+    },
   ];
-
 
   table = new Tabulator("#table", {
     height: 500,
     data: tableData,
     layout: "fitColumns",
-    columns: columns
+    columns: columns,
   });
 }
 
