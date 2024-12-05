@@ -50,6 +50,16 @@ function norm100(nums) {
 async function main() {
 
   const info = document.getElementById("info");
+
+  const hash = window.location.hash;
+  const params = new URLSearchParams(hash.substring(1));
+  const sectorIndex = params.get("industry");
+  
+  if (!sectorIndex) {
+    info.textContent = "No sector specified in the URL.";
+    return;
+  }
+
   const demandId = await model.findDemand({
     system: "Complete",
     type: "Consumption",
@@ -60,8 +70,12 @@ async function main() {
   }
 
   const sectors = await model.sectors();
-  const i = Math.round(Math.random() * (sectors.length - 1));
-  const sector = sectors[i];
+  const sector = sectors.find(s => s.index === parseInt(sectorIndex));
+  if (!sector) {
+    info.textContent = `Sector with index ${sectorIndex} not found.`;
+    return;
+  }
+  
   info.textContent = `Analyzing sector '${sector.name}' based on ${demandId}`;
 
   const analysis = await useeio.SectorAnalysis.of(model, sector, demandId);
