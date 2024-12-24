@@ -82,7 +82,7 @@ function displayTable(locale, formatType) {
       width: "35%",
       formatter: function(cell, formatterParams) {
         const sector = cell.getRow().getData(); // Get the row data
-        return `<a href="sector_profile.html#index=${sector.index}">${sector.name}</a>`;
+        return `<a href="sector_profile.html#industry=${sector.index}">${sector.name}</a>`;
       }
     },
     { 
