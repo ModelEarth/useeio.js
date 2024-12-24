@@ -48,36 +48,29 @@ function norm100(nums) {
 }
 
 async function main() {
-
   const info = document.getElementById("info");
 
+  // Parse the hash to retrieve the Demand ID
   const hash = window.location.hash;
   const params = new URLSearchParams(hash.substring(1));
-  const sectorIndex = params.get("industry");
-  
-  if (!sectorIndex) {
-    info.textContent = "No sector specified in the URL.";
-    return;
-  }
+  const demandId = params.get("demand");
 
-  const demandId = await model.findDemand({
-    system: "Complete",
-    type: "Consumption",
-  });
   if (!demandId) {
-    info.textContent = "Failed to load demand";
+    info.textContent = "No Demand ID specified in the URL.";
     return;
   }
 
+  // Dynamically fetch sectors to find the one matching the Demand ID
   const sectors = await model.sectors();
-  const sector = sectors.find(s => s.index === parseInt(sectorIndex));
+  const sector = sectors.find(s => s.id === demandId.split('/')[1]); // Adjust logic as needed to map Demand ID to sector
   if (!sector) {
-    info.textContent = `Sector with index ${sectorIndex} not found.`;
+    info.textContent = `Sector with Demand ID ${demandId} not found.`;
     return;
   }
-  
-  info.textContent = `Analyzing sector '${sector.name}' based on ${demandId}`;
 
+  info.textContent = `Analyzing sector '${sector.name}' based on Demand ID ${demandId}`;
+
+  // Perform the analysis
   const analysis = await useeio.SectorAnalysis.of(model, sector, demandId);
   const indicators = await model.indicators();
   const direct = norm100(await analysis.getEnvironmentalProfile(true));
@@ -87,10 +80,11 @@ async function main() {
       indicator: `${i.code} - ${i.name}`,
       direct: direct[i.index],
       total: total[i.index],
-    }
+    };
   });
 
-  info.innerHTML = `<h1>${sector.name}</h1>Environmental profile of based on ${demandId} for <b>${sector.id}</b>`;
+  // Update the page content and initialize the table
+  info.innerHTML = `<h1>${sector.name}</h1>Environmental profile based on ${demandId} for <b>${sector.id}</b>`;
   new Tabulator("#table", {
     data: results,
     layout: "fitColumns",
@@ -100,8 +94,8 @@ async function main() {
       { title: "Total", field: "total", formatter: "progress" },
     ],
   });
-
 }
+
 main();
 </script>
 

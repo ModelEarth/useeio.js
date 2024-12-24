@@ -144,12 +144,26 @@ function displayTable(locale, formatType) {
       title: "Actions",
       field: "actions",
       hozAlign: "center",
-      formatter: function (cell, formatterParams) {
+      formatter: async function (cell, formatterParams) {
         const sector = cell.getRow().getData(); // Get the row data
-        return `<a href="sector_profile.html#industry=${sector.index}" target="_blank">View Profile</a>`;
+
+        // Dynamically fetch demandId
+        const demandId = await model.findDemand({
+          system: "Complete",
+          type: "Consumption",
+        });
+
+        if (!demandId) {
+          console.error("Failed to load demandId.");
+          return "Error generating link.";
+        }
+
+        // Generate the link with the dynamically fetched demandId
+        return `<a href="sector_profile.html#demand=${demandId}" target="_blank">View Profile</a>`;
       },
       width: 100,
     },
+
   ];
 
   table = new Tabulator("#table", {
