@@ -48,33 +48,15 @@ function norm100(nums) {
 }
 
 async function main() {
+
   const info = document.getElementById("info");
-  
-  // Parse URL parameters
+
   const hash = window.location.hash;
   const params = new URLSearchParams(hash.substring(1));
+  const sectorIndex = params.get("industry");
   
-  let sector;
-  const sectors = await model.sectors();
-  
-  // Handle demand parameter (new format)
-  if (params.has("demand")) {
-    const [code, location] = params.get("demand").split("/");
-    sector = sectors.find(s => s.code === code && s.location === location);
-  }
-  // Handle index parameter (legacy format)
-  else if (params.has("index")) {
-    const sectorIndex = parseInt(params.get("index"));
-    sector = sectors.find(s => s.index === sectorIndex);
-  }
-  // Handle legacy industry parameter
-  else if (params.has("industry")) {
-    const sectorIndex = parseInt(params.get("industry"));
-    sector = sectors.find(s => s.index === sectorIndex);
-  }
-  
-  if (!sector) {
-    info.textContent = "No valid sector specified in the URL.";
+  if (!sectorIndex) {
+    info.textContent = "No sector specified in the URL.";
     return;
   }
 
@@ -84,6 +66,13 @@ async function main() {
   });
   if (!demandId) {
     info.textContent = "Failed to load demand";
+    return;
+  }
+
+  const sectors = await model.sectors();
+  const sector = sectors.find(s => s.index === parseInt(sectorIndex));
+  if (!sector) {
+    info.textContent = `Sector with index ${sectorIndex} not found.`;
     return;
   }
   
