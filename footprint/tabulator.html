@@ -10,7 +10,6 @@
 <link href="https://unpkg.com/tabulator-tables@5.2.7/dist/css/tabulator.min.css" rel="stylesheet">
 <script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.2.7/dist/js/tabulator.min.js"></script>
 
-<!-- <script src="../dist/useeio.min.js"></script> -->
 <script src="../dist/useeio.js"></script>
 <script type="text/javascript" src="/localsite/js/localsite.js?showheader=true&showsearch=true"></script>
 
@@ -25,29 +24,24 @@ function hashChangedUseeio() {
 
 function documentReady(callback) {
     if (document.readyState === "loading") {
-        // The document is still loading, wait for it to finish
         document.addEventListener("DOMContentLoaded", callback);
     } else {
-        // The DOM is already fully loaded
         callback();
     }
 }
 
 let tableData = [];
 async function main() {
-  // compute the table data
-  const q = await model.matrix('q'); // Commodity
+  const q = await model.matrix('q');
   const sectors = await model.sectors();
   documentReady(function() {
     const notesDiv = document.getElementById("notes");
     if (notesDiv) {
-        notesDiv.innerHTML = "<br>From OpenFootprint/impacts/2020/" + getModelFolderName() + "/sectors.json<br>"
-        // + JSON.stringify(sectors, null, 2);
+        notesDiv.innerHTML = "<br>From OpenFootprint/impacts/2020/" + getModelFolderName() + "/sectors.json<br>";
     }
   });
-  const indicator = (await model.indicators())
-    .filter(i => i.code === 'JOBS')[0];
-  const impacts = await model.matrix('D'); // Indicator_Sector (like industries)
+  const indicator = (await model.indicators()).filter(i => i.code === 'JOBS')[0];
+  const impacts = await model.matrix('D');
 
   tableData = sectors.map(sector => {
     const output = q.get(sector.index, 0);
@@ -58,60 +52,39 @@ async function main() {
       jobs: Math.round(jobs)
     };
   });
-  
-  console.log("the table data is：", tableData);
-  tableData.forEach(item => { // For each object in array
+
+  console.log("The table data is:", tableData);
+  tableData.forEach(item => {
     item.jobsEasy = formatCell(item.jobs);
     item.outputEasy = "$" + formatCell(item.output);
-    // item.jobScientific = formatCell(item.jobs,'scientific');
-    // item.outputScientific = formatCell(item.output,'scientific');
-  }); 
+  });
 
-
-  // Initial table update with user's locale
   displayTable(navigator.language, "simple");
 }
 main();
 
-var table
+var table;
 function displayTable(locale, formatType) {
   const columns = [
     { title: "Commodity", field: "name", width: "35%" },
     { title: "Location", field: "location", hozAlign: "right", width: 80 },
     {
       title: "Output",
-      field:
-        formatType === "simple"
-          ? "outputEasy"
-          : formatType === "full"
-          ? "output"
-          : formatType === "scientific"
-          ? "output"
-          : "N/A",
+      field: formatType === "simple" ? "outputEasy" : "output",
       hozAlign: "right",
       maxWidth: "150px",
       formatter: function (cell, formatterParams) {
-        var value = cell.getValue();
-
+        const value = cell.getValue();
         if (formatType === "full") {
-          return new Intl.NumberFormat(navigator.language).format(value);
+          return new Intl.NumberFormat(locale).format(value);
         } else if (formatType === "scientific") {
-          let scientificValue = Number(value).toExponential(1);
-          let parts = scientificValue.split("e+");
-          let base = parts[0];
-          let exponent = parts[1];
+          const scientificValue = Number(value).toExponential(1);
+          const [base, exponent] = scientificValue.split("e+");
           return `${base}&times;10<sup>${exponent}</sup>`;
         }
         return value;
       },
-      sorter:
-        formatType === "simple"
-          ? function (a, b, aRow, bRow, column, dir, sorterParams) {
-              let aOutput = aRow.getData().output;
-              let bOutput = bRow.getData().output;
-              return aOutput - bOutput; // Sort based on the numeric `output` values
-            }
-          : undefined,
+      sorter: formatType === "simple" ? (a, b, aRow, bRow) => aRow.getData().output - bRow.getData().output : undefined,
     },
     {
       title: "Jobs",
@@ -119,51 +92,36 @@ function displayTable(locale, formatType) {
       hozAlign: "right",
       maxWidth: "100px",
       formatter: function (cell, formatterParams) {
-        var value = cell.getValue();
+        const value = cell.getValue();
         if (formatType === "full") {
           return new Intl.NumberFormat(locale).format(value);
         } else if (formatType === "scientific") {
-          let scientificValue = Number(value).toExponential(1);
-          let parts = scientificValue.split("e+");
-          let base = parts[0];
-          let exponent = parts[1];
+          const scientificValue = Number(value).toExponential(1);
+          const [base, exponent] = scientificValue.split("e+");
           return `${base}&times;10<sup>${exponent}</sup>`;
         }
         return value;
       },
-      sorter:
-        formatType === "simple"
-          ? function (a, b, aRow, bRow, column, dir, sorterParams) {
-              let aJobs = aRow.getData().jobs;
-              let bJobs = bRow.getData().jobs;
-              return aJobs - bJobs; // Sort based on the numeric `jobs` values
-            }
-          : undefined,
+      sorter: formatType === "simple" ? (a, b, aRow, bRow) => aRow.getData().jobs - bRow.getData().jobs : undefined,
     },
     {
       title: "Actions",
       field: "actions",
       hozAlign: "center",
       formatter: async function (cell, formatterParams) {
-        const sector = cell.getRow().getData(); // Get the row data
-
-        // Dynamically fetch demandId
-        const demandId = await model.findDemand({
-          system: "Complete",
-          type: "Consumption",
-        });
-
-        if (!demandId) {
-          console.error("Failed to load demandId.");
+        const sector = cell.getRow().getData();
+        try {
+          const demandId = await model.findDemand({ system: "Complete", type: "Consumption" });
+          if (!demandId) throw new Error("Demand ID not found.");
+          return `<a href="sector_profile.html#demand=${demandId}" target="_blank">View Profile</a>`;
+        } catch (error) {
+          console.error("Failed to load demandId:", error);
           return "Error generating link.";
         }
-
-        // Generate the link with the dynamically fetched demandId
-        return `<a href="sector_profile.html#demand=${demandId}" target="_blank">View Profile</a>`;
       },
       width: 100,
+      cssClass: "action-column"
     },
-
   ];
 
   table = new Tabulator("#table", {
@@ -174,42 +132,41 @@ function displayTable(locale, formatType) {
   });
 }
 
-// Update the table with the selected locale
 function updateTable(locale) {
+  table.updateColumnDefinition("output", {
+    formatter: function (cell, formatterParams) {
+      const value = cell.getValue();
+      return new Intl.NumberFormat(locale, {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      }).format(value);
+    }
+  });
 
-    table.updateColumnDefinition("output", {
-        formatter: function(cell, formatterParams) {
-            var value = cell.getValue();
-            return new Intl.NumberFormat(locale, { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0  }).format(value);
-        }
-    });
-
-    table.redraw();
+  table.redraw();
 }
-
 </script>
 
 </head>
 
 <body>
-<!-- <select id="number-format-select"></select> -->
 <div class="contentpadding">
   <div style="margin-bottom: 10px; float:right"><select id="number-format-select"></select></div>
   <div style="margin-bottom: 10px; float:right"><select id="locale-select"></select></div>
 
   <div id="relocatedStateMenu"></div>
-  
+
   We also display from state .csv files <a href="http://localhost:8887/data-pipeline/research/economy/">pre-generated using python</a><br><br>
 
   <div id="table" style="clear:both"></div>
 
   <div id="notes" style="clear:both"></div>
 
-
 </div>
 
 <script>
-  // Populate the locale dropdown
 var localeSelect = document.getElementById("locale-select");
 var locales = ["en-US", "fr-FR", "de-DE", "es-ES", "it-IT", "ja-JP", "ko-KR", "zh-CN"];
 
@@ -220,15 +177,11 @@ locales.forEach(locale => {
     localeSelect.appendChild(option);
 });
 
-// Set the dropdown to the user's current locale
 localeSelect.value = navigator.language;
-
-// Add event listener to update table when locale is changed
 localeSelect.addEventListener("change", function() {
     updateTable(this.value);
 });
 
-// for selecting the number format
 let numberFormatToggle = document.getElementById("number-format-select");
 let formats = ["simple", "full", "scientific"];
 formats.forEach(format => {
@@ -238,13 +191,9 @@ formats.forEach(format => {
     numberFormatToggle.appendChild(option);
 });
 
-// Add event listener to update table when number format is changed
 numberFormatToggle.addEventListener("change", function() {
-    // // Convert the selected format to a boolean
-    // let isSimpleFormat = this.value === "simple";
     displayTable(navigator.language, this.value);
 });
-
 </script>
 
 </body>
