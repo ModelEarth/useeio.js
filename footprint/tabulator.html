@@ -76,8 +76,21 @@ main();
 var table
 function displayTable(locale, formatType) {
   const columns = [
-    { title: "Commodity", field: "name", width: "35%" },
-    { title: "Location", field: "location", hozAlign: "right", width: 80 },
+    { 
+      title: "Commodity", 
+      field: "name", 
+      width: "35%",
+      formatter: function(cell, formatterParams) {
+        const sector = cell.getRow().getData(); // Get the row data
+        return `<a href="sector_profile.html#industry=${sector.index}">${sector.name}</a>`;
+      }
+    },
+    { 
+      title: "Location", 
+      field: "location", 
+      hozAlign: "right", 
+      width: 80 
+    },
     {
       title: "Output",
       field:
@@ -109,14 +122,14 @@ function displayTable(locale, formatType) {
           ? function (a, b, aRow, bRow, column, dir, sorterParams) {
               let aOutput = aRow.getData().output;
               let bOutput = bRow.getData().output;
-              return aOutput - bOutput; // Sort based on the numeric `output` values
+              return aOutput - bOutput;
             }
           : undefined,
     },
     {
       title: "Jobs",
       field: formatType === "simple" ? "jobsEasy" : "jobs",
-      hozAlign: "right",
+      hozAlign: "right", 
       maxWidth: "100px",
       formatter: function (cell, formatterParams) {
         var value = cell.getValue();
@@ -136,20 +149,10 @@ function displayTable(locale, formatType) {
           ? function (a, b, aRow, bRow, column, dir, sorterParams) {
               let aJobs = aRow.getData().jobs;
               let bJobs = bRow.getData().jobs;
-              return aJobs - bJobs; // Sort based on the numeric `jobs` values
+              return aJobs - bJobs;
             }
           : undefined,
-    },
-    {
-      title: "Actions",
-      field: "actions",
-      hozAlign: "center",
-      formatter: function (cell, formatterParams) {
-        const sector = cell.getRow().getData(); // Get the row data
-        return `<a href="sector_profile.html#industry=${sector.index}" target="_blank">View Profile</a>`;
-      },
-      width: 100,
-    },
+    }
   ];
 
   table = new Tabulator("#table", {
