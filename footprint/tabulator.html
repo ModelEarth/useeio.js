@@ -81,8 +81,10 @@ function displayTable(locale, formatType) {
       field: "name", 
       width: "35%",
       formatter: function(cell, formatterParams) {
-        const sector = cell.getRow().getData(); // Get the row data
-        return `<a href="sector_profile.html#industry=${sector.index}">${sector.name}</a>`;
+        const sector = cell.getRow().getData();
+        const demandHash = `demand=${sector.code}/${sector.location}`;
+        const indexHash = `index=${sector.index}`;
+        return `<a href="sector_profile.html#${demandHash}">${sector.name}</a>`;
       }
     },
     { 
