@@ -75,6 +75,8 @@ main();
 
 var table
 function displayTable(locale, formatType) {
+  //You can also pass #index=0 from tabulator.html to sector_profile.htm;
+  //But we are not passing index as it may change over time
   const columns = [
     { 
       title: "Commodity", 
@@ -82,8 +84,8 @@ function displayTable(locale, formatType) {
       width: "35%",
       formatter: function(cell, formatterParams) {
         const sector = cell.getRow().getData();
-        const demandHash = `demand=${sector.code}/${sector.location}`;
-        const indexHash = `index=${sector.index}`;
+        const demandHash = `demand=${sector.code}/${sector.location}`; //new links
+        const indexHash = `index=${sector.index}`; // legacy support for old links
         return `<a href="sector_profile.html#${demandHash}">${sector.name}</a>`;
       }
     },
