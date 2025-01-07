@@ -74,6 +74,16 @@ async function main() {
     sector = sectors.find(s => s.index === sectorIndex);
   }
   
+  let stateCode;
+  if (params.has('state')) {
+    stateCode = params.get('state');
+  } else if (params.has('demand')) {
+    const [code, location] = params.get('demand').split('/');
+    if (location.includes('-')) {
+      stateCode = location.split('-')[1];
+    }
+  }
+  
   if (!sector) {
     info.textContent = "No valid sector specified in the URL.";
     return;

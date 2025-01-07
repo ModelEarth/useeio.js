@@ -75,7 +75,7 @@ main();
 
 var table
 function displayTable(locale, formatType) {
-  //You can also pass #index=0 from tabulator.html to sector_profile.html
+  //You can also pass #index=0 from commodities.html to sector_profile.html
   //But we are not passing index as it may change over time
   const columns = [
     { 
@@ -84,9 +84,15 @@ function displayTable(locale, formatType) {
       width: "35%",
       formatter: function(cell, formatterParams) {
         const sector = cell.getRow().getData();
-        const demandHash = `demand=${sector.code}/${sector.location}`; //new links
+        let stateCode = '';
+
+        if (sector.location.includes('-')) {
+          stateCode = sector.location.split('-')[1];
+        }
+        const demandHash = `demand=${sector.code}/${sector.location}`;
+        const stateParam = stateCode ? `&state=${stateCode}` : '';
         const indexHash = `index=${sector.index}`; // legacy support for old links
-        return `<a href="sector_profile.html#${demandHash}">${sector.name}</a>`;
+        return `<a href="sector_profile.html#${demandHash}${stateParam}">${sector.name}</a>`;
       }
     },
     { 
