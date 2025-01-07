@@ -48,6 +48,11 @@ function norm100(nums) {
   return norm;
 }
 
+async function getRandomSector() {
+  const sectors = await model.sectors();
+  return sectors[Math.floor(Math.random() * sectors.length)];
+}
+
 async function main() {
   const info = document.getElementById("info");
   
@@ -57,6 +62,15 @@ async function main() {
   
   let sector;
   const sectors = await model.sectors();
+
+  // loading random sector profile report if no hash
+  if (!hash || hash === '#') {
+    sector = await getRandomSector();
+    // update URL with random sector's hash
+    const demandHash = `demand=${sector.code}/${sector.location}`;
+    window.location.hash = demandHash;
+    return; 
+  }
   
   // Handle demand parameter (new format)
   if (params.has("demand")) {
