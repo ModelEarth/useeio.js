@@ -81,7 +81,6 @@ function displayTable(locale, formatType) {
     { 
       title: "Commodity", 
       field: "name", 
-      width: "35%",
       formatter: function(cell, formatterParams) {
         const sector = cell.getRow().getData();
         let stateCode = '';
@@ -127,6 +126,8 @@ function displayTable(locale, formatType) {
         }
         return value;
       },
+      headerSortTristate: false,
+      headerSortStartingDir: "desc",
       sorter:
         formatType === "simple"
           ? function (a, b, aRow, bRow, column, dir, sorterParams) {
@@ -154,6 +155,8 @@ function displayTable(locale, formatType) {
         }
         return value;
       },
+      headerSortTristate: false,
+      headerSortStartingDir: "desc",
       sorter:
         formatType === "simple"
           ? function (a, b, aRow, bRow, column, dir, sorterParams) {
@@ -169,7 +172,7 @@ function displayTable(locale, formatType) {
     height: 500,
     data: tableData,
     layout: "fitColumns",
-    columns: columns,
+    columns: columns
   });
 }
 
@@ -198,12 +201,11 @@ function updateTable(locale) {
 
   <div id="relocatedStateMenu"></div>
 
-  We also display from state .csv files <a href="https://model.earth/data-pipeline/research/economy/">pre-generated using python</a><br><br>
-
   <div id="table" style="clear:both"></div>
 
   <div id="notes" style="clear:both"></div>
 
+  We also display from state .csv files <a href="https://model.earth/data-pipeline/research/economy/">pre-generated using python</a><br><br>
 
 </div>
 

@@ -10,16 +10,16 @@
   <link href="https://unpkg.com/tabulator-tables@5.2.7/dist/css/tabulator.min.css" rel="stylesheet">
   <script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.2.7/dist/js/tabulator.min.js"></script>
 
-  <script type="text/javascript" src="https://model.earth/localsite/js/localsite.js?showheader=true&showsearch=true"></script>
+  <script type="text/javascript" src="/localsite/js/localsite.js?showheader=true&showsearch=true"></script>
   <script src="../dist/useeio.js"></script>
 </head>
 
 <body>
 
 <div class="content contentpadding">
-  
   <div id="relocatedStateMenu"></div>
-  <a href="./">Footprint Data</a> - <a href="commodities.html">Commodities</a>
+  <a id="footprintLink" href="./">Footprint Data</a> - 
+  <a id="commoditiesLink" href="commodities.html">Commodities</a>
   <p id="info">Loading ...</p>
   <div id="table"></div>
 </div>
@@ -30,6 +30,7 @@ document.addEventListener('hashChangeEvent', hashChangedUseeio, false);
 function hashChangedUseeio() {
   console.log("URL hash changed");
   model = getModel();
+  updateHash({"demand":""});
   main();
 }
 
@@ -54,52 +55,69 @@ async function getRandomSector() {
 }
 
 async function main() {
+  let hash = getHash();
+  if (hash.state) {
+    // Append to links at top of page.
+    document.getElementById('footprintLink').setAttribute('href', '../#state=' + hash.state);
+    document.getElementById('commoditiesLink').setAttribute('href', 'commodities.html#state=' + hash.state);
+  }
   const info = document.getElementById("info");
   
   // Parse URL parameters
-  const hash = window.location.hash;
-  const params = new URLSearchParams(hash.substring(1));
+  //const fullhash = window.location.hash;
+  //const params = new URLSearchParams(fullhash.substring(1));
   
   let sector;
   const sectors = await model.sectors();
 
   // loading random sector profile report if no hash
-  if (!hash || hash === '#') {
+  if (!hash.demand) {
     sector = await getRandomSector();
     // update URL with random sector's hash
-    const demandHash = `demand=${sector.code}/${sector.location}`;
-    window.location.hash = demandHash;
-    return; 
+    hash.demand = `${sector.code}/${sector.location}`;
+    updateHash({"demand":hash.demand});
   }
   
   // Handle demand parameter (new format)
-  if (params.has("demand")) {
-    const [code, location] = params.get("demand").split("/");
+  if (hash.demand) {
+    const [code, location] = hash.demand.split("/");
     sector = sectors.find(s => s.code === code && s.location === location);
   }
   // Handle index parameter (legacy format)
-  else if (params.has("index")) {
-    const sectorIndex = parseInt(params.get("index"));
+  else if (hash.index) {
+    const sectorIndex = parseInt(hash.index);
     sector = sectors.find(s => s.index === sectorIndex);
   }
   // Handle legacy industry parameter
-  else if (params.has("industry")) {
-    const sectorIndex = parseInt(params.get("industry"));
+  else if (hash.industry) {
+    const sectorIndex = parseInt(hash.industry);
     sector = sectors.find(s => s.index === sectorIndex);
   }
   
+  /*
   let stateCode;
-  if (params.has('state')) {
-    stateCode = params.get('state');
-  } else if (params.has('demand')) {
-    const [code, location] = params.get('demand').split('/');
-    if (location.includes('-')) {
-      stateCode = location.split('-')[1];
+  if (hash.state) {
+    stateCode = hash.state;
+  } else 
+
+  if (hash.demand) {
+    const [code, location] = hash.demand.split('/');
+    if (!location) {
+      info.textContent = "No location value in demand: " + hash.demand;
+      document.getElementById('table').innerHTML = "";
+      return;
+    } else if (location.includes('/')) {
+      stateCode = location.split('/')[1];
     }
   }
-  
+  */
+
   if (!sector) {
     info.textContent = "No valid sector specified in the URL.";
+    if (hash.state) {
+      info.textContent = `No valid sector specified in the URL in ${hash.state} model.`;
+    }
+    document.getElementById('table').innerHTML = "";
     return;
   }
 
@@ -109,6 +127,7 @@ async function main() {
   });
   if (!demandId) {
     info.textContent = "Failed to load demand";
+    document.getElementById('table').innerHTML = "";
     return;
   }
   
@@ -126,7 +145,7 @@ async function main() {
     }
   });
 
-  info.innerHTML = `<h1>${sector.name}</h1>Environmental profile of based on ${demandId} for <b>${sector.id}</b>`;
+  info.innerHTML = `<h3 style="font-size:22px">${sector.name}</h3>Environmental profile of based on ${demandId} for <b>${sector.id}</b>`;
   new Tabulator("#table", {
     data: results,
     layout: "fitColumns",
@@ -136,7 +155,6 @@ async function main() {
       { title: "Total", field: "total", formatter: "progress" },
     ],
   });
-
 }
 main();
 </script>
