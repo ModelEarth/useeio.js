@@ -1,40 +1,43 @@
 # useeio.js
-`useeio.js` is a JavaScript client API for the [USEEIO
-API](https://github.com/USEPA/USEEIO_API) that runs in the browser. It is written in TypeScript and uses [rollup.js](https://rollupjs.org) with the [typescript2 plugin](https://www.npmjs.com/package/rollup-plugin-typescript2) to create a single UMD bundle; [terser](https://terser.org/) is then used to create a minified bundle.
 
-View [Footprint Sample Links](footprint)
+The useeio.js repo contains a JavaScript client API for the [USEEIO
+API](https://github.com/USEPA/USEEIO_API) that runs in the browser. It is written in TypeScript and uses [rollup.js](https://rollupjs.org) with the [typescript2 plugin](https://www.npmjs.com/package/rollup-plugin-typescript2) to create a single UMD bundle; [terser](https://terser.org/) is then used to create a minified bundle.
 
 ## Impact Reports
 
-You can contribute to the javascript reports in our [footprint](footprint) folder without building.
+[Javascript reports for the US EPA's 50 state models](https://model.earth/useeio.js/footprint) reside in the [model.earth fork](https://github.com/modelearth/useeio.js) of the useeio.js repo.
 
-## Build Usage
+You can contribute to the 50 state javascript reports without running building commands.
 
-When model versions change, you can build useeio.min.js locally to update it in [io charts](https://model.earth/io/charts/).
+## Build Comands
 
-<!--
-Warning: We are avoiding this currently since the `dist` folder gets deleted. An [issue has been posted](https://github.com/USEPA/useeio.js/issues/2).
--->
+These are not necessary to contribute [50 state javascript report](https://model.earth/useeio.js/footprint) updates.
 
-<!-- npm install was required after updates for tsconfig.js and package.js to resolve https://github.com/USEPA/useeio.js/issues/2
+When new model versions are published by US EPA, it may be necessary to build useeio.js and useeio-widgets to deploy updates for the [USEEIO React Widgets](https://model.earth/io/charts/).
 
-We could show this after package-lock.json is updated in parent repo.
-`npm ci` (clean install) is similar to `npm install`, but doesn't modify the package-lock.json. If dependencies in the package lock do not match those in package.json, npm ci will exit with an error, instead of updating the package lock.  If you're upgrading, npm install will make a lot of changes in package-lock.json.
--->
+The useeio-widgets build pulls the bundle (dist/useeio.js or dist/useeio.min.js) from the useeio.js repo. 
+The dependency resides in useeio-widgets/package.json. You can use either of these:
 
-To build, run the following in the useeio.js folder.
+"useeio": "github:USEPA/useeio.js"  
+"useeio": "github:modelearth/useeio.js"
+
+To build useeio.js, run the following in the useeio.js folder.
 
 	npm install
 	npm run build
 
+If you'd like, you can generate a minified file with the following command.  
+You may want to avoid minifying so you can see what lines any issues occur on.
+
+	npm run build:minjs
 
 ## Install option
 
-`useeio.js` is not on `npmjs.org` yet but you can just install it from Github directly:
+`useeio.js` is not on `npmjs.org`. Instead, you can install it from Github directly:
 
 	npm install git+https://github.com/USEPA/useeio.js.git
 
-Note that useeio-widgets package.json contains a useeio.js dependency:
+As stated above, the useeio-widgets package.json contains a useeio.js dependency:
 
 	"useeio": "github:USEPA/useeio.js"
 
@@ -52,8 +55,7 @@ The 50 state json files are pre-generated for you at [https://model.earth/OpenFo
 
 Model.earth developers use the following [http-server setup steps](https://model.earth/localsite/start/steps/) with port 8887.
 
-Alternatively you can host the json files via [npm http-server](https://www.npmjs.com/package/http-server) and the following: 
-
+Alternatively you can host the json files via [npm http-server](https://www.npmjs.com/package/http-server) and the following:
 
 ```bash
 # just install it once, globally
