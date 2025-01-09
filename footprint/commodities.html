@@ -75,6 +75,7 @@ main();
 
 var table
 function displayTable(locale, formatType) {
+  let hash = getHash();
   //You can also pass #index=0 from commodities.html to sector_profile.html
   //But we are not passing index as it may change over time
   const columns = [
@@ -84,9 +85,12 @@ function displayTable(locale, formatType) {
       formatter: function(cell, formatterParams) {
         const sector = cell.getRow().getData();
         let stateCode = '';
-
-        if (sector.location.includes('-')) {
-          stateCode = sector.location.split('-')[1];
+        // Not using since RoUS also needs state= in URL to get the state model.
+        //if (sector.location.includes('-')) {
+        //  stateCode = sector.location.split('-')[1];
+        //}
+        if (hash.state) {
+          stateCode = hash.state
         }
         const demandHash = `demand=${sector.code}/${sector.location}`;
         const stateParam = stateCode ? `&state=${stateCode}` : '';

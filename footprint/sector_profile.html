@@ -151,9 +151,12 @@ async function main() {
     layout: "fitColumns",
     columns: [
       { title: "Indicator", field: "indicator" },
-      { title: "Direct", field: "direct", formatter: "progress" },
-      { title: "Total", field: "total", formatter: "progress" },
+      { title: "Direct", field: "direct", formatter: "progress", sorter: "number", headerSortTristate: false, headerSortStartingDir: "desc" },
+      { title: "Total", field: "total", formatter: "progress", sorter: "number" },
     ],
+    initialSort: [
+      { column: "total", dir: "desc" },
+    ]
   });
 }
 main();
