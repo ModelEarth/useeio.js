@@ -35,14 +35,9 @@ The 2020 state data resides in the [Open Footprint](/OpenFootprint/) "[impacts/2
 
 TO DO: Create interactive version of the supporting figures [including maps of the U.S.](https://doi.org/10.6084/m9.figshare.c.7041473) showing environmental pressure intensity grouped by indicator and commodity for all states and rankings of sectors by consumption by environmental pressure for 2020.
 
+<!--
 The JSON API that drives our [industry comparisons](/localsite/info/) uses EPA data prepared and presented using useeior (R Language),  [useeio.js](/useeio.js/footprint) and the [useeio-widgets](/io/charts/) (Javascript and HTML using the USEEIO-API).
-
-Wes wrote: As a reminder (and mentioned in the report) we’re working on Consumption-based GHG inventories (CBEI) for Maine and other Northeast states as an application of these models but the functionalities we develop and describe will be available for all States. We anticipate that being completed by early summer. 
-
-Wesley W. Ingwersen, Ph.D.
-Center for Environmental Solutions and Emergency Response (CESER)
-Office of Research and Development
-US Environmental Protection Agency
+-->
 
 ### State Models Report
 
