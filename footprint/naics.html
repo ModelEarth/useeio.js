@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset='utf-8'>
-  <title>Naics Map</title>
+  <title>NAICS Industries</title>
   <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://unpkg.com/tabulator-tables@5.2.7/dist/css/tabulator.min.css" rel="stylesheet">
@@ -65,6 +65,10 @@
       window.fetchAndDisplayNaicsData = async (naicsCode) => {
         try {
           const data = await naics.toBea(naicsCode);
+          if (!naicsCode) { // If no filter, return all industries
+            //console.log(naics)
+            //data = naics;
+          }
           console.log("Fetched data for NAICS code", naicsCode, ":", data);
           // Update naicsTable with the fetched data
           new Tabulator("#naicsTable", {
@@ -81,10 +85,16 @@
             pagination: "local",
             paginationSize: 10,
           });
+
+
         } catch (error) {
           console.error("Error fetching data for NAICS code", naicsCode, ":", error);
         }
       };
+
+      // INIT
+      alert("INIT")
+      fetchAndDisplayNaicsData(""); // Initilly list all industries
 
       const uniqueNaicsCodeArray = Array.from(uniqueNaicsCode);
 

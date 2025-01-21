@@ -400,9 +400,6 @@
          * @param naics the NAICS codes that should be mapped.
          */
         NaicsMap.prototype.toBea = function (naics) {
-            if (!naics) {
-                return [];
-            }
             var naicsCodes = naics instanceof Array
                 ? naics
                 : [naics];

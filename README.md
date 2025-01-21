@@ -11,7 +11,7 @@ You can contribute to the 50 state javascript reports without running the build 
 
 ## Build Comands
 
-These are not necessary to contribute [50 state javascript report](https://model.earth/useeio.js/footprint) updates.
+Building is typically not necessary to edit the [State Impact Reports](https://model.earth/useeio.js/footprint).
 
 When new model versions are published by US EPA, it may be necessary to build useeio.js and useeio-widgets to deploy updates for the [USEEIO React Widgets](https://model.earth/io/charts/).
 

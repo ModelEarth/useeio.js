@@ -80,7 +80,7 @@ export class NaicsMap {
    */
   toBea(naics: string | string[]): string[] {
     if (!naics) {
-      return [];
+      //return [];
     }
     const naicsCodes = naics instanceof Array
       ? naics
