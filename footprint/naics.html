@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset='utf-8'>
   <title>NAICS Industries</title>
@@ -13,41 +14,38 @@
   <script src="../dist/useeio.js"></script>
   <style>
     .clickable-cell {
-    cursor: pointer;
-    transition: color 0.3s, background-color 0.3s;
-  }
+      cursor: pointer;
+      transition: color 0.3s, background-color 0.3s;
+    }
 
-  .clickable-cell:hover {
-    color: #0066cc;
-    background-color: #f0f0f0;
-    text-decoration: underline;
-  }
+    .clickable-cell:hover {
+      color: #0066cc;
+      background-color: #f0f0f0;
+      text-decoration: underline;
+    }
   </style>
 </head>
+
 <body>
 
-<div class="content contentpadding">
-  <div style="margin-bottom:10px">
-    <a href="./" >State Impact Reports</a>
-  </div>
+  <div class="content contentpadding">
+    <div style="margin-bottom:10px">
+      <a href="./">State Impact Reports</a>
+    </div>
     <input type="text" id="naicsInput" placeholder="Enter NAICS Code">
     <button id="fetchButton" style="margin-bottom: 20px">Fetch Data</button>
     <div id="naicsTable" style="margin-bottom: 20px"></div>
     <div id="naicsCodeDisplay"></div>
     <div id="totalRowsDisplay"></div>
-</div>
+  </div>
 
   <script src="./config.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
       const naics = await useeio.NaicsMap.of(model);
       const crosswalk = await model.sectorCrosswalk();
-      const uniqueNaicsCode = new Set();
-      crosswalk.mappings.forEach(mapping => {
-        uniqueNaicsCode.add(mapping[0]);
-      });
 
-      // function tofetch EPA sectors
+      // Fetch all EPA sectors
       async function getEpaSectors() {
         const sectorsJsonFile = "/io/build/api/USEEIOv2.0.1-411/sectors.json";
         try {
@@ -60,7 +58,6 @@
         }
       }
 
-      // Fetch EPA sectors
       const epaSectors = await getEpaSectors();
 
       // Function to find sector name by code
@@ -69,92 +66,71 @@
         return sector ? sector.name : "Unknown";
       }
 
-      window.fetchAndDisplayNaicsData = async (naicsCode) => {
+      // Function to fetch and display NAICS data
+      async function fetchAndDisplayNaicsData(naicsCode = null) {
         try {
-          const data = await naics.toBea(naicsCode);
-          if (!naicsCode) { // If no filter, return all industries
-            //console.log(naics)
-            //data = naics;
-          }
-          console.log("Fetched data for NAICS code", naicsCode, ":", data);
-          // Update naicsTable with the fetched data
-          new Tabulator("#naicsTable", {
-            data: data.map(item => ({ 
+          let tableData = [];
+
+          // This case is when we are filtering with a particular input
+
+          if (naicsCode) {
+            // Fetching data for the specific NAICS code
+            const data = await naics.toBea(naicsCode); // Fetching data for the input NAICS code
+            tableData = data.map(item => ({
               naicsCode: naicsCode,
               BEA_detail: item,
-              sectorName: findSectorName(item)})),
+              sectorName: findSectorName(item), // Finding the sector name for each BEA detail
+            }));
+          } else {
+            // Fetching data for ALL NAICS codes dynamically
+            const allNaicsCodes = Object.keys(crosswalk.mappings); // Extracting all NAICS codes
+
+            // Fetching details for each NAICS code
+            for (const code of allNaicsCodes) {
+              const data = await naics.toBea(code); // Fetching BEA details for each NAICS code
+              const codeData = data.map(item => ({
+                naicsCode: code, // The current NAICS code
+                BEA_detail: item, // BEA detail(s) associated with this code
+                sectorName: findSectorName(item), // Finding the sector name for each BEA detail
+              }));
+
+              // Adding the fetched data to the table data array
+              tableData = tableData.concat(codeData);
+            }
+          }
+
+          // Updating the Tabulator table with the fetched data
+          const table = new Tabulator("#naicsTable", {
+            data: tableData,
             columns: [
               { title: "NAICS Code", field: "naicsCode" },
               { title: "BEA Detail", field: "BEA_detail" },
-              { title: "Sector Name", field: "sectorName" }
+              { title: "Sector Name", field: "sectorName" },
             ],
             layout: "fitColumns",
             pagination: "local",
             paginationSize: 10,
           });
 
-
+          // Displaying total rows for reference
+          document.getElementById("totalRowsDisplay").textContent = `Total Rows: ${tableData.length}`;
         } catch (error) {
-          console.error("Error fetching data for NAICS code", naicsCode, ":", error);
+          console.error("Error fetching data:", error);
         }
-      };
-
-      // INIT
-      fetchAndDisplayNaicsData(""); // Initilly list all industries
-
-      const uniqueNaicsCodeArray = Array.from(uniqueNaicsCode);
-
-      console.log("uniqueNaicsCodeArray", uniqueNaicsCodeArray);
-
-      new Tabulator("#naicsCodeDisplay", {
-        data: uniqueNaicsCodeArray.map(code => ({ naicsCode: code })), 
-        columns: [
-          {
-            title: "NAICS Code", 
-            field: "naicsCode",
-            cellClick: async function(e, cell) {
-              const naicsCode = cell.getValue();
-              await fetchAndDisplayNaicsData(naicsCode);
-            },
-            formatter: function(cell, formatterParams, onRendered) {
-            cell.getElement().classList.add('clickable-cell');
-            return cell.getValue();
-          }
-          }
-        ],
-        pagination: "local",
-        paginationSize: 10,
-        // renderComplete: function() {
-        //   console.log("get data", this.getData());
-        //   const totalRows = this.getData().length;
-        //   console.log("totalRows", totalRows);
-        //   document.getElementById('totalRowsDisplay').textContent = `Total Rows: ${totalRows}`;
-        // }
-      });
-
-      function updateTotalRowCount() {
-        const totalRows = uniqueNaicsCodeArray.length;
-        document.getElementById('totalRowsDisplay').textContent = `${totalRows} industries`;
       }
 
-      updateTotalRowCount();
+      // Displaying all NAICS data on page load
+      fetchAndDisplayNaicsData();
 
+      // Add click event listener for fetching specific NAICS data
       document.getElementById('fetchButton').addEventListener('click', async () => {
-        const inputCode = document.getElementById('naicsInput').value;
-        // const data = await naics.toBea(inputCode); 
-        // console.log(naics);
-        // console.log("the fetched data from pressing the button is: ", data);
-
-        // // Initialize Tabulator 
-        // new Tabulator("#naicsTable", {
-        //   data: data.map(code => ({ BEA_detail: code })), 
-        //   autoColumns: true, 
-        // });
-        await fetchAndDisplayNaicsData(inputCode);
+        const inputCode = document.getElementById('naicsInput').value.trim();
+        await fetchAndDisplayNaicsData(inputCode || null);
       });
     });
   </script>
-  
+
 
 </body>
+
 </html>
