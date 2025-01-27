@@ -21,54 +21,41 @@
       padding: 20px;
     }
 
-    .input-button-container {
+    .input-container {
       display: flex;
       align-items: center;
       margin-bottom: 10px;
     }
 
-    #naicsInput {
-      flex: 1;
+    .input-container>div {
       margin-right: 10px;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 16px;
     }
 
-    button {
-      padding: 10px 20px;
+    #naicsLength,
+    #naicsInput,
+    #beaInput {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    #naicsLength {
+      margin-bottom: 0;
+    }
+
+    #fetchButton {
+      padding: 8px 15px;
       border: none;
       border-radius: 4px;
       background-color: #007bff;
       color: white;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
-    .dropdown-container {
-      margin-top: 10px;
-    }
-
-    #naicsLength {
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 16px;
-      background-color: #f9f9f9;
-      cursor: pointer;
-      width: 100%;
-    }
-
-    label {
       font-size: 14px;
-      font-weight: bold;
-      margin-bottom: 5px;
-      display: block;
+      cursor: pointer;
+    }
+
+    #fetchButton:hover {
+      background-color: #0056b3;
     }
 
     #naicsTable {
@@ -85,32 +72,34 @@
 <body>
 
   <div class="content">
-    <div style="margin-bottom:10px">
+    <div style="margin-bottom: 10px">
       <a href="./">State Impact Reports</a>
     </div>
 
-    <!-- Input and Button -->
-    <div class="input-button-container">
-      <input type="text" id="naicsInput" placeholder="Enter NAICS Code">
-      <button id="fetchButton">Fetch Data</button>
-    </div>
-
-    <!-- Dropdown -->
-    <div class="dropdown-container">
-      <label for="naicsLength">Filter by NAICS Code Length:</label>
-      <select id="naicsLength">
-        <option value="">Show All</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-        <option value="5" selected>5</option>
-        <option value="6">6</option>
-      </select>
+    <!-- Input Fields and Dropdown -->
+    <div class="input-container">
+      <div>
+        <label for="naicsLength">NAICS Length</label>
+        <select id="naicsLength">
+          <option value="">Show All</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5" selected>5</option>
+          <option value="6">6</option>
+        </select>
+      </div>
+      <div>
+        <input type="text" id="naicsInput" placeholder="Enter NAICS Code">
+      </div>
+      <div>
+        <input type="text" id="beaInput" placeholder="Enter BEA Code">
+      </div>
+      <button id="fetchButton">Fetch</button>
     </div>
 
     <!-- Data Table -->
     <div id="naicsTable"></div>
-    <div id="naicsCodeDisplay"></div>
     <div id="totalRowsDisplay"></div>
   </div>
 
@@ -142,7 +131,7 @@
       }
 
       // Function to fetch and display NAICS data
-      async function fetchAndDisplayNaicsData(naicsCode = null, naicsLength = null) {
+      async function fetchAndDisplayNaicsData(naicsCode = null, naicsLength = null, beaCode = null) {
         try {
           let tableData = [];
 
@@ -154,6 +143,22 @@
               BEA_detail: item,
               sectorName: findSectorName(item),
             }));
+          } else if (beaCode) {
+            // Fetch data for the specific BEA code
+            const allNaicsCodes = Object.keys(crosswalk.mappings);
+
+            for (const code of allNaicsCodes) {
+              const data = await naics.toBea(code);
+
+              // Filter data where BEA matches the input BEA Code
+              const filteredData = data.filter(beaDetail => beaDetail === beaCode).map(item => ({
+                naicsCode: code,
+                BEA_detail: item,
+                sectorName: findSectorName(item),
+              }));
+
+              tableData = tableData.concat(filteredData);
+            }
           } else {
             // Fetch all NAICS codes dynamically
             const allNaicsCodes = Object.keys(crosswalk.mappings);
@@ -184,7 +189,7 @@
             paginationSize: 10,
           });
 
-          // Display the total number of rows
+          // Display total rows
           document.getElementById("totalRowsDisplay").textContent = `Total Rows: ${tableData.length}`;
         } catch (error) {
           console.error("Error fetching data:", error);
@@ -195,24 +200,37 @@
       const defaultLength = document.getElementById('naicsLength').value || "5";
       fetchAndDisplayNaicsData(null, defaultLength);
 
+      // Clear BEA Code when NAICS Code is being typed
+      document.getElementById("naicsInput").addEventListener("input", () => {
+        document.getElementById("beaInput").value = "";
+      });
+
+      // Clear NAICS Code when BEA Code is being typed
+      document.getElementById("beaInput").addEventListener("input", () => {
+        document.getElementById("naicsInput").value = "";
+      });
+
       // Handle changes in NAICS length dropdown
       document.getElementById("naicsLength").addEventListener("change", async (event) => {
         const selectedLength = event.target.value;
 
-        // Clear the input field when dropdown is changed
+        // Clear the input fields when dropdown is changed
         document.getElementById("naicsInput").value = "";
+        document.getElementById("beaInput").value = "";
 
         await fetchAndDisplayNaicsData(null, selectedLength);
       });
 
-      // Fetch specific NAICS data on button click
+      // Fetch data on button click
       document.getElementById('fetchButton').addEventListener('click', async () => {
         const inputCode = document.getElementById('naicsInput').value.trim();
+        const beaCode = document.getElementById('beaInput').value.trim();
         const selectedLength = document.getElementById('naicsLength').value;
-        await fetchAndDisplayNaicsData(inputCode || null, selectedLength || null);
+        await fetchAndDisplayNaicsData(inputCode || null, selectedLength || null, beaCode || null);
       });
     });
   </script>
+
 
 </body>
 
