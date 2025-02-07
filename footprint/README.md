@@ -10,6 +10,8 @@ Expansion of following in email Aug 22, 2024
 <a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio/output">Exiobase+BEA output for 2019</a>.
 -->
 
+TO DO: link [NAICS list's](naics.html) 6-digit BEA Detail column values to the Sector Profiles page with the /US suffix ([example](https://model.earth/useeio.js/footprint/sector_profile.html#demand=321910/US))<!-- AbhishekN -->
+
 TO DO: Some of the links to the left currently only send json to the console.log. Update to also display in the page. <a href="commodities.html">See&nbsp;how to wait for DOM</a>. (Use your browser's inspector to view some of the current output.)
 
 TO DO: Update pages to watch for hash value changes using hashChangedUseeio().<br> Example of changing #state= in <a href="calculation.html#state=NY">calculation.html#state=NY</a>  
