@@ -131,70 +131,73 @@
       }
 
       // Function to fetch and display NAICS data
-      async function fetchAndDisplayNaicsData(naicsCode = null, naicsLength = null, beaCode = null) {
-        try {
-          let tableData = [];
+async function fetchAndDisplayNaicsData(naicsCode = null, naicsLength = null, beaCode = null) {
+    try {
+        let tableData = [];
 
-          if (naicsCode) {
-            // Fetch data for the specific NAICS code
+        if (naicsCode) {
             const data = await naics.toBea(naicsCode);
             tableData = data.map(item => ({
-              naicsCode: naicsCode,
-              BEA_detail: item,
-              sectorName: findSectorName(item),
-            }));
-          } else if (beaCode) {
-            // Fetch data for the specific BEA code
-            const allNaicsCodes = Object.keys(crosswalk.mappings);
-
-            for (const code of allNaicsCodes) {
-              const data = await naics.toBea(code);
-
-              // Filter data where BEA matches the input BEA Code
-              const filteredData = data.filter(beaDetail => beaDetail === beaCode).map(item => ({
-                naicsCode: code,
+                naicsCode: naicsCode,
                 BEA_detail: item,
-                sectorName: findSectorName(item),
-              }));
-
-              tableData = tableData.concat(filteredData);
-            }
-          } else {
-            // Fetch all NAICS codes dynamically
-            const allNaicsCodes = Object.keys(crosswalk.mappings);
+                sectorName: findSectorName(item) || "NA",
+            }));
+        } else if (beaCode) {
+            const allNaicsCodes = crosswalk.mappings.map(entry => entry[0]);
 
             for (const code of allNaicsCodes) {
-              if (!naicsLength || code.length === parseInt(naicsLength, 10)) {
                 const data = await naics.toBea(code);
-                const codeData = data.map(item => ({
-                  naicsCode: code,
-                  BEA_detail: item,
-                  sectorName: findSectorName(item),
-                }));
-                tableData = tableData.concat(codeData);
-              }
+
+                const filteredData = data
+                    .filter(beaDetail => beaDetail === beaCode)
+                    .map(item => ({
+                        naicsCode: code,
+                        BEA_detail: item,
+                        sectorName: findSectorName(item) || "NA",
+                    }));
+
+                tableData = tableData.concat(filteredData);
             }
-          }
+        } else {
+            const allNaicsCodes = crosswalk.mappings.map(entry => entry[0]);
 
-          // Update the Tabulator table
-          const table = new Tabulator("#naicsTable", {
-            data: tableData,
-            columns: [
-              { title: "NAICS Code", field: "naicsCode" },
-              { title: "BEA Detail", field: "BEA_detail" },
-              { title: "Sector Name", field: "sectorName" },
-            ],
-            layout: "fitColumns",
-            pagination: "local",
-            paginationSize: 10,
-          });
+            for (const code of allNaicsCodes) {
+                if (!naicsLength || (typeof code === "string" && code.length === parseInt(naicsLength, 10))) {
+                    const data = await naics.toBea(code);
 
-          // Display total rows
-          document.getElementById("totalRowsDisplay").textContent = `Total Rows: ${tableData.length}`;
-        } catch (error) {
-          console.error("Error fetching data:", error);
+                    const codeData = data.map(item => ({
+                        naicsCode: code,
+                        BEA_detail: item,
+                        sectorName: findSectorName(item) || "NA",
+                    }));
+
+                    tableData = tableData.concat(codeData);
+                }
+            }
         }
-      }
+
+        console.log("Total Rows Processed:", tableData.length);
+
+        setTimeout(() => {
+            new Tabulator("#naicsTable", {
+                data: tableData,
+                columns: [
+                    { title: "NAICS Code", field: "naicsCode" },
+                    { title: "BEA Detail", field: "BEA_detail" },
+                    { title: "Sector Name", field: "sectorName" },
+                ],
+                layout: "fitColumns",
+                pagination: "local",
+                paginationSize: 10,
+            });
+
+            document.getElementById("totalRowsDisplay").textContent = `Total Rows: ${tableData.length}`;
+        }, 100);
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
+}
+
 
       // Display all NAICS data on page load with default 5-char filter
       const defaultLength = document.getElementById('naicsLength').value || "5";
