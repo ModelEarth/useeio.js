@@ -51,7 +51,7 @@ If the API requires a key, append --apikey [Add API key here]
 You can [register for an API key](https://github.com/USEPA/USEEIO_API/wiki/Use-the-API) via the US EPA's contact link.
 
 
-The 50 state json files are pre-generated for you at [https://model.earth/OpenFootprint/impacts](https://model.earth/OpenFootprint/impacts)
+The 50 state json files are pre-generated for you at [useeio-json/models](https://github.com/ModelEarth/useeio-json/tree/main/models)
 
 Model.earth developers use the following [http-server setup steps](https://model.earth/localsite/start/steps/) with port 8887.
 
@@ -65,5 +65,5 @@ npm install http-server -g
 http-server ./data -p 8080 --cors
 
 # Alternative
-http-server ../OpenFootprint/impacts/2020 -p 8080 --cors
+http-server ../useeio-json/models/2020 -p 8080 --cors
 ```

@@ -14,7 +14,7 @@
 
 # SQL Tables
 
-Row totals below are for the 6 .csv files in the [US-2020-17schema](https://github.com/ModelEarth/OpenFootprint/tree/main/impacts/exiobase/US-source/2022) which merges 2020 Exiobase trade data and US BEA.
+Row totals below are for the 6 .csv files in the [US-2020-17schema](https://github.com/ModelEarth/profile/tree/main/impacts/exiobase/US-source/2022) which merges 2020 Exiobase trade data and US BEA.
 
 ### Table Names
 
@@ -63,4 +63,4 @@ CountryCode, CommodityID, FlowUUID, Footprint (EF stands for Environmental Footp
 Source: multiplier\_df\_exio\_2020\_17sch
 
 Commodity.csv for CommodityNames could be from <a href="https://www.bea.gov/industry/input-output-accounts-data">BEA input-output (ImportMatrices_Before_Redefinitions_DET_2017.xlsx</a>.
-[The Concordance raw files](https://github.com/insongkim/concordance/tree/master/data-raw) is another option for category names. See our [Harmonized System (HS) page](/OpenFootprint/harmonized-system).
+[The Concordance raw files](https://github.com/insongkim/concordance/tree/master/data-raw) is another option for category names. See our [Harmonized System (HS) page](/profile/harmonized-system).
