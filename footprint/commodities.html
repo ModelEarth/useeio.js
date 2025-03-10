@@ -24,27 +24,26 @@ function hashChangedUseeio() {
 }
 
 function documentReady(callback) {
-    if (document.readyState === "loading") {
-        // The document is still loading, wait for it to finish
-        document.addEventListener("DOMContentLoaded", callback);
-    } else {
-        // The DOM is already fully loaded
-        callback();
-    }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", callback);
+  } else {
+    callback();
+  }
 }
 
 let tableData = [];
 async function main() {
   try {
-    // compute the table data
+    // Compute the table data
     const q = await model.matrix('q'); // Commodity
     const sectors = await model.sectors();
-    documentReady(function() {
-      const notesDiv = document.getElementById("notes");
-      if (notesDiv) {
-        notesDiv.innerHTML = "<br>From useeio-json/models/2020/" + getModelFolderName() + "/sectors.json<br>";
-      }
-    });
+    
+    // Update notes (if any)
+    const notesDiv = document.getElementById("notes");
+    if (notesDiv) {
+      notesDiv.innerHTML = "<br>From useeio-json/models/2020/" + getModelFolderName() + "/sectors.json<br>";
+    }
+    
     const indicator = (await model.indicators()).filter(i => i.code === 'JOBS')[0];
     const impacts = await model.matrix('D'); // Indicator_Sector (like industries)
     
@@ -58,53 +57,53 @@ async function main() {
       };
     });
     
-    console.log("the table data is：", tableData);
-    tableData.forEach(item => { // For each object in array
+    console.log("The table data is:", tableData);
+    tableData.forEach(item => {
       item.jobsEasy = formatCell(item.jobs);
       item.outputEasy = "$" + formatCell(item.output);
     });
     
-    // Using Tabulator column calculations to compute totals:
+    // Use Tabulator column calculations to compute totals
     let hash = getHash();
     if (hash.state) {
       // Filter tableData into two parts:
       let stateData = tableData.filter(row => row.location.includes(hash.state));
       let rousData = tableData.filter(row => !row.location.includes(hash.state));
       
-      // Create temporary Tabulator instances (in-memory only)
+      // Create temporary Tabulator instances (in-memory only) to compute sums
       let stateCalcTable = new Tabulator(document.createElement("div"), {
         data: stateData,
         columns: [
-          {field:"output", bottomCalc:"sum"},
-          {field:"jobs", bottomCalc:"sum"},
+          { field: "output", bottomCalc: "sum" },
+          { field: "jobs", bottomCalc: "sum" },
         ],
       });
       let rousCalcTable = new Tabulator(document.createElement("div"), {
         data: rousData,
         columns: [
-          {field:"output", bottomCalc:"sum"},
-          {field:"jobs", bottomCalc:"sum"},
+          { field: "output", bottomCalc: "sum" },
+          { field: "jobs", bottomCalc: "sum" },
         ],
       });
       
-      // Retrieve the calculated sums
       let stateOutput = stateCalcTable.getCalcResults("output");
       let stateJobs = stateCalcTable.getCalcResults("jobs");
       let rousOutput = rousCalcTable.getCalcResults("output");
       let rousJobs = rousCalcTable.getCalcResults("jobs");
       
-      // Update the summary section above the table
-      document.getElementById('state-name').textContent = `${hash.state} Total`;
-      document.getElementById('state-output').textContent = "$" + formatCell(stateOutput);
-      document.getElementById('state-jobs').textContent = formatCell(stateJobs);
-      document.getElementById('rous-output').textContent = "$" + formatCell(rousOutput);
-      document.getElementById('rous-jobs').textContent = formatCell(rousJobs);
+      // Write two lines of summary text in the totals container:
+      let totalsDiv = document.getElementById("totals");
+      if (totalsDiv) {
+        totalsDiv.innerHTML = 
+          `State Total: $${formatCell(stateOutput)} , with ${formatCell(stateJobs)} jobs.<br>` +
+          `Rest of US: $${formatCell(rousOutput)} , with ${formatCell(rousJobs)} jobs.`;
+      }
     }
     
     // Now initialize the main table with the tableData
     displayTable(navigator.language, "simple");
     
-  } catch(error) {
+  } catch (error) {
     console.error("Error in main():", error);
   }
 }
@@ -261,18 +260,10 @@ function updateTable(locale) {
 
   <div id="summary-section" style="margin:20px 0">
     <div style="display:flex; gap:20px; max-width:800px">
-      <div class="summary-card">
-        <h4 id="state-name">State Total</h4>
-        <div>Output: <span id="state-output">-</span></div>
-        <div>Jobs: <span id="state-jobs">-</span></div>
-      </div>
-      <div class="summary-card">
-        <h4>Rest of US</h4>
-        <div>Output: <span id="rous-output">-</span></div>
-        <div>Jobs: <span id="rous-jobs">-</span></div>
-      </div>
     </div>
   </div>
+
+  <div id="totals" style="margin:20px 0; font-size:1.1em;"></div>
 
   <div id="table" style="clear:both"></div>
 
