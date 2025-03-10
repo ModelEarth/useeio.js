@@ -108,7 +108,8 @@ async function main() {
     console.error("Error in main():", error);
   }
 }
-main();
+
+documentReady(main);
 
 var table
 function displayTable(locale, formatType) {
