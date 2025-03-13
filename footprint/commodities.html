@@ -34,18 +34,20 @@ function documentReady(callback) {
 let tableData = [];
 async function main() {
   try {
+    console.log("Starting main() via window.onload");
+    
     // Compute the table data
     const q = await model.matrix('q'); // Commodity
     const sectors = await model.sectors();
     
-    // Update notes (if any)
+    // Update the notes div if present
     const notesDiv = document.getElementById("notes");
     if (notesDiv) {
       notesDiv.innerHTML = "<br>From useeio-json/models/2020/" + getModelFolderName() + "/sectors.json<br>";
     }
     
     const indicator = (await model.indicators()).filter(i => i.code === 'JOBS')[0];
-    const impacts = await model.matrix('D'); // Indicator_Sector (like industries)
+    const impacts = await model.matrix('D'); // Indicator_Sector
     
     tableData = sectors.map(sector => {
       const output = q.get(sector.index, 0);
@@ -57,46 +59,39 @@ async function main() {
       };
     });
     
-    console.log("The table data is:", tableData);
+    console.log("Table data loaded, length:", tableData.length);
     tableData.forEach(item => {
       item.jobsEasy = formatCell(item.jobs);
       item.outputEasy = "$" + formatCell(item.output);
     });
     
-    // Use Tabulator column calculations to compute totals
+    // Compute totals only if a state is specified in the URL hash:
     let hash = getHash();
     if (hash.state) {
-      // Filter tableData into two parts:
       let stateData = tableData.filter(row => row.location.includes(hash.state));
       let rousData = tableData.filter(row => !row.location.includes(hash.state));
       
-      // Create temporary Tabulator instances (in-memory only) to compute sums
-      let stateCalcTable = new Tabulator(document.createElement("div"), {
-        data: stateData,
-        columns: [
-          { field: "output", bottomCalc: "sum" },
-          { field: "jobs", bottomCalc: "sum" },
-        ],
-      });
-      let rousCalcTable = new Tabulator(document.createElement("div"), {
-        data: rousData,
-        columns: [
-          { field: "output", bottomCalc: "sum" },
-          { field: "jobs", bottomCalc: "sum" },
-        ],
-      });
+      console.log("State rows:", stateData.length, "RoUS rows:", rousData.length);
       
-      let stateOutput = stateCalcTable.getCalcResults("output");
-      let stateJobs = stateCalcTable.getCalcResults("jobs");
-      let rousOutput = rousCalcTable.getCalcResults("output");
-      let rousJobs = rousCalcTable.getCalcResults("jobs");
-      
-      // Write two lines of summary text in the totals container:
+      const stateTotals = stateData.reduce((acc, row) => {
+        acc.output += row.output || 0;
+        acc.jobs += row.jobs || 0;
+        return acc;
+      }, { output: 0, jobs: 0 });
+
+      const rousTotals = rousData.reduce((acc, row) => {
+        acc.output += row.output || 0;
+        acc.jobs += row.jobs || 0;
+        return acc;
+      }, { output: 0, jobs: 0 });
+
+      console.log("Calculated totals:", { stateTotals, rousTotals });
+
       let totalsDiv = document.getElementById("totals");
       if (totalsDiv) {
         totalsDiv.innerHTML = 
-          `State Total: $${formatCell(stateOutput)} , with ${formatCell(stateJobs)} jobs.<br>` +
-          `Rest of US: $${formatCell(rousOutput)} , with ${formatCell(rousJobs)} jobs.`;
+          `<strong>State Total:</strong> $${formatCell(stateTotals.output)}, with ${formatCell(stateTotals.jobs)} jobs.<br>` +
+          `<strong>Rest of US:</strong> $${formatCell(rousTotals.output)}, with ${formatCell(rousTotals.jobs)} jobs.`;
       }
     }
     
@@ -104,11 +99,13 @@ async function main() {
     displayTable(navigator.language, "simple");
     
   } catch (error) {
-    console.error("Error in main():", error);
+    console.error("Error in main():", error.stack);
   }
 }
 
-documentReady(main);
+window.onload = function() {
+  main();
+};
 
 var table
 function displayTable(locale, formatType) {
