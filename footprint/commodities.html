@@ -43,21 +43,18 @@ async function main() {
     // Update the notes div if present
     const notesDiv = document.getElementById("notes");
     if (notesDiv) {
-
-      let hash = getHash();
+      let hash = getHash();  
       let notesContent = "<br>From useeio-json/models/2020/" + getModelFolderName() + "/sectors.json<br>";
-
-    // only add RoUS note if a state is selected
+      
+      // Only add the RoUS explanation if a state is selected
       if (hash.state) {
-        notes.innerHTML += 
-        '<div style="margin-top:20px; font-style:italic; color:#666;">' +
-        'Note: The "Rest of US" total varies by state because it represents the total minus the selected state\'s value. ' +
-        'States with larger economic output will show smaller Rest of US totals, as they account for a larger portion of the national total.' +
-        '</div>';
+        notesContent += '<div style="margin-top:20px; font-style:italic; color:#666;">' +
+          'Note: The "Rest of US" total varies by state because it represents the total minus the selected state\'s value. ' +
+          'States with larger economic output will show smaller Rest of US totals, as they account for a larger portion of the national total.' +
+          '</div>';
       }
-    
-    notesDiv.innerHTML = notesContent;
-
+      
+      notesDiv.innerHTML = notesContent;
     }
     
     const indicator = (await model.indicators()).filter(i => i.code === 'JOBS')[0];
