@@ -24,54 +24,88 @@ function hashChangedUseeio() {
 }
 
 function documentReady(callback) {
-    if (document.readyState === "loading") {
-        // The document is still loading, wait for it to finish
-        document.addEventListener("DOMContentLoaded", callback);
-    } else {
-        // The DOM is already fully loaded
-        callback();
-    }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", callback);
+  } else {
+    callback();
+  }
 }
 
 let tableData = [];
 async function main() {
-  // compute the table data
-  const q = await model.matrix('q'); // Commodity
-  const sectors = await model.sectors();
-  documentReady(function() {
+  try {
+    console.log("Starting main() via window.onload");
+    
+    // Compute the table data
+    const q = await model.matrix('q'); // Commodity
+    const sectors = await model.sectors();
+    
+    // Update the notes div if present
     const notesDiv = document.getElementById("notes");
     if (notesDiv) {
-        notesDiv.innerHTML = "<br>From useeio-json/models/2020/" + getModelFolderName() + "/sectors.json<br>"
-        // + JSON.stringify(sectors, null, 2);
+      notesDiv.innerHTML = "<br>From useeio-json/models/2020/" + getModelFolderName() + "/sectors.json<br>";
     }
-  });
-  const indicator = (await model.indicators())
-    .filter(i => i.code === 'JOBS')[0];
-  const impacts = await model.matrix('D'); // Indicator_Sector (like industries)
+    
+    const indicator = (await model.indicators()).filter(i => i.code === 'JOBS')[0];
+    const impacts = await model.matrix('D'); // Indicator_Sector
+    
+    tableData = sectors.map(sector => {
+      const output = q.get(sector.index, 0);
+      const jobs = output * impacts.get(indicator.index, sector.index);
+      return {
+        ...sector,
+        output: Math.round(output),
+        jobs: Math.round(jobs)
+      };
+    });
+    
+    console.log("Table data loaded, length:", tableData.length);
+    tableData.forEach(item => {
+      item.jobsEasy = formatCell(item.jobs);
+      item.outputEasy = "$" + formatCell(item.output);
+    });
+    
+    // Compute totals only if a state is specified in the URL hash:
+    let hash = getHash();
+    if (hash.state) {
+      let stateData = tableData.filter(row => row.location.includes(hash.state));
+      let rousData = tableData.filter(row => !row.location.includes(hash.state));
+      
+      console.log("State rows:", stateData.length, "RoUS rows:", rousData.length);
+      
+      const stateTotals = stateData.reduce((acc, row) => {
+        acc.output += row.output || 0;
+        acc.jobs += row.jobs || 0;
+        return acc;
+      }, { output: 0, jobs: 0 });
 
-  tableData = sectors.map(sector => {
-    const output = q.get(sector.index, 0);
-    const jobs = output * impacts.get(indicator.index, sector.index);
-    return {
-      ...sector,
-      output: Math.round(output),
-      jobs: Math.round(jobs)
-    };
-  });
-  
-  console.log("the table data is：", tableData);
-  tableData.forEach(item => { // For each object in array
-    item.jobsEasy = formatCell(item.jobs);
-    item.outputEasy = "$" + formatCell(item.output);
-    // item.jobScientific = formatCell(item.jobs,'scientific');
-    // item.outputScientific = formatCell(item.output,'scientific');
-  }); 
+      const rousTotals = rousData.reduce((acc, row) => {
+        acc.output += row.output || 0;
+        acc.jobs += row.jobs || 0;
+        return acc;
+      }, { output: 0, jobs: 0 });
 
+      console.log("Calculated totals:", { stateTotals, rousTotals });
 
-  // Initial table update with user's locale
-  displayTable(navigator.language, "simple");
+      let totalsDiv = document.getElementById("totals");
+      if (totalsDiv) {
+        totalsDiv.innerHTML = 
+          `<strong>State Total:</strong> $${formatCell(stateTotals.output)}, with ${formatCell(stateTotals.jobs)} jobs.<br>` +
+          `<strong>Rest of US:</strong> $${formatCell(rousTotals.output)}, with ${formatCell(rousTotals.jobs)} jobs.`;
+      }
+    }
+    
+    // Now initialize the main table with the tableData
+    displayTable(navigator.language, "simple");
+    
+  } catch (error) {
+    console.error("Error in main():", error.stack);
+  }
 }
-main();
+
+window.onload = function() {
+  main();
+};
 
 var table
 function displayTable(locale, formatType) {
@@ -195,6 +229,19 @@ function updateTable(locale) {
 
 </script>
 
+<style>
+  .summary-card {
+    padding: 15px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    min-width: 200px;
+  }
+  .summary-card h4 {
+    margin: 0 0 10px 0;
+  }
+</style>
+
 </head>
 
 <body>
@@ -207,6 +254,13 @@ function updateTable(locale) {
     <a id="footprintLink" href="./" >State Impact Reports</a>
   </div>
   <div id="relocatedStateMenu"></div>
+
+  <div id="summary-section" style="margin:20px 0">
+    <div style="display:flex; gap:20px; max-width:800px">
+    </div>
+  </div>
+
+  <div id="totals" style="margin:20px 0; font-size:1.1em;"></div>
 
   <div id="table" style="clear:both"></div>
 
