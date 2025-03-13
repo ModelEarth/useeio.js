@@ -43,19 +43,19 @@ async function main() {
     const notesDiv = document.getElementById("notes");
     if (notesDiv) {
       let hash = getHash();
-      console.log("Current hash state:", hash); 
-  
-      let notesContent = "<br>From useeio-json/models/2020/" + getModelFolderName() + "/sectors.json<br>";
-  
-      if (hash && hash.state) { 
-        console.log("State found in hash:", hash.state); 
+      let notesContent = "";
+
+      notesContent = "<br>From useeio-json/models/2020/" + getModelFolderName() + "/sectors.json<br>";
+
+      // Only add RoUS note if state parameter exists
+      if (hash && hash.state) {
         notesContent += '<div style="margin-top:20px; font-style:italic; color:#666;">' +
           'Note: The "Rest of US" total varies by state because it represents the total minus the selected state\'s value. ' +
           'States with larger economic output will show smaller Rest of US totals, as they account for a larger portion of the national total.' +
           '</div>';
       }
-  
-    notesDiv.innerHTML = notesContent;
+
+      notesDiv.innerHTML = notesContent;
     }
     
     const indicator = (await model.indicators()).filter(i => i.code === 'JOBS')[0];
