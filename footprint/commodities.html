@@ -67,6 +67,7 @@ async function main() {
     
     // Compute totals only if a state is specified in the URL hash:
     let hash = getHash();
+    let totalsDiv = document.getElementById("totals");
     if (hash.state) {
       let stateData = tableData.filter(row => row.location.includes(hash.state));
       let rousData = tableData.filter(row => !row.location.includes(hash.state));
@@ -87,11 +88,24 @@ async function main() {
 
       console.log("Calculated totals:", { stateTotals, rousTotals });
 
-      let totalsDiv = document.getElementById("totals");
       if (totalsDiv) {
         totalsDiv.innerHTML = 
           `<strong>State Total:</strong> $${formatCell(stateTotals.output)}, with ${formatCell(stateTotals.jobs)} jobs.<br>` +
           `<strong>Rest of US:</strong> $${formatCell(rousTotals.output)}, with ${formatCell(rousTotals.jobs)} jobs.`;
+      }
+    } else {
+      // Calculate US total when no state is selected
+      const usTotals = tableData.reduce((acc, row) => {
+        acc.output += row.output || 0;
+        acc.jobs += row.jobs || 0;
+        return acc;
+      }, { output: 0, jobs: 0 });
+
+      console.log("Calculated US totals:", usTotals);
+
+      if (totalsDiv) {
+        totalsDiv.innerHTML = 
+          `<strong>US Total:</strong> $${formatCell(usTotals.output)}, with ${formatCell(usTotals.jobs)} jobs.`;
       }
     }
     
@@ -254,11 +268,6 @@ function updateTable(locale) {
     <a id="footprintLink" href="./" >State Impact Reports</a>
   </div>
   <div id="relocatedStateMenu"></div>
-
-  <div id="summary-section" style="margin:20px 0">
-    <div style="display:flex; gap:20px; max-width:800px">
-    </div>
-  </div>
 
   <div id="totals" style="margin:20px 0; font-size:1.1em;"></div>
 
