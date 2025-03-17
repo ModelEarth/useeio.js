@@ -66,6 +66,13 @@
       margin-top: 10px;
       font-weight: bold;
     }
+
+    .bea-code {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
   </style>
 </head>
 
@@ -183,7 +190,16 @@ async function fetchAndDisplayNaicsData(naicsCode = null, naicsLength = null, be
                 data: tableData,
                 columns: [
                     { title: "NAICS Code", field: "naicsCode" },
-                    { title: "BEA Detail", field: "BEA_detail" },
+                    { title: "BEA Detail",
+                     field: "BEA_detail" ,
+                     formatter: function (cell, formatterParams, onRendered) {
+                      // Add a unique ID to the BEA code cell
+                      const value = cell.getValue();
+                      const rowData = cell.getRow().getData();
+                      const uniqueId = `bea-code-${rowData.naicsCode}-${value}`; // Example ID format
+                      return `<span id="${uniqueId}" class="bea-code">${value}</span>`;
+                       },
+                    },
                     { title: "Sector Name", field: "sectorName" },
                 ],
                 layout: "fitColumns",
@@ -230,11 +246,19 @@ async function fetchAndDisplayNaicsData(naicsCode = null, naicsLength = null, be
         const beaCode = document.getElementById('beaInput').value.trim();
         const selectedLength = document.getElementById('naicsLength').value;
         await fetchAndDisplayNaicsData(inputCode || null, selectedLength || null, beaCode || null);
-      });
+      });      
     });
-  </script>
 
 
+    document.getElementById("naicsTable").addEventListener("click", function (e) {
+    // Check if the clicked element has the class 'bea-code'
+    if (e.target.classList.contains("bea-code")) {
+    const beaCode = e.target.textContent; // Get the BEA code
+    window.location.href = `sector_profile.html#demand=${beaCode}/US`; // Redirect with query parameter
+  }
+});
+
+</script>
 </body>
 
 </html>
