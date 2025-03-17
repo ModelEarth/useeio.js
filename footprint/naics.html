@@ -66,6 +66,18 @@
       margin-top: 10px;
       font-weight: bold;
     }
+
+    .bea-code {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .sector-name {
+      color: green;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
   </style>
 </head>
 
@@ -177,18 +189,51 @@ async function fetchAndDisplayNaicsData(naicsCode = null, naicsLength = null, be
         }
 
         console.log("Total Rows Processed:", tableData.length);
-
-        setTimeout(() => {
+        
+        setTimeout(() => {const table =
             new Tabulator("#naicsTable", {
                 data: tableData,
                 columns: [
                     { title: "NAICS Code", field: "naicsCode" },
-                    { title: "BEA Detail", field: "BEA_detail" },
-                    { title: "Sector Name", field: "sectorName" },
+                    { title: "Sector Name", field: "sectorName",
+                    formatter: function (cell, formatterParams, onRendered) {
+                    const value = cell.getValue();
+                    const rowData = cell.getRow().getData();
+                    const uniqueId = `sector-name-${rowData.naicsCode}-${value}`;
+                    return `<span id="${uniqueId}" class="sector-name">${value}</span>`;
+                  },
+                  },
+                    { title: "BEA Detail",
+                     field: "BEA_detail" ,
+                     formatter: function (cell, formatterParams, onRendered) {
+                      // Add a unique ID to the BEA code cell
+                      const value = cell.getValue();
+                      const rowData = cell.getRow().getData();
+                      const uniqueId = `bea-code-${rowData.naicsCode}-${value}`; // Example ID format
+                      return `<span id="${uniqueId}" class="bea-code">${value}</span>`;
+                       },
+                    },
+                   
                 ],
                 layout: "fitColumns",
                 pagination: "local",
                 paginationSize: 10,
+                });
+
+                document.getElementById("naicsTable").addEventListener("click", function (e) {
+                  // Check if the clicked element has the class 'bea-code'
+                  if (e.target.classList.contains("bea-code")) {
+                  const beaCode = e.target.textContent; // Get the BEA code
+                  window.location.href = `sector_profile.html#demand=${beaCode}/US`; // Redirect with query parameter
+                }
+              
+                if (e.target.classList.contains("sector-name")) {
+                const sectorName = e.target.textContent; // Get the sector name
+                const row = e.target.closest(".tabulator-row"); // Get the row element
+                const rowData = table.getRow(row).getData(); // Get the row data
+                const beaCode = rowData.BEA_detail.split("#")[0]; // Extract the BEA code
+                window.location.href = `sector_profile.html#demand=${beaCode}/US`; // Redirect with BEA code
+              }
             });
 
             document.getElementById("totalRowsDisplay").textContent = `Total Rows: ${tableData.length}`;
@@ -230,11 +275,13 @@ async function fetchAndDisplayNaicsData(naicsCode = null, naicsLength = null, be
         const beaCode = document.getElementById('beaInput').value.trim();
         const selectedLength = document.getElementById('naicsLength').value;
         await fetchAndDisplayNaicsData(inputCode || null, selectedLength || null, beaCode || null);
-      });
+      });      
     });
-  </script>
 
 
+    
+
+</script>
 </body>
 
 </html>
