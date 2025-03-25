@@ -30,7 +30,6 @@
 
     async function loadStateData(state) {
         try {
-            // Get model with state configuration directly
             const modelParams = { ...getModelConfig() };
             modelParams.model = `${state}EEIOv1.0-s-20`;
             const model = await useeio.modelOf(modelParams);
@@ -39,7 +38,7 @@
                 throw new Error(`Failed to get model for state ${state}`);
             }
 
-            // Get matrices and data
+            // Get matrices and data without filtering
             const sectors = await model.sectors();
             const q = await model.matrix("q");
             const d = await model.matrix("D");
@@ -49,28 +48,37 @@
                 throw new Error("Could not find jobs indicator");
             }
 
-            // Calculate state totals
-            let totalOutput = 0;
-            let totalJobs = 0;
+            // Match commodities.html: process all sectors first, then filter by state
+            let stateData = sectors.map(sector => {
+                const output = q.get(sector.index, 0) || 0;
+                const jobCount = output * d.get(jobs.index, sector.index) || 0;
+                return {
+                    ...sector,
+                    output,
+                    jobs: jobCount
+                };
+            }).filter(s => s.location === `US-${state}`);
 
-            const stateSectors = sectors.filter(s => s.location === `US-${state}`);
-            console.log(`Processing ${state}: Found ${stateSectors.length} sectors`);
-            
-            for (const sector of stateSectors) {
-                const output = q.get(sector.index, 0);
-                if (output && output > 0) {
-                    totalOutput += output;
-                    totalJobs += output * d.get(jobs.index, sector.index);
-                }
-            }
+            // Sum totals after filtering
+            const totals = stateData.reduce((acc, row) => {
+                acc.output += row.output;
+                acc.jobs += row.jobs;
+                return acc;
+            }, { output: 0, jobs: 0 });
+
+            console.debug(`${state} calculation:`, {
+                sectors: stateData.length,
+                output: formatCell(Math.round(totals.output)),
+                jobs: formatCell(Math.round(totals.jobs))
+            });
 
             return {
                 state,
                 stateName: getStateName(state),
-                output: Math.round(totalOutput),
-                outputFormatted: formatCell(Math.round(totalOutput)),
-                jobs: Math.round(totalJobs),
-                jobsFormatted: formatCell(Math.round(totalJobs))
+                output: Math.round(totals.output),
+                outputFormatted: formatCell(Math.round(totals.output)),
+                jobs: Math.round(totals.jobs),
+                jobsFormatted: formatCell(Math.round(totals.jobs))
             };
         } catch (error) {
             console.error(`Error loading state ${state}:`, error);
@@ -133,8 +141,8 @@
             const hash = new URLSearchParams(window.location.hash.slice(1));
             let statesToLoad = [];
             
-            if (hash.has('states')) {
-                statesToLoad = hash.get('states').split(',');
+            if (hash.has('state')) {  // Changed from states to state
+                statesToLoad = hash.get('state').split(',');
                 console.log(`Loading specified states: ${statesToLoad.join(', ')}`);
             } else {
                 statesToLoad = [
