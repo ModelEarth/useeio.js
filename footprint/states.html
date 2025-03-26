@@ -27,6 +27,8 @@
     <script>
     let table;
     let tableData = [];
+    let isProcessing = false;
+    let hasInitialized = false; // Add flag to track initialization
 
     async function loadStateData(state) {
         try {
@@ -91,58 +93,57 @@
             console.log("Starting main() for states report");
             const startTime = performance.now();
 
-            // Initialize model first
-            const model = getModel();
-            if (!model) {
-                throw new Error('Failed to get model');
-            }
-
-            // Initializing table first with empty data
-            table = new Tabulator("#table", {
-                height: 500,
-                data: [],
-                layout: "fitColumns",
-                initialSort: [{column: "output", dir: "desc"}],
-                columns: [
-                    { 
-                        title: "State", 
-                        field: "stateName",
-                        formatter: function(cell) {
-                            const row = cell.getRow();
-                            const data = row.getData();
-                            if (data.isTotal) {
-                                return '<strong>US Total</strong>';
-                            }
-                            return `<a href="commodities.html#state=${data.state}">${data.stateName}</a>`;
+            // Initialize table if not exists
+            if (!table) {
+                table = new Tabulator("#table", {
+                    height: 500,
+                    data: [],
+                    layout: "fitColumns",
+                    initialSort: [{column: "output", dir: "desc"}],
+                    columns: [
+                        { 
+                            title: "State", 
+                            field: "stateName",
+                            formatter: function(cell) {
+                                const row = cell.getRow();
+                                const data = row.getData();
+                                if (data.isTotal) {
+                                    return '<strong>US Total</strong>';
+                                }
+                                return `<a href="commodities.html#state=${data.state}">${data.stateName}</a>`;
+                            },
+                            sorter: "string",
+                            headerSort: true
                         },
-                        sorter: "string",
-                        headerSort: true
-                    },
-                    { 
-                        title: "Output ($)", 
-                        field: "outputFormatted",
-                        headerSort: true,
-                        sorter: function(a, b, aRow, bRow) {
-                            return aRow.getData().output - bRow.getData().output;
+                        { 
+                            title: "Output ($)", 
+                            field: "outputFormatted",
+                            headerSort: true,
+                            sorter: function(a, b, aRow, bRow) {
+                                return aRow.getData().output - bRow.getData().output;
+                            }
+                        },
+                        { 
+                            title: "Jobs", 
+                            field: "jobsFormatted",
+                            headerSort: true,
+                            sorter: function(a, b, aRow, bRow) {
+                                return aRow.getData().jobs - bRow.getData().jobs;
+                            }
                         }
-                    },
-                    { 
-                        title: "Jobs", 
-                        field: "jobsFormatted",
-                        headerSort: true,
-                        sorter: function(a, b, aRow, bRow) {
-                            return aRow.getData().jobs - bRow.getData().jobs;
-                        }
-                    }
-                ]
-            });
+                    ]
+                });
+            }
 
             // Get states to load from URL hash or use all states
             const hash = new URLSearchParams(window.location.hash.slice(1));
             let statesToLoad = [];
             
-            if (hash.has('state')) {  // Changed from states to state
-                statesToLoad = hash.get('state').split(',');
+            if (hash.has('state')) {
+                // Handle both comma-separated list and single state
+                const stateParam = hash.get('state');
+                // Remove duplicates with Set
+                statesToLoad = [...new Set(stateParam.split(',').map(s => s.trim().toUpperCase()))];
                 console.log(`Loading specified states: ${statesToLoad.join(', ')}`);
             } else {
                 statesToLoad = [
@@ -220,12 +221,57 @@
         };
     }
 
+    // Modify the initialization handler
+    async function initializeTable() {
+        if (hasInitialized) {
+            return;
+        }
+        
+        console.log("Initializing table");
+        hasInitialized = true;
+        await main();
+    }
+
+    // Modify the DOMContentLoaded listener
     document.addEventListener('DOMContentLoaded', function() {
-        console.log("DOM loaded, starting main");
-        main().catch(err => {
-            console.error("Failed to initialize:", err);
-        });
+        console.log("DOM loaded");
+        initializeTable(); // Handle initial load separately
     });
+
+    // Listen for hash changes
+    document.addEventListener('hashChangeEvent', hashChangedUseeio, false);
+
+    // Modify the hash change handler
+    async function hashChangedUseeio() {
+        if (isProcessing) {
+            console.log("Already processing, skipping hash change");
+            return;
+        }
+
+        console.log("Hash changed, updating states");
+        isProcessing = true;
+
+        try {
+            // Reset table without destroying
+            if (table) {
+                await table.clearData();
+                tableData = [];
+            }
+
+            // Clear summary
+            document.getElementById('summary').textContent = '';
+            
+            // Run main with fresh state
+            await main();
+        } catch (err) {
+            console.error("Failed to update on hash change:", err);
+            document.getElementById("table").innerHTML = 
+                `<div style="color: red; padding: 20px;">Error updating data: ${err.message}</div>`;
+        } finally {
+            isProcessing = false;
+        }
+    }
+
     </script>
 </head>
 
