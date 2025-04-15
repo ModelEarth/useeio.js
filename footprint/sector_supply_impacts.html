@@ -12,6 +12,28 @@
 
   <script type="text/javascript" src="https://model.earth/localsite/js/localsite.js?showheader=true&showsearch=true"></script>
   <script src="../dist/useeio.js"></script>
+  <style>
+    #table {
+      margin: 20px 0;
+      height: auto !important; /* Override fixed height */
+    }
+    .tabulator-cell {
+      white-space: normal;
+      overflow: visible;
+      padding: 8px;
+    }
+    .tabulator .tabulator-header .tabulator-col {
+      background-color: #f4f4f4;
+    }
+    /* Add these rules to remove empty space */
+    .tabulator-tableholder {
+      height: auto !important;
+      min-height: 0 !important;
+    }
+    .tabulator {
+      height: auto !important;
+    }
+  </style>
 </head>
 
 <body>
@@ -57,37 +79,81 @@
       }
       const results = [];
       for (const sector of sectors) {
-        const result = {
-          sector: `${sector.code} - ${sector.name}`,
-          total: total[sector.index],
-        };
-        indicators.forEach(i => {
-          result[i.code] = byIndicator[i.code][sector.index];
-        });
-        results.push(result);
+          // Store raw values for proper sorting
+          const rawTotal = Math.abs(total[sector.index]);
+          const result = {
+              sector: `${sector.code} - ${sector.name}`,
+              total: rawTotal,
+              totalFormatted: rawTotal.toExponential(2), // Pre-format for display
+              sortValue: rawTotal // Explicit sort value
+          };
+          indicators.forEach(i => {
+              const value = byIndicator[i.code][sector.index];
+              result[i.code] = value;
+              result[i.code + '_formatted'] = value.toExponential(2);
+          });
+          results.push(result);
       }
 
-      info.innerHTML = `Supply chain impacts of: ${sector.name}.`;
-      if (hash.state) {
-        let thestate = hash.state.split(",")[0].toUpperCase();
-        info.innerHTML += ` View <a href="tabulator.html#state=${thestate}">top commodities in ${thestate}</a>`;
-      }
+      // Sort results by total impact
+      results.sort((a, b) => b.sortValue - a.sortValue);
+
+      // Take top 10 and verify sort order
+      const sortedResults = results.slice(0, 10);
+      console.log('Verification of sort order:');
+      sortedResults.forEach((r, i) => {
+          console.log(`${i + 1}. ${r.sector}: ${r.total}`);
+      });
+
       const tableConfig = {
-        data: results,
-        layout: "fitColumns",
-        columns: [
-          { title: "Sector", field: "sector", minWidth: 200 },
-          { title: "Total score", field: "total", minWidth: 120 },
-        ],
+          data: sortedResults,
+          layout: "fitColumns",
+          columns: [
+              { 
+                  title: "Sector", 
+                  field: "sector", 
+                  width: 200,
+                  formatter: "html"
+              },
+              { 
+                  title: "Total Score", 
+                  field: "total",
+                  width: 120,
+                  formatter: function(cell) {
+                      const value = cell.getValue();
+                      const exp = value.toExponential();
+                      const [mantissa, exponent] = exp.split('e');
+                      const formattedMantissa = parseFloat(mantissa).toFixed(4);
+                      return `${formattedMantissa} × 10<sup>${parseInt(exponent)}</sup>`;
+                  }
+              }
+          ],
+          responsiveLayout: "hide",
+          layoutColumnsOnNewData: true,
+          movableColumns: false
       };
-      for (const indicator of indicators) {
-        tableConfig.columns.push({
-          title: indicator.code,
-          field: indicator.code,
-          minWidth:90
-        });
-      }
-      new Tabulator("#table", tableConfig);
+
+      // Add only top 8 indicators to make it a 10x10 grid
+      indicators.slice(0, 8).forEach(indicator => {
+          tableConfig.columns.push({
+              title: indicator.code,
+              field: indicator.code,
+              width: 90,
+              formatter: function(cell) {
+                  const value = cell.getValue();
+                  const exp = value.toExponential();
+                  const [mantissa, exponent] = exp.split('e');
+                  const formattedMantissa = parseFloat(mantissa).toFixed(4);
+                  return `${formattedMantissa} × 10<sup>${parseInt(exponent)}</sup>`;
+              }
+          });
+      });
+
+      // Create table with pre-sorted data
+      const table = new Tabulator("#table", tableConfig);
+
+      // Force refresh to ensure order is maintained
+      table.setData(sortedResults);
 
     }
     main();
