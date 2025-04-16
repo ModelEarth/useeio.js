@@ -145,23 +145,29 @@
 
 
       // Function to load NAICS Titles from JSON based on length
-    async function loadNaicsTitles(naicsLength) {
-        const filePath = `../../profile/trade/naics/Naics len ${naicsLength}.json`;
-        try {
-            const response = await fetch(filePath);
-            const data = await response.json();
-            const naicsTitleMap = {};
-            
-            data.forEach(entry => {
-                naicsTitleMap[entry.code] = entry.title; // Store NAICS Code → Title
-            });
+    // Load and merge NAICS titles from all relevant JSON files (2 to 6 digits)
+async function loadAllNaicsTitles() {
+  const lengths = [2, 3, 4, 5, 6];
+  const basePath = "../../profile/trade/naics/";
+  const titleMap = {};
 
-            return naicsTitleMap;
-        } catch (error) {
-            console.error(`Error loading NAICS Titles from ${filePath}:`, error);
-            return {};
-        }
+  for (const len of lengths) {
+    try {
+      console.log("HERE");
+      console.log('${basePath}Naics len ${len}.json');
+      const response = await fetch(`${basePath}Naics Code Length ${len}.json`);
+      const data = await response.json();
+      data.forEach(entry => {
+        titleMap[entry.code] = entry.title;
+      });
+    } catch (error) {
+      console.warn(`Could not load NAICS titles for length ${len}:`, error);
     }
+  }
+
+  return titleMap;
+}
+
 
 
       // Function to fetch and display NAICS data
@@ -169,8 +175,7 @@ async function fetchAndDisplayNaicsData(naicsCode = null, naicsLength = null, be
     try {
         let tableData = [];
 
-        const naicsTitleMap = await loadNaicsTitles(naicsLength || 5); // Default length 5 if not provided
-
+        const naicsTitleMap = await loadAllNaicsTitles();
 
         if (naicsCode) {
             const data = await naics.toBea(naicsCode);
@@ -314,3 +319,4 @@ async function fetchAndDisplayNaicsData(naicsCode = null, naicsLength = null, be
 </body>
 
 </html>
+
