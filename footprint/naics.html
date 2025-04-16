@@ -142,15 +142,46 @@
         return sector ? sector.name : "Unknown";
       }
 
+
+
+      // Function to load NAICS Titles from JSON based on length
+    // Load and merge NAICS titles from all relevant JSON files (2 to 6 digits)
+async function loadAllNaicsTitles() {
+  const lengths = [2, 3, 4, 5, 6];
+  const basePath = "../../profile/trade/naics/";
+  const titleMap = {};
+
+  for (const len of lengths) {
+    try {
+      console.log("HERE");
+      console.log('${basePath}Naics len ${len}.json');
+      const response = await fetch(`${basePath}Naics Code Length ${len}.json`);
+      const data = await response.json();
+      data.forEach(entry => {
+        titleMap[entry.code] = entry.title;
+      });
+    } catch (error) {
+      console.warn(`Could not load NAICS titles for length ${len}:`, error);
+    }
+  }
+
+  return titleMap;
+}
+
+
+
       // Function to fetch and display NAICS data
 async function fetchAndDisplayNaicsData(naicsCode = null, naicsLength = null, beaCode = null) {
     try {
         let tableData = [];
 
+        const naicsTitleMap = await loadAllNaicsTitles();
+
         if (naicsCode) {
             const data = await naics.toBea(naicsCode);
             tableData = data.map(item => ({
                 naicsCode: naicsCode,
+                naicsTitle: naicsTitleMap[naicsCode] || "Unknown",
                 BEA_detail: item,
                 sectorName: findSectorName(item) || "NA",
             }));
@@ -164,6 +195,7 @@ async function fetchAndDisplayNaicsData(naicsCode = null, naicsLength = null, be
                     .filter(beaDetail => beaDetail === beaCode)
                     .map(item => ({
                         naicsCode: code,
+                        naicsTitle: naicsTitleMap[code] || "Unknown",
                         BEA_detail: item,
                         sectorName: findSectorName(item) || "NA",
                     }));
@@ -179,6 +211,7 @@ async function fetchAndDisplayNaicsData(naicsCode = null, naicsLength = null, be
 
                     const codeData = data.map(item => ({
                         naicsCode: code,
+                        naicsTitle: naicsTitleMap[code] || "Unknown",
                         BEA_detail: item,
                         sectorName: findSectorName(item) || "NA",
                     }));
@@ -195,6 +228,7 @@ async function fetchAndDisplayNaicsData(naicsCode = null, naicsLength = null, be
                 data: tableData,
                 columns: [
                     { title: "NAICS Code", field: "naicsCode" },
+                    { title: "NAICS Title", field: "naicsTitle" },
                     { title: "Sector Name", field: "sectorName",
                     formatter: function (cell, formatterParams, onRendered) {
                     const value = cell.getValue();
@@ -285,3 +319,4 @@ async function fetchAndDisplayNaicsData(naicsCode = null, naicsLength = null, be
 </body>
 
 </html>
+
