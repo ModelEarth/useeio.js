@@ -1,8 +1,8 @@
 # useeio.js
 
-The useeio.js repo contains a fast JSON front-end for state model data assembled in [USEEIO-R](https://github.com/USEPA/useeior). The Javascript front-end in the [footprint folder](footprint) does not use a build process. HTMl and .js files can be eidtied directly.
+The useeio.js repo contains a fast JSON front-end for state model data assembled in [USEEIO-R](https://github.com/USEPA/useeior).  HTML and JavaScript files can be edited directly in the [footprint folder](footprint) since running a build only occurs every few years (when new models are published by US EPA).
 
-The useeio.js library resides in the src folder. It's written in TypeScript and uses [rollup.js](https://rollupjs.org) with the [typescript2 plugin](https://www.npmjs.com/package/rollup-plugin-typescript2) to create a single UMD bundle; [terser](https://terser.org/) is then used to create a minified bundle.
+Files for the built useeio.js library reside in the src folder. It's written in TypeScript and uses [rollup.js](https://rollupjs.org) with the [typescript2 plugin](https://www.npmjs.com/package/rollup-plugin-typescript2) to create a single UMD bundle. [Terser](https://terser.org/) is then optionally used to create a minified bundle.
 
 ## Impact Reports
 
