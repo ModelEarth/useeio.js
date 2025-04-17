@@ -41,15 +41,18 @@
     <div id="relocatedStateMenu"></div>
     <p id="info">Loading ...</p>
     <div id="table"></div>
+    <a href="#" id="showAllLink" style="display:block; margin-top:10px;">Show all rows</a>
   </div>
   
-
   <script src="./config.js"></script>
   <script>
     document.addEventListener('hashChangeEvent', hashChangedUseeio, false);
     function hashChangedUseeio() {
       console.log("URL hash changed");
       model = getModel();
+      // Reset show all link visibility before loading new state
+      const showAllLink = document.getElementById('showAllLink');
+      showAllLink.style.display = 'block';
       main();
     }
     async function main() {
@@ -98,12 +101,10 @@
       // Sort results by total impact
       results.sort((a, b) => b.sortValue - a.sortValue);
 
-      // Take top 10 and verify sort order
-      const sortedResults = results.slice(0, 10);
-      console.log('Verification of sort order:');
-      sortedResults.forEach((r, i) => {
-          console.log(`${i + 1}. ${r.sector}: ${r.total}`);
-      });
+      // Store all results for later use
+      const allResults = results.sort((a, b) => b.sortValue - a.sortValue);
+      // Take top 10 initially
+      const sortedResults = allResults.slice(0, 10);
 
       const tableConfig = {
           data: sortedResults,
@@ -133,8 +134,8 @@
           movableColumns: false
       };
 
-      // Add only top 8 indicators to make it a 10x10 grid
-      indicators.slice(0, 8).forEach(indicator => {
+      // Add top 10 indicators to make it a 10x12 grid 
+      indicators.slice(0, 10).forEach(indicator => {  
           tableConfig.columns.push({
               title: indicator.code,
               field: indicator.code,
@@ -152,8 +153,24 @@
       // Create table with pre-sorted data
       const table = new Tabulator("#table", tableConfig);
 
-      // Force refresh to ensure order is maintained
+      // Set initial data
       table.setData(sortedResults);
+
+      // Add click handler for show all link
+      const showAllLink = document.getElementById('showAllLink');
+      showAllLink.addEventListener('click', function(e) {
+          e.preventDefault();
+          table.setData(allResults);
+          showAllLink.style.display = 'none'; // Hide link after showing all rows
+          
+          // Scroll to bottom of table
+          setTimeout(() => {
+              table.scrollToRow(table.getRows()[table.getRows().length - 1], "bottom", true);
+          }, 100);
+      });
+
+      // Ensure link is visible for new state data
+      showAllLink.style.display = 'block';
 
     }
     main();
