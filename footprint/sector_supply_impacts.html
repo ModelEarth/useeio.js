@@ -12,6 +12,28 @@
 
   <script type="text/javascript" src="https://model.earth/localsite/js/localsite.js?showheader=true&showsearch=true"></script>
   <script src="../dist/useeio.js"></script>
+  <style>
+    #table {
+      margin: 20px 0;
+      height: auto !important; /* Override fixed height */
+    }
+    .tabulator-cell {
+      white-space: normal;
+      overflow: visible;
+      padding: 8px;
+    }
+    .tabulator .tabulator-header .tabulator-col {
+      background-color: #f4f4f4;
+    }
+    /* Add these rules to remove empty space */
+    .tabulator-tableholder {
+      height: auto !important;
+      min-height: 0 !important;
+    }
+    .tabulator {
+      height: auto !important;
+    }
+  </style>
 </head>
 
 <body>
@@ -19,15 +41,18 @@
     <div id="relocatedStateMenu"></div>
     <p id="info">Loading ...</p>
     <div id="table"></div>
+    <a href="#" id="showAllLink" style="display:block; margin-top:10px;">Show all rows</a>
   </div>
   
-
   <script src="./config.js"></script>
   <script>
     document.addEventListener('hashChangeEvent', hashChangedUseeio, false);
     function hashChangedUseeio() {
       console.log("URL hash changed");
       model = getModel();
+      // Reset show all link visibility before loading new state
+      const showAllLink = document.getElementById('showAllLink');
+      showAllLink.style.display = 'block';
       main();
     }
     async function main() {
@@ -57,37 +82,95 @@
       }
       const results = [];
       for (const sector of sectors) {
-        const result = {
-          sector: `${sector.code} - ${sector.name}`,
-          total: total[sector.index],
-        };
-        indicators.forEach(i => {
-          result[i.code] = byIndicator[i.code][sector.index];
-        });
-        results.push(result);
+          // Store raw values for proper sorting
+          const rawTotal = Math.abs(total[sector.index]);
+          const result = {
+              sector: `${sector.code} - ${sector.name}`,
+              total: rawTotal,
+              totalFormatted: rawTotal.toExponential(2), // Pre-format for display
+              sortValue: rawTotal // Explicit sort value
+          };
+          indicators.forEach(i => {
+              const value = byIndicator[i.code][sector.index];
+              result[i.code] = value;
+              result[i.code + '_formatted'] = value.toExponential(2);
+          });
+          results.push(result);
       }
 
-      info.innerHTML = `Supply chain impacts of: ${sector.name}.`;
-      if (hash.state) {
-        let thestate = hash.state.split(",")[0].toUpperCase();
-        info.innerHTML += ` View <a href="tabulator.html#state=${thestate}">top commodities in ${thestate}</a>`;
-      }
+      // Sort results by total impact
+      results.sort((a, b) => b.sortValue - a.sortValue);
+
+      // Store all results for later use
+      const allResults = results.sort((a, b) => b.sortValue - a.sortValue);
+      // Take top 10 initially
+      const sortedResults = allResults.slice(0, 10);
+
       const tableConfig = {
-        data: results,
-        layout: "fitColumns",
-        columns: [
-          { title: "Sector", field: "sector", minWidth: 200 },
-          { title: "Total score", field: "total", minWidth: 120 },
-        ],
+          data: sortedResults,
+          layout: "fitColumns",
+          columns: [
+              { 
+                  title: "Sector", 
+                  field: "sector", 
+                  width: 200,
+                  formatter: "html"
+              },
+              { 
+                  title: "Total Score", 
+                  field: "total",
+                  width: 120,
+                  formatter: function(cell) {
+                      const value = cell.getValue();
+                      const exp = value.toExponential();
+                      const [mantissa, exponent] = exp.split('e');
+                      const formattedMantissa = parseFloat(mantissa).toFixed(4);
+                      return `${formattedMantissa} × 10<sup>${parseInt(exponent)}</sup>`;
+                  }
+              }
+          ],
+          responsiveLayout: "hide",
+          layoutColumnsOnNewData: true,
+          movableColumns: false
       };
-      for (const indicator of indicators) {
-        tableConfig.columns.push({
-          title: indicator.code,
-          field: indicator.code,
-          minWidth:90
-        });
-      }
-      new Tabulator("#table", tableConfig);
+
+      // Add top 10 indicators to make it a 10x12 grid 
+      indicators.slice(0, 10).forEach(indicator => {  
+          tableConfig.columns.push({
+              title: indicator.code,
+              field: indicator.code,
+              width: 90,
+              formatter: function(cell) {
+                  const value = cell.getValue();
+                  const exp = value.toExponential();
+                  const [mantissa, exponent] = exp.split('e');
+                  const formattedMantissa = parseFloat(mantissa).toFixed(4);
+                  return `${formattedMantissa} × 10<sup>${parseInt(exponent)}</sup>`;
+              }
+          });
+      });
+
+      // Create table with pre-sorted data
+      const table = new Tabulator("#table", tableConfig);
+
+      // Set initial data
+      table.setData(sortedResults);
+
+      // Add click handler for show all link
+      const showAllLink = document.getElementById('showAllLink');
+      showAllLink.addEventListener('click', function(e) {
+          e.preventDefault();
+          table.setData(allResults);
+          showAllLink.style.display = 'none'; // Hide link after showing all rows
+          
+          // Scroll to bottom of table
+          setTimeout(() => {
+              table.scrollToRow(table.getRows()[table.getRows().length - 1], "bottom", true);
+          }, 100);
+      });
+
+      // Ensure link is visible for new state data
+      showAllLink.style.display = 'block';
 
     }
     main();
