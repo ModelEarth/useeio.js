@@ -39,9 +39,16 @@
 <body>
   <div style="padding-left:60px;padding-right:18px;">
     <div id="relocatedStateMenu"></div>
-    <p id="info">Loading ...</p>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <p id="info" style="margin: 0;">Loading ...</p>
+        <select id="number-format-select" style="margin-left: 10px;">
+            <option value="simple" selected>simple</option>
+            <option value="full">full</option>
+            <option value="scientific">scientific</option>
+        </select>
+    </div>
     <div id="table"></div>
-    <a href="#" id="showAllLink" style="display:block; margin-top:10px;">Show all rows</a>
+    <a href="#" id="showAllLink" style="display:block; margin: 10px 0 20px 0;">Show all rows</a>
   </div>
   
   <script src="./config.js"></script>
@@ -53,6 +60,11 @@
       // Reset show all link visibility before loading new state
       const showAllLink = document.getElementById('showAllLink');
       showAllLink.style.display = 'block';
+      
+      // Reset format to simple when state changes
+      const formatSelect = document.getElementById('number-format-select');
+      formatSelect.value = 'simple';
+      
       main();
     }
     async function main() {
@@ -106,64 +118,90 @@
       // Take top 10 initially
       const sortedResults = allResults.slice(0, 10);
 
-      const tableConfig = {
-          data: sortedResults,
-          layout: "fitColumns",
-          columns: [
-              { 
-                  title: "Sector", 
-                  field: "sector", 
-                  width: 200,
-                  formatter: "html"
-              },
-              { 
-                  title: "Total Score", 
-                  field: "total",
-                  width: 120,
-                  formatter: function(cell) {
-                      const value = cell.getValue();
-                      const exp = value.toExponential();
-                      const [mantissa, exponent] = exp.split('e');
-                      const formattedMantissa = parseFloat(mantissa).toFixed(4);
-                      return `${formattedMantissa} × 10<sup>${parseInt(exponent)}</sup>`;
+      // Replace the existing formatNumber function with:
+      function formatNumber(value, formatType) {
+          switch(formatType) {
+              case 'simple':
+                  return value.toExponential(4);
+              case 'full':
+                  // Handle very small numbers better
+                  if (Math.abs(value) < 0.000001) {
+                      // Use exponential for very small numbers
+                      return value.toExponential(4);
+                  } else {
+                      // Use fixed decimal places for larger numbers
+                      return new Intl.NumberFormat('en-US', {
+                          minimumFractionDigits: 4,
+                          maximumFractionDigits: 6
+                      }).format(value);
                   }
-              }
-          ],
-          responsiveLayout: "hide",
-          layoutColumnsOnNewData: true,
-          movableColumns: false
-      };
-
-      // Add top 10 indicators to make it a 10x12 grid 
-      indicators.slice(0, 10).forEach(indicator => {  
-          tableConfig.columns.push({
-              title: indicator.code,
-              field: indicator.code,
-              width: 90,
-              formatter: function(cell) {
-                  const value = cell.getValue();
+              case 'scientific':
                   const exp = value.toExponential();
                   const [mantissa, exponent] = exp.split('e');
                   const formattedMantissa = parseFloat(mantissa).toFixed(4);
                   return `${formattedMantissa} × 10<sup>${parseInt(exponent)}</sup>`;
-              }
+              default:
+                  return value.toString();
+          }
+      }
+
+      // Create initial table with sorted data
+      function initializeTable(formatType) {
+          const tableConfig = {
+              data: sortedResults,
+              layout: "fitColumns",
+              columns: [
+                  { 
+                      title: "Sector", 
+                      field: "sector", 
+                      width: 200,
+                      formatter: "html"
+                  },
+                  { 
+                      title: "Total Score", 
+                      field: "total",
+                      width: 120,
+                      formatter: function(cell) {
+                          return formatNumber(cell.getValue(), formatType);
+                      }
+                  }
+              ]
+          };
+
+          // Add indicator columns
+          indicators.slice(0, 10).forEach(indicator => {
+              tableConfig.columns.push({
+                  title: indicator.code,
+                  field: indicator.code,
+                  width: 90,
+                  formatter: function(cell) {
+                      return formatNumber(cell.getValue(), formatType);
+                  }
+              });
           });
+
+          return new Tabulator("#table", tableConfig);
+      }
+
+      // Initialize table with simple format by default
+      let table = initializeTable('simple');
+
+      // Add format change listener
+      const formatSelect = document.getElementById('number-format-select');
+      formatSelect.addEventListener('change', function() {
+          const currentData = table.getData();
+          table.destroy();
+          table = initializeTable(this.value);
+          table.setData(currentData);
       });
 
-      // Create table with pre-sorted data
-      const table = new Tabulator("#table", tableConfig);
-
-      // Set initial data
-      table.setData(sortedResults);
-
-      // Add click handler for show all link
+      // Add show all link handler
       const showAllLink = document.getElementById('showAllLink');
       showAllLink.addEventListener('click', function(e) {
           e.preventDefault();
           table.setData(allResults);
-          showAllLink.style.display = 'none'; // Hide link after showing all rows
+          showAllLink.style.display = 'none';
           
-          // Scroll to bottom of table
           setTimeout(() => {
               table.scrollToRow(table.getRows()[table.getRows().length - 1], "bottom", true);
           }, 100);
