@@ -120,26 +120,92 @@
 
       // Replace the existing formatNumber function with:
       function formatNumber(value, formatType) {
+          // Handle true zero or undefined values
+          if (value === 0 || !value) {
+              return '0.0000';
+          }
+          
           switch(formatType) {
-              case 'simple':
-                  return value.toExponential(4);
-              case 'full':
-                  // Handle very small numbers better
-                  if (Math.abs(value) < 0.000001) {
-                      // Use exponential for very small numbers
+              case 'simple': {
+                  // Handle extremely small numbers
+                  if (Math.abs(value) < 1e-18) {
+                      return value.toExponential(4); // Fallback to scientific for extremely small numbers
+                  }
+                  
+                  const expSimple = value.toExponential();
+                  const [mantissaSimple, exponentSimple] = expSimple.split('e');
+                  const power = parseInt(exponentSimple);
+                  
+                  // Function to convert scientific notation to word form
+                  function getNumberWord(power) {
+                      const words = {
+                          0: '',
+                          3: 'thousand',
+                          6: 'million',
+                          9: 'billion',
+                          12: 'trillion',
+                          15: 'quadrillion',
+                          18: 'quintillion',
+                          '-1': 'tenth',
+                          '-2': 'hundredth',
+                          '-3': 'thousandth',
+                          '-6': 'millionth',
+                          '-9': 'billionth',
+                          '-12': 'trillionth',
+                          '-15': 'quadrillionth',
+                          '-18': 'quintillionth'
+                      };
+
+                      // Handle numbers with no exponent (e+0)
+                      if (power === 0) {
+                          return parseFloat(mantissaSimple).toFixed(4);
+                      }
+
+                      // For extremely small numbers beyond quintillionth
+                      if (power < -18) {
+                          return value.toExponential(4); // Fallback to scientific notation
+                      }
+
+                      // For small numbers, use exact power if available
+                      if (power < 0 && power > -3) {
+                          const word = words[power];
+                          if (word) {
+                              const adjustedMantissa = parseFloat(mantissaSimple) * Math.pow(10, -power);
+                              return `${adjustedMantissa.toFixed(4)} ${word}`;
+                          }
+                      }
+
+                      // For other numbers, use the nearest power of 3
+                      const absExponent = Math.abs(power);
+                      const nearestPower = Math.floor(absExponent / 3) * 3;
+                      const word = words[power > 0 ? nearestPower : -nearestPower];
+                      
+                      if (!word) return value.toExponential(4); // Fallback for unusual powers
+                      
+                      // Calculate the adjusted mantissa
+                      const adjustedMantissa = parseFloat(mantissaSimple) * Math.pow(10, absExponent % 3);
+                      return `${adjustedMantissa.toFixed(4)} ${word}`;
+                  }
+                  
+                  return getNumberWord(power);
+              }
+              case 'full': {
+                  // Lower the threshold for switching to exponential
+                  if (Math.abs(value) < 1e-18) {
                       return value.toExponential(4);
                   } else {
-                      // Use fixed decimal places for larger numbers
                       return new Intl.NumberFormat('en-US', {
                           minimumFractionDigits: 4,
-                          maximumFractionDigits: 6
+                          maximumFractionDigits: 18 // Increased precision
                       }).format(value);
                   }
-              case 'scientific':
-                  const exp = value.toExponential();
-                  const [mantissa, exponent] = exp.split('e');
-                  const formattedMantissa = parseFloat(mantissa).toFixed(4);
-                  return `${formattedMantissa} × 10<sup>${parseInt(exponent)}</sup>`;
+              }
+              case 'scientific': {
+                  const expSci = value.toExponential();
+                  const [mantissaSci, exponentSci] = expSci.split('e');
+                  const formattedMantissa = parseFloat(mantissaSci).toFixed(4);
+                  return `${formattedMantissa} × 10<sup>${parseInt(exponentSci)}</sup>`;
+              }
               default:
                   return value.toString();
           }
@@ -154,13 +220,13 @@
                   { 
                       title: "Sector", 
                       field: "sector", 
-                      width: 200,
+                      width: 300,  // Increased from 200
                       formatter: "html"
                   },
                   { 
                       title: "Total Score", 
                       field: "total",
-                      width: 120,
+                      width: 180,  // Increased from 120
                       formatter: function(cell) {
                           return formatNumber(cell.getValue(), formatType);
                       }
@@ -168,12 +234,12 @@
               ]
           };
 
-          // Add indicator columns
+          // Add indicator columns with increased width
           indicators.slice(0, 10).forEach(indicator => {
               tableConfig.columns.push({
                   title: indicator.code,
                   field: indicator.code,
-                  width: 90,
+                  width: 160,  // Increased from 90
                   formatter: function(cell) {
                       return formatNumber(cell.getValue(), formatType);
                   }
