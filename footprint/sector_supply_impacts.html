@@ -156,9 +156,10 @@
                           '-18': 'quintillionth'
                       };
 
-                      // Handle numbers with no exponent (e+0)
-                      if (power === 0) {
-                          return parseFloat(mantissaSimple).toFixed(4);
+                      // Handle numbers with no exponent (e+0) or small positive exponents
+                      if (power >= 0 && power < 3) {
+                          const adjustedValue = parseFloat(mantissaSimple) * Math.pow(10, power);
+                          return adjustedValue.toFixed(4);
                       }
 
                       // For extremely small numbers beyond quintillionth
