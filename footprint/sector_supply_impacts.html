@@ -53,17 +53,27 @@
   
   <script src="./config.js"></script>
   <script>
+    // Add at the top level of the script, outside any function
+    let isShowingAllRows = false;
+    let table;
+    let currentData = null; // Add this to track current data state
+    let allResults = null; // Add this to store full dataset
+
     document.addEventListener('hashChangeEvent', hashChangedUseeio, false);
     function hashChangedUseeio() {
       console.log("URL hash changed");
       model = getModel();
-      // Reset show all link visibility before loading new state
-      const showAllLink = document.getElementById('showAllLink');
-      showAllLink.style.display = 'block';
+      isShowingAllRows = false;
+      currentData = null;
       
       // Reset format to simple when state changes
       const formatSelect = document.getElementById('number-format-select');
       formatSelect.value = 'simple';
+      
+      // Reset show all link visibility and state before loading new state
+      const showAllLink = document.getElementById('showAllLink');
+      showAllLink.style.display = 'block';
+      isShowingAllRows = false;
       
       main();
     }
@@ -114,7 +124,7 @@
       results.sort((a, b) => b.sortValue - a.sortValue);
 
       // Store all results for later use
-      const allResults = results.sort((a, b) => b.sortValue - a.sortValue);
+      allResults = results.sort((a, b) => b.sortValue - a.sortValue);
       // Take top 10 initially
       const sortedResults = allResults.slice(0, 10);
 
@@ -127,9 +137,9 @@
           
           switch(formatType) {
               case 'simple': {
-                  // Handle extremely small numbers
-                  if (Math.abs(value) < 1e-18) {
-                      return value.toExponential(4); // Fallback to scientific for extremely small numbers
+                  // Handle extremely small numbers - updated threshold to 1e-24
+                  if (Math.abs(value) < 1e-24) {
+                      return value.toExponential(4);
                   }
                   
                   const expSimple = value.toExponential();
@@ -146,6 +156,8 @@
                           12: 'trillion',
                           15: 'quadrillion',
                           18: 'quintillion',
+                          21: 'sextillion',
+                          24: 'septillion',
                           '-1': 'tenth',
                           '-2': 'hundredth',
                           '-3': 'thousandth',
@@ -153,7 +165,9 @@
                           '-9': 'billionth',
                           '-12': 'trillionth',
                           '-15': 'quadrillionth',
-                          '-18': 'quintillionth'
+                          '-18': 'quintillionth',
+                          '-21': 'sextillionth',
+                          '-24': 'septillionth'
                       };
 
                       // Handle numbers with no exponent (e+0) or small positive exponents
@@ -162,9 +176,9 @@
                           return adjustedValue.toFixed(4);
                       }
 
-                      // For extremely small numbers beyond quintillionth
-                      if (power < -18) {
-                          return value.toExponential(4); // Fallback to scientific notation
+                      // For extremely small numbers beyond septillionth
+                      if (power < -24) {
+                          return value.toExponential(4);
                       }
 
                       // For small numbers, use exact power if available
@@ -176,15 +190,24 @@
                           }
                       }
 
-                      // For other numbers, use the nearest power of 3
+                      // For other numbers, use the ceiling of negative power/3 or floor of positive power/3
                       const absExponent = Math.abs(power);
-                      const nearestPower = Math.floor(absExponent / 3) * 3;
+                      let nearestPower;
+                      if (power < 0) {
+                          // For negative powers, we need to round up to the next power of 3
+                          nearestPower = Math.ceil(absExponent / 3) * 3;
+                      } else {
+                          // For positive powers, keep using floor
+                          nearestPower = Math.floor(absExponent / 3) * 3;
+                      }
+                      
                       const word = words[power > 0 ? nearestPower : -nearestPower];
                       
-                      if (!word) return value.toExponential(4); // Fallback for unusual powers
+                      if (!word) return value.toExponential(4);
                       
-                      // Calculate the adjusted mantissa
-                      const adjustedMantissa = parseFloat(mantissaSimple) * Math.pow(10, absExponent % 3);
+                      // Adjust mantissa based on difference from nearest power
+                      const powerDiff = nearestPower - absExponent;
+                      const adjustedMantissa = parseFloat(mantissaSimple) * Math.pow(10, powerDiff);
                       return `${adjustedMantissa.toFixed(4)} ${word}`;
                   }
                   
@@ -215,7 +238,7 @@
       // Create initial table with sorted data
       function initializeTable(formatType) {
           const tableConfig = {
-              data: sortedResults,
+              data: isShowingAllRows ? allResults : sortedResults,
               layout: "fitColumns",
               columns: [
                   { 
@@ -250,24 +273,41 @@
           return new Tabulator("#table", tableConfig);
       }
 
+      // Add this before table initialization
+      let isShowingAllRows = false;
+
       // Initialize table with simple format by default
       let table = initializeTable('simple');
+      
+      // Set initial data state
+      currentData = sortedResults;
 
-      // Add format change listener
+      // Modify the format change listener
       const formatSelect = document.getElementById('number-format-select');
       formatSelect.addEventListener('change', function() {
-          const currentData = table.getData();
+          const currentFormat = this.value;
           table.destroy();
-          table = initializeTable(this.value);
-          table.setData(currentData);
+          table = initializeTable(currentFormat);
+          
+          // Always use the correct dataset based on state
+          if (isShowingAllRows) {
+              table.setData(allResults);
+          } else {
+              table.setData(sortedResults);
+          }
+          
+          // Always update link visibility based on state
+          document.getElementById('showAllLink').style.display = 
+              isShowingAllRows ? 'none' : 'block';
       });
 
-      // Add show all link handler
+      // Modify the show all link handler
       const showAllLink = document.getElementById('showAllLink');
       showAllLink.addEventListener('click', function(e) {
           e.preventDefault();
+          isShowingAllRows = true;
           table.setData(allResults);
-          showAllLink.style.display = 'none';
+          this.style.display = 'none';
           
           setTimeout(() => {
               table.scrollToRow(table.getRows()[table.getRows().length - 1], "bottom", true);
@@ -276,6 +316,8 @@
 
       // Ensure link is visible for new state data
       showAllLink.style.display = 'block';
+      currentData = sortedResults;
+      isShowingAllRows = false;
 
     }
     main();
