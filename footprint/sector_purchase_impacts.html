@@ -216,10 +216,14 @@
         const result = {
           sector: `${sector.code} - ${sector.name}`,
           total: rawTotal,
-          sortValue: rawTotal
+          totalRaw: rawTotal, // Add raw value for sorting
+          sortValue: rawTotal // Explicit sort value
         };
         indicators.forEach(i => {
-          result[i.code] = byIndicator[i.code][sector.index];
+          const value = byIndicator[i.code][sector.index];
+          result[i.code] = value;
+          // Add raw values for indicators for proper sorting
+          result[i.code + '_raw'] = value;
         });
         results.push(result);
       }
@@ -232,32 +236,61 @@
         const tableConfig = {
             data: isShowingAllRows ? allResults : sortedResults,
             layout: "fitColumns",
+            initialSort: [{column: "total", dir: "desc"}],
             columns: [
                 { 
                     title: "Sector", 
                     field: "sector", 
                     width: 300,
-                    formatter: "html"
+                    formatter: "html",
+                    headerSortStartingDir: "desc",
+                    headerClick: function(e, column) {
+                        if (!isShowingAllRows) {
+                            isShowingAllRows = true;
+                            table.setData(allResults);
+                            showAllLink.style.display = 'none';
+                        }
+                    }
                 },
                 { 
                     title: "Total Score", 
                     field: "total",
                     width: 180,
+                    sorter: "number",
+                    sortField: "totalRaw",
                     formatter: function(cell) {
                         return formatNumber(cell.getValue(), formatType);
+                    },
+                    headerSortStartingDir: "desc",
+                    headerClick: function(e, column) {
+                        if (!isShowingAllRows) {
+                            isShowingAllRows = true;
+                            table.setData(allResults);
+                            showAllLink.style.display = 'none';
+                        }
                     }
                 }
             ]
         };
 
-        // Add indicator columns with increased width
+        // Update indicator columns with proper sorting
         indicators.forEach(indicator => {
             tableConfig.columns.push({
                 title: indicator.code,
                 field: indicator.code,
                 width: 160,
+                sorter: "number",
+                sortField: indicator.code + '_raw',
+                headerSortStartingDir: "desc",
                 formatter: function(cell) {
                     return formatNumber(cell.getValue(), formatType);
+                },
+                headerClick: function(e, column) {
+                    if (!isShowingAllRows) {
+                        isShowingAllRows = true;
+                        table.setData(allResults);
+                        showAllLink.style.display = 'none';
+                    }
                 }
             });
         });
