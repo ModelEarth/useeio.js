@@ -109,13 +109,12 @@
           const result = {
               sector: `${sector.code} - ${sector.name}`,
               total: rawTotal,
-              totalFormatted: rawTotal.toExponential(2), // Pre-format for display
+              totalRaw: rawTotal, // Add raw value for sorting
               sortValue: rawTotal // Explicit sort value
           };
           indicators.forEach(i => {
               const value = byIndicator[i.code][sector.index];
               result[i.code] = value;
-              result[i.code + '_formatted'] = value.toExponential(2);
           });
           results.push(result);
       }
@@ -246,32 +245,60 @@
           const tableConfig = {
               data: isShowingAllRows ? allResults : sortedResults,
               layout: "fitColumns",
+              initialSort: [{column: "sortValue", dir: "desc"}], // Use sortValue for initial sorting
               columns: [
                   { 
                       title: "Sector", 
                       field: "sector", 
-                      width: 300,  // Increased from 200
-                      formatter: "html"
+                      width: 300,
+                      formatter: "html",
+                      headerSortStartingDir: "desc", // Set default sort direction to descending
+                      headerClick: function(e, column) {
+                          if (!isShowingAllRows) {
+                              isShowingAllRows = true;
+                              table.setData(allResults);
+                              showAllLink.style.display = 'none';
+                          }
+                      }
                   },
                   { 
                       title: "Total Score", 
                       field: "total",
-                      width: 180,  // Increased from 120
+                      width: 180,
+                      sorter: "number", // Add numeric sorter
+                      sortField: "totalRaw", // Use raw value for sorting
                       formatter: function(cell) {
                           return formatNumber(cell.getValue(), formatType);
+                      },
+                      headerSortStartingDir: "desc", // Set default sort direction to descending
+                      headerClick: function(e, column) {
+                          if (!isShowingAllRows) {
+                              isShowingAllRows = true;
+                              table.setData(allResults);
+                              showAllLink.style.display = 'none';
+                          }
                       }
                   }
               ]
           };
 
-          // Add indicator columns with increased width
+          // Modify indicator columns to include descending sort direction
           indicators.slice(0, 10).forEach(indicator => {
               tableConfig.columns.push({
                   title: indicator.code,
                   field: indicator.code,
-                  width: 160,  // Increased from 90
+                  width: 160,
+                  sorter: "number", // Add numeric sorter
+                  headerSortStartingDir: "desc", // Set default sort direction to descending
                   formatter: function(cell) {
                       return formatNumber(cell.getValue(), formatType);
+                  },
+                  headerClick: function(e, column) {
+                      if (!isShowingAllRows) {
+                          isShowingAllRows = true;
+                          table.setData(allResults);
+                          showAllLink.style.display = 'none';
+                      }
                   }
               });
           });
