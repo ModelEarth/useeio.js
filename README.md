@@ -26,6 +26,12 @@ To build useeio.js, run the following in the useeio.js folder.
 	npm install
 	npm run build
 
+`npm ci` (clean install) is similar to `npm install`, but doesn't modify the package-lock.json. If dependencies in the package lock do not match those in package.json, npm ci will exit with an error, instead of updating the package lock.  If you're upgrading, npm install will make a lot of changes in package-lock.json.
+
+<!--
+Previous deletion of the `dist` folder has been [resolved]](https://github.com/USEPA/useeio.js/issues/2).
+-->
+
 If you'd like, you can generate a minified file with the following command.  
 You may want to avoid minifying so you can see what lines any issues occur on.
 
