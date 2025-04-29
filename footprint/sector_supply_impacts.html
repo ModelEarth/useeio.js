@@ -49,6 +49,7 @@
     </div>
     <div id="table"></div>
     <a href="#" id="showAllLink" style="display:block; margin: 10px 0 20px 0;">Show all rows</a>
+    <!-- <div id="chord-diagram" style="width: 800px; height: 800px; margin: 20px auto;"></div>  --> 
   </div>
   
   <script src="./config.js"></script>
@@ -58,6 +59,12 @@
     let table;
     let currentData = null; // Add this to track current data state
     let allResults = null; // Add this to store full dataset
+
+    // creating function chordData to store the data for the chord diagram
+    let chordData = {
+        nodes: [],
+        links: []
+    };
 
     document.addEventListener('hashChangeEvent', hashChangedUseeio, false);
     function hashChangedUseeio() {
@@ -240,6 +247,46 @@
           }
       }
 
+      // function to generate chord data
+      // This function creates the data structure for the chord diagram
+      function generateChordData(sectors, indicators, total, byIndicator) {
+          const nodes = [
+              // Add sectors as nodes, i.e. arrays of all elements
+              ...sectors.map(s => ({
+                  id: s.code,
+                  name: s.name,
+                  type: 'sector',
+                  group: 1
+              })),
+              // Add indicators as nodes
+              ...indicators.map(i => ({
+                  id: i.code,
+                  name: i.name || i.code,
+                  type: 'indicator',
+                  group: 2
+              }))
+          ];
+
+          const links = [];
+          sectors.forEach(sector => {
+              indicators.forEach(indicator => {
+                  const value = Math.abs(byIndicator[indicator.code][sector.index]);
+                  if (value > 0) {
+                      links.push({
+                          source: sector.code,
+                          target: indicator.code,
+                          value: value
+                      });
+                  }
+              });
+          });
+
+          return {
+              nodes: nodes,
+              links: links
+          };
+      }
+
       // Create initial table with sorted data
       function initializeTable(formatType) {
           const tableConfig = {
@@ -306,7 +353,6 @@
           return new Tabulator("#table", tableConfig);
       }
 
-      // Add this before table initialization
       let isShowingAllRows = false;
 
       // Initialize table with simple format by default
@@ -351,6 +397,12 @@
       showAllLink.style.display = 'block';
       currentData = sortedResults;
       isShowingAllRows = false;
+
+      // Updating the main() function to generate chord data
+      chordData = generateChordData(sectors, indicators, total, byIndicator);
+      
+      // Console logging structure for debugging
+      console.log('Chord data generated:', chordData);
 
     }
     main();
