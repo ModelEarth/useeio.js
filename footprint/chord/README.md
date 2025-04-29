@@ -1,3 +1,7 @@
+[State Impact Reports](../)
+
+The following is being setup in our []()
+
 ### About Our Chord Diagrams
 
 JSON loaded via javascript resides in one object, which includes:
@@ -16,4 +20,8 @@ JSON loaded via javascript resides in one object, which includes:
 
 The object automatically updates with changes, and maintain connections between sectors and impact indicators.
 
-Support the stretched chord visualization.
+### Support stretched chord visualizations
+
+[Stretched Chord Starter](stretched) - Version created in 2015. Let's find a newer one with improved text.  
+Here's the [source](https://gist.github.com/MisunoKitara/abe8987858204fae859b0e07d4d3aa21) and [related blog post](https://www.visualcinnamon.com/2015/08/stretched-chord/)
+

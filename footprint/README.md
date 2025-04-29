@@ -1,6 +1,6 @@
 # State Impact Reports
 
-View reports via the links to the left.
+View reports via the links to the left. We have a [new chord chart page](chord).
 
 <!--
 Contributors: Sunny (toggle for scietific notation), Laksh (TS build debugging, Sector Profile)
@@ -9,8 +9,6 @@ Expansion of following in email Aug 22, 2024
 2019 data - Wes and Ben say to just host 2019 here
 <a href="https://github.com/ModelEarth/USEEIO/tree/import_factors/import_factors_exio/output">Exiobase+BEA output for 2019</a>.
 -->
-
-TO DO: Change green link to blue and remove the redundant link on the BEA Detail column on the [NAICS list's](naics.html)
 
 TO DO: Some of the links to the left currently only send json to the console.log. Update to also display output in those pages. <a href="commodities.html">See&nbsp;how to wait for DOM</a>. (Use your browser's inspector to view console.log output.)
 
