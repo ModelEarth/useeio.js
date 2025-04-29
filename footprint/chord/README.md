@@ -23,7 +23,7 @@ JSON loaded via javascript resides in one object, which includes:
 2. target: Indicator code
 3. value: Impact value
 
-The object automatically updates with changes, and maintain connections between sectors and impact indicators.
+The object automatically updates with changes, and maintains connections between sectors and impact indicators.
 
 ### Stretched chord visualization
 
