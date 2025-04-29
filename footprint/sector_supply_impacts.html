@@ -60,8 +60,8 @@
     let currentData = null; // Add this to track current data state
     let allResults = null; // Add this to store full dataset
 
-    // creating function chordData to store the data for the chord diagram
-    let chordData = {
+    // creating function chartData to store the data for the chord diagram
+    let chartData = {
         nodes: [],
         links: []
     };
@@ -249,7 +249,7 @@
 
       // function to generate chord data
       // This function creates the data structure for the chord diagram
-      function generateChordData(sectors, indicators, total, byIndicator) {
+      function generatechartData(sectors, indicators, total, byIndicator) {
           const nodes = [
               // Add sectors as nodes, i.e. arrays of all elements
               ...sectors.map(s => ({
@@ -399,10 +399,10 @@
       isShowingAllRows = false;
 
       // Updating the main() function to generate chord data
-      chordData = generateChordData(sectors, indicators, total, byIndicator);
+      chartData = generatechartData(sectors, indicators, total, byIndicator);
       
       // Console logging structure for debugging
-      console.log('Chord data generated:', chordData);
+      console.log('Chord data generated:', chartData);
 
     }
     main();

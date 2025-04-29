@@ -1,10 +1,15 @@
 [State Impact Reports](../)
 
-The following json object is being setup initially in our [Sector Supply Impacts report](../sector_supply_impacts.html).
+A json object for chord chart displays reside in our [Sector Supply Impacts report](../sector_supply_impacts.html).
 
 ### About Our Chord Diagrams
 
 JSON loaded via javascript resides in one object, which includes:
+
+	let chartData = {
+	    nodes: [],
+	    links: []
+	};
 
 **nodes: Array of all elements (sectors and indicators)**
 1. id: Unique identifier (sector or indicator code)
@@ -20,8 +25,12 @@ JSON loaded via javascript resides in one object, which includes:
 
 The object automatically updates with changes, and maintain connections between sectors and impact indicators.
 
-### Stretched chord visualizations
+### Stretched chord visualization
 
 [Stretched Chord Starter](stretched) - Version created in 2015. Let's find a newer one with improved text.  
 Here's the [source](https://gist.github.com/MisunoKitara/abe8987858204fae859b0e07d4d3aa21) and [related blog post](https://www.visualcinnamon.com/2015/08/stretched-chord/)
 
+
+### Sankey Visualization
+
+[Sankey Sample](/io/charts/sankey/) and it's [sankey json](/io/charts/sankey/data/IO.js)
