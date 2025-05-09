@@ -27,7 +27,7 @@ The object automatically updates with changes, and maintains connections between
 
 ### Stretched chord visualization
 
-[Stretched Chord Starter (in current folder)](stretched) - Version created in 2015. Let's find a newer one with improved text.  
+[Stretched Chord Starter (in current folder)](stretched) - Updating from D3 v3 to [v5](../sector_supply_impacts.html).  
 Here's the [source](https://gist.github.com/MisunoKitara/abe8987858204fae859b0e07d4d3aa21) and [related blog post](https://www.visualcinnamon.com/2015/08/stretched-chord/)
 
 
