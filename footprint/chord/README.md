@@ -1,8 +1,8 @@
 [State Impact Reports](../)
 
-A json object for chord chart displays reside in our [Sector Supply Impacts report](../sector_supply_impacts.html).
+[Our separated chord chart](../sector_supply_impacts.html) will use a json object that already resides in our [Sector Supply Impacts report](../sector_supply_impacts.html).
 
-### About Our Chord Diagrams
+### About D3 v7 Stretched Chord Diagrams
 
 JSON loaded via javascript resides in one object, which includes:
 
@@ -27,9 +27,9 @@ The object automatically updates with changes, and maintains connections between
 
 ### Stretched chord visualization
 
-[Stretched Chord Starter (in current folder)](stretched) - Updating from D3 v3 to [v5](../sector_supply_impacts.html).  
-Here's the [source](https://gist.github.com/MisunoKitara/abe8987858204fae859b0e07d4d3aa21) and [related blog post](https://www.visualcinnamon.com/2015/08/stretched-chord/)
+[Stretched Chord Starter (in current folder)](stretched) in [our github repo](https://github.com/ModelEarth/useeio.js/tree/dev/footprint/chord)
 
+[Developed by Nadieh in 2015](https://www.visualcinnamon.com/2015/08/stretched-chord/) and updated to v7 by sending [v3 source from Misuno Kitara](https://gist.github.com/MisunoKitara/abe8987858204fae859b0e07d4d3aa21) to ClaudeAI.
 
 ### Sankey Visualization
 
