@@ -67,6 +67,8 @@
   
   <script src="./config.js"></script>
   <script>
+    // Importing chord diagram initialization function
+    import { initializeChordDiagram } from './chord/stretched/chordInit.js';
     // Add at the top level of the script, outside any function
     let isShowingAllRows = false;
     let table;
@@ -416,6 +418,12 @@
       
       // Console logging structure for debugging
       console.log('Chord data generated:', chartData);
+
+      try {
+        await initializeChordDiagram(results, indicators);
+      } catch (error) {
+        console.error('Error creating chord diagram:', error);
+      }
 
     }
     main();
