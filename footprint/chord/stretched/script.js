@@ -1,6 +1,37 @@
 // D3 v7 Separated chord chart
 // Updated from D3 v3 original version
 
+// Global configuration
+const config = {
+    margin: {left: 50, top: 10, right: 50, bottom: 10},
+    opacity: {
+        default: 0.7,
+        low: 0.02
+    },
+    titles: {
+        left: "Sectors",
+        right: "Indicators"
+    }
+};
+
+// Sample data for testing
+const sampleData = {
+    nodes: [
+        // Sectors
+        {id: "sector1", name: "Agriculture", type: "sector", group: 1},
+        {id: "sector2", name: "Manufacturing", type: "sector", group: 1},
+        // Indicators
+        {id: "ind1", name: "CO2", type: "indicator", group: 2},
+        {id: "ind2", name: "Water", type: "indicator", group: 2}
+    ],
+    links: [
+        {source: "sector1", target: "ind1", value: 100},
+        {source: "sector1", target: "ind2", value: 50},
+        {source: "sector2", target: "ind1", value: 75},
+        {source: "sector2", target: "ind2", value: 125}
+    ]
+};
+
 // Global variables
 let pullOutSize;
 
@@ -535,3 +566,96 @@ function wrapChord(text, width) {
         }
     });
 }
+
+// ChordDiagram class definition
+class ChordDiagram {
+    constructor(containerId, data = sampleData, options = {}) {
+        this.containerId = containerId;
+        this.data = data;
+        this.options = {...config, ...options};
+        this.init();
+    }
+
+    init() {
+        // Setup dimensions
+        const screenWidth = window.innerWidth;
+        const mobileScreen = screenWidth <= 500;
+        this.width = Math.min(screenWidth, 800) - this.options.margin.left - this.options.margin.right;
+        this.height = (mobileScreen ? 300 : Math.min(screenWidth, 800)*5/6) - 
+                     this.options.margin.top - this.options.margin.bottom;
+        
+        this.pullOutSize = mobileScreen ? 20 : 50;
+        this.setupSVG();
+        this.processData();
+        this.createGradients();
+        this.render();
+    }
+
+    setupSVG() {
+        // Create main SVG
+        this.svg = d3.select(this.containerId).append("svg")
+            .attr("width", this.width + this.options.margin.left + this.options.margin.right)
+            .attr("height", this.height + this.options.margin.top + this.options.margin.bottom);
+
+        // Create wrapper group
+        this.wrapper = this.svg.append("g")
+            .attr("class", "chordWrapper")
+            .attr("transform", `translate(${this.width/2 + this.options.margin.left},
+                                       ${this.height/2 + this.options.margin.top})`);
+
+        // Setup dimensions
+        this.outerRadius = Math.min(this.width, this.height) / 2 - (mobileScreen ? 80 : 100);
+        this.innerRadius = this.outerRadius * 0.95;
+    }
+
+    processData() {
+        // Convert JSON data to matrix format
+        this.matrix = this.createMatrix(this.data);
+        
+        // Create chord layout
+        this.chordLayout = customChordLayout()
+            .padding(.02)
+            .sortChords(d3.descending)
+            .matrix(this.matrix);
+    }
+
+    createMatrix(data) {
+        // Create matrix from nodes and links
+        const nodes = data.nodes;
+        const n = nodes.length;
+        const matrix = Array(n).fill().map(() => Array(n).fill(0));
+        
+        data.links.forEach(link => {
+            const sourceIndex = nodes.findIndex(node => node.id === link.source);
+            const targetIndex = nodes.findIndex(node => node.id === link.target);
+            matrix[sourceIndex][targetIndex] = link.value;
+        });
+        
+        return matrix;
+    }
+
+    createGradients() {
+        // Create gradients for chords
+        const defs = this.svg.append("defs");
+        const colors = d3.schemeCategory10;
+        
+        this.chordLayout.chords().forEach((d, i) => {
+            // Create gradient logic here
+            // ...existing gradient creation code...
+        });
+    }
+
+    render() {
+        // Render arcs
+        this.renderArcs();
+        // Render chords
+        this.renderChords();
+        // Render labels
+        this.renderLabels();
+    }
+
+    // ... Add other necessary methods ...
+}
+
+// Export for ES6 modules
+export default ChordDiagram;
