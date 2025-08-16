@@ -394,9 +394,11 @@ const g = wrapper.selectAll("g.group")
     .attr("class", "group")
     .on("mouseover", function(event, d) {
         fade(opacityLow)(d);
+        showTooltip(event, d, d.index);
     })
     .on("mouseout", function(event, d) {
         fade(opacityDefault)(d);
+        hideTooltip();
     });
 
 // Create a color scale
@@ -467,8 +469,14 @@ wrapper.selectAll("path.chord")
     .style("opacity", d => (Names[d.source.index] === "" ? 0 : opacityDefault))
     .style("pointer-events", (d, i) => (Names[d.source.index] === "" ? "none" : "auto"))
     .attr("d", path)
-    .on("mouseover", fadeOnChord)
-    .on("mouseout", (event, d) => fade(opacityDefault)(d));
+    .on("mouseover", function(event, d) {
+        fadeOnChord(event, d);
+        showChordTooltip(event, d);
+    })
+    .on("mouseout", function(event, d) {
+        fade(opacityDefault)(d);
+        hideTooltip();
+    });
 
 // Helper function for angle calculations
 function startAngle(d) { return d.startAngle + offset; }
@@ -567,6 +575,37 @@ function wrapChord(text, width) {
     });
 }
 
+// Tooltip functions for chart1
+function showTooltip(event, d, index) {
+    const tooltip = document.getElementById('chord-tooltip');
+    if (tooltip) {
+        const name = Names[index] || `Item ${index}`;
+        tooltip.innerHTML = `<strong>${name}</strong><br>Index: ${index}<br>Value: ${d.value || 'N/A'}`;
+        tooltip.style.opacity = 1;
+        tooltip.style.left = (event.pageX + 10) + 'px';
+        tooltip.style.top = (event.pageY - 10) + 'px';
+    }
+}
+
+function showChordTooltip(event, d) {
+    const tooltip = document.getElementById('chord-tooltip');
+    if (tooltip) {
+        const sourceName = Names[d.source.index] || `Source ${d.source.index}`;
+        const targetName = Names[d.target.index] || `Target ${d.target.index}`;
+        tooltip.innerHTML = `<strong>Connection</strong><br>From: ${sourceName}<br>To: ${targetName}<br>Value: ${d.source.value.toFixed(3)}`;
+        tooltip.style.opacity = 1;
+        tooltip.style.left = (event.pageX + 10) + 'px';
+        tooltip.style.top = (event.pageY - 10) + 'px';
+    }
+}
+
+function hideTooltip() {
+    const tooltip = document.getElementById('chord-tooltip');
+    if (tooltip) {
+        tooltip.style.opacity = 0;
+    }
+}
+
 // ChordDiagram class definition
 class ChordDiagram {
     constructor(containerId, data = sampleData, options = {}) {
@@ -626,11 +665,53 @@ class ChordDiagram {
         const n = nodes.length;
         const matrix = Array(n).fill().map(() => Array(n).fill(0));
         
+        // Separate sectors and indicators
+        const numSectors = nodes.filter(node => node.type === 'sector').length;
+        const numIndicators = nodes.filter(node => node.type === 'indicator').length;
+        
+        // Fill in the raw matrix
         data.links.forEach(link => {
             const sourceIndex = nodes.findIndex(node => node.id === link.source);
             const targetIndex = nodes.findIndex(node => node.id === link.target);
             matrix[sourceIndex][targetIndex] = link.value;
+            // Store original value for tooltips
+            if (!matrix.originalValues) matrix.originalValues = {};
+            matrix.originalValues[`${sourceIndex}-${targetIndex}`] = link.originalValue || link.value;
         });
+        
+        // Calculate current row and column sums
+        const rowSums = matrix.map(row => row.reduce((sum, val) => sum + val, 0));
+        const colSums = Array(n).fill(0);
+        for (let i = 0; i < n; i++) {
+            for (let j = 0; j < n; j++) {
+                colSums[j] += matrix[i][j];
+            }
+        }
+        
+        // Find max sums for each side
+        const maxSectorSum = Math.max(...rowSums.slice(0, numSectors));
+        const maxIndicatorSum = Math.max(...colSums.slice(numSectors));
+        
+        // Scale to target max arc size - need much smaller values to reduce arc size
+        // Look at chart1's matrix values - they're in hundreds, not thousands/millions
+        const targetMaxArc = 500; // Target similar to chart1's largest values
+        const sectorScale = maxSectorSum > 0 ? targetMaxArc / maxSectorSum : 1;
+        const indicatorScale = maxIndicatorSum > 0 ? targetMaxArc / maxIndicatorSum : 1;
+        
+        console.log(`Matrix scaling - Sector: ${sectorScale.toFixed(3)}, Indicator: ${indicatorScale.toFixed(3)}`);
+        console.log(`Max sums - Sector: ${maxSectorSum.toFixed(2)}, Indicator: ${maxIndicatorSum.toFixed(2)}`);
+        
+        // Apply scaling to matrix
+        for (let i = 0; i < n; i++) {
+            for (let j = 0; j < n; j++) {
+                if (matrix[i][j] > 0) {
+                    // Scale based on whether it's sector->indicator
+                    if (i < numSectors && j >= numSectors) {
+                        matrix[i][j] *= sectorScale * indicatorScale;
+                    }
+                }
+            }
+        }
         
         return matrix;
     }
@@ -665,9 +746,11 @@ class ChordDiagram {
             .attr("class", "group")
             .on("mouseover", (event, d) => {
                 this.fade(this.options.opacity.low)(d);
+                this.showTooltip(event, d, d.index);
             })
             .on("mouseout", (event, d) => {
                 this.fade(this.options.opacity.default)(d);
+                this.hideTooltip();
             });
 
         // Create a color scale
@@ -706,8 +789,14 @@ class ChordDiagram {
             .style("fill", (d, i) => `url(#gradient-${i})`)
             .style("opacity", this.options.opacity.default)
             .attr("d", path)
-            .on("mouseover", (event, d) => this.fadeOnChord(event, d))
-            .on("mouseout", (event, d) => this.fade(this.options.opacity.default)(d));
+            .on("mouseover", (event, d) => {
+                this.fadeOnChord(event, d);
+                this.showChordTooltip(event, d);
+            })
+            .on("mouseout", (event, d) => {
+                this.fade(this.options.opacity.default)(d);
+                this.hideTooltip();
+            });
     }
 
     renderLabels() {
@@ -810,6 +899,48 @@ class ChordDiagram {
                     return opacityLow; 
                 }
             });
+    }
+
+    showTooltip(event, d, index) {
+        const tooltip = document.getElementById('chord-tooltip');
+        if (tooltip && this.data.nodes && this.data.nodes[index]) {
+            const node = this.data.nodes[index];
+            const name = node.name || node.id;
+            const type = node.type || 'Unknown';
+            tooltip.innerHTML = `<strong>${name}</strong><br>Type: ${type}<br>Index: ${index}<br>Value: ${d.value || 'N/A'}`;
+            tooltip.style.opacity = 1;
+            tooltip.style.left = (event.pageX + 10) + 'px';
+            tooltip.style.top = (event.pageY - 10) + 'px';
+        }
+    }
+
+    showChordTooltip(event, d) {
+        const tooltip = document.getElementById('chord-tooltip');
+        if (tooltip && this.data.nodes) {
+            const sourceNode = this.data.nodes[d.source.index];
+            const targetNode = this.data.nodes[d.target.index];
+            const sourceName = sourceNode ? (sourceNode.name || sourceNode.id) : `Source ${d.source.index}`;
+            const targetName = targetNode ? (targetNode.name || targetNode.id) : `Target ${d.target.index}`;
+            
+            // Get original value if stored in matrix
+            const originalKey = `${d.source.index}-${d.target.index}`;
+            const originalValue = this.matrix.originalValues && this.matrix.originalValues[originalKey];
+            
+            let valueText = `Original: ${originalValue !== undefined ? originalValue.toFixed(3) : 'N/A'}`;
+            valueText += `<br>Scaled: ${d.source.value.toFixed(3)}`;
+            
+            tooltip.innerHTML = `<strong>Connection</strong><br>From: ${sourceName}<br>To: ${targetName}<br>${valueText}`;
+            tooltip.style.opacity = 1;
+            tooltip.style.left = (event.pageX + 10) + 'px';
+            tooltip.style.top = (event.pageY - 10) + 'px';
+        }
+    }
+
+    hideTooltip() {
+        const tooltip = document.getElementById('chord-tooltip');
+        if (tooltip) {
+            tooltip.style.opacity = 0;
+        }
     }
 }
 
