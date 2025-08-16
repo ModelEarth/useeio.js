@@ -667,44 +667,35 @@ class ChordDiagram {
     }
 
     createMatrix(data) {
-        // Create matrix from nodes and links
-        const nodes = data.nodes;
-        const numSectors = nodes.filter(node => node.type === 'sector').length;
-        const numIndicators = nodes.filter(node => node.type === 'indicator').length;
+        // Create matrix from nodes and links - ensure sectors come first, then indicators
+        const sectors = data.nodes.filter(node => node.type === 'sector');
+        const indicators = data.nodes.filter(node => node.type === 'indicator');
         
-        console.log(`Matrix creation: ${numSectors} sectors (indices 0-${numSectors-1}), ${numIndicators} indicators (indices ${numSectors}-${numSectors+numIndicators-1})`);
+        // Reorder nodes: all sectors first, then all indicators
+        const orderedNodes = [...sectors, ...indicators];
+        const numSectors = sectors.length;
+        const numIndicators = indicators.length;
+        const totalNodes = orderedNodes.length;
         
-        // Add empty padding nodes to help separate the two sides
-        const paddingNodes = 2; // Add 2 empty nodes for separation
-        const totalNodes = nodes.length + paddingNodes;
+        console.log(`Matrix creation: ${numSectors} sectors (0-${numSectors-1}), ${numIndicators} indicators (${numSectors}-${totalNodes-1})`);
+        
         const matrix = Array(totalNodes).fill().map(() => Array(totalNodes).fill(0));
         
-        // Add empty nodes to the data structure for proper spacing
-        const extendedNodes = [
-            ...nodes.slice(0, numSectors), // sectors
-            { id: 'empty1', name: '', type: 'empty' }, // separator 1
-            { id: 'empty2', name: '', type: 'empty' }, // separator 2  
-            ...nodes.slice(numSectors) // indicators
-        ];
-        
-        // Fill in the raw matrix (only sectors to indicators, skip empty nodes)
+        // Fill in the matrix using the reordered nodes
         data.links.forEach(link => {
-            const sourceIndex = nodes.findIndex(node => node.id === link.source);
-            const targetIndex = nodes.findIndex(node => node.id === link.target);
-            
-            // Adjust target index to account for empty nodes
-            const adjustedTargetIndex = targetIndex >= numSectors ? targetIndex + paddingNodes : targetIndex;
+            const sourceIndex = orderedNodes.findIndex(node => node.id === link.source);
+            const targetIndex = orderedNodes.findIndex(node => node.id === link.target);
             
             if (sourceIndex !== -1 && targetIndex !== -1) {
-                matrix[sourceIndex][adjustedTargetIndex] = link.value;
+                matrix[sourceIndex][targetIndex] = link.value;
                 // Store original value for tooltips
                 if (!matrix.originalValues) matrix.originalValues = {};
-                matrix.originalValues[`${sourceIndex}-${adjustedTargetIndex}`] = link.originalValue || link.value;
+                matrix.originalValues[`${sourceIndex}-${targetIndex}`] = link.originalValue || link.value;
             }
         });
         
-        // Update the chord layout to use extended nodes
-        this.extendedNodes = extendedNodes;
+        // Store ordered nodes for consistent labeling and tooltips
+        this.orderedNodes = orderedNodes;
         
         // Debug: show matrix structure
         const rowSums = matrix.map(row => row.reduce((sum, val) => sum + val, 0));
@@ -715,10 +706,10 @@ class ChordDiagram {
             }
         }
         
-        console.log(`Matrix after normalization (with ${paddingNodes} empty nodes):`);
+        console.log(`Matrix structure:`);
         console.log(`Row sums:`, rowSums.map(sum => sum.toFixed(2)));
         console.log(`Col sums:`, colSums.map(sum => sum.toFixed(2)));
-        console.log(`Extended nodes:`, extendedNodes.map(n => `${n.name || n.id} (${n.type})`));
+        console.log(`Ordered nodes:`, orderedNodes.map((n, i) => `${i}: ${n.name || n.id} (${n.type})`));
         
         return matrix;
     }
@@ -772,26 +763,9 @@ class ChordDiagram {
 
         // Add arc paths
         g.append("path")
-            .style("stroke", (d, i) => {
-                // Hide empty nodes
-                if (this.extendedNodes && this.extendedNodes[i] && this.extendedNodes[i].type === 'empty') return "none";
-                return colors[i % colors.length];
-            })
-            .style("fill", (d, i) => {
-                // Hide empty nodes
-                if (this.extendedNodes && this.extendedNodes[i] && this.extendedNodes[i].type === 'empty') return "none";
-                return colors[i % colors.length];
-            })
-            .style("opacity", (d, i) => {
-                // Hide empty nodes
-                if (this.extendedNodes && this.extendedNodes[i] && this.extendedNodes[i].type === 'empty') return 0;
-                return this.options.opacity.default;
-            })
-            .style("pointer-events", (d, i) => {
-                // Disable interaction for empty nodes
-                if (this.extendedNodes && this.extendedNodes[i] && this.extendedNodes[i].type === 'empty') return "none";
-                return "auto";
-            })
+            .style("stroke", (d, i) => colors[i % colors.length])
+            .style("fill", (d, i) => colors[i % colors.length])
+            .style("opacity", this.options.opacity.default)
             .attr("d", arc)
             .attr("transform", (d) => {
                 // Pull the two slices apart (add offset for proper calculation)
@@ -856,11 +830,17 @@ class ChordDiagram {
                        (d.angle > Math.PI ? "rotate(180)" : "");
             })
             .text((d, i) => {
-                // Get the node name from the extended nodes data
-                if (this.extendedNodes && this.extendedNodes[i]) {
-                    const node = this.extendedNodes[i];
-                    if (node.type === 'empty') return ''; // Don't show labels for empty nodes
-                    return node.name || node.id;
+                // Debug: Log what we're getting for each label
+                console.log(`Label ${i}: d.index=${d.index}, orderedNodes[${i}]=${this.orderedNodes[i] ? this.orderedNodes[i].name || this.orderedNodes[i].id : 'undefined'}`);
+                
+                // Get the node name from the ordered nodes data using d.index
+                if (this.orderedNodes && this.orderedNodes[d.index]) {
+                    return this.orderedNodes[d.index].name || this.orderedNodes[d.index].id;
+                }
+                
+                // Fallback to positional index if d.index doesn't work
+                if (this.orderedNodes && this.orderedNodes[i]) {
+                    return this.orderedNodes[i].name || this.orderedNodes[i].id;
                 }
                 return `Label ${i}`;
             });
@@ -932,8 +912,8 @@ class ChordDiagram {
 
     showTooltip(event, d, index) {
         const tooltip = document.getElementById('chord-tooltip');
-        if (tooltip && this.data.nodes && this.data.nodes[index]) {
-            const node = this.data.nodes[index];
+        if (tooltip && this.orderedNodes && this.orderedNodes[index]) {
+            const node = this.orderedNodes[index];
             const name = node.name || node.id;
             const type = node.type || 'Unknown';
             tooltip.innerHTML = `<strong>${name}</strong><br>Type: ${type}<br>Index: ${index}<br>Value: ${d.value || 'N/A'}`;
@@ -945,9 +925,9 @@ class ChordDiagram {
 
     showChordTooltip(event, d) {
         const tooltip = document.getElementById('chord-tooltip');
-        if (tooltip && this.data.nodes) {
-            const sourceNode = this.data.nodes[d.source.index];
-            const targetNode = this.data.nodes[d.target.index];
+        if (tooltip && this.orderedNodes) {
+            const sourceNode = this.orderedNodes[d.source.index];
+            const targetNode = this.orderedNodes[d.target.index];
             const sourceName = sourceNode ? (sourceNode.name || sourceNode.id) : `Source ${d.source.index}`;
             const targetName = targetNode ? (targetNode.name || targetNode.id) : `Target ${d.target.index}`;
             

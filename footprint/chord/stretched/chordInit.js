@@ -17,6 +17,12 @@ function processSectorData(sectorData, indicators) {
     // Limit to 10 indicators
     const limitedIndicators = indicators.slice(0, 10);
     
+    // Debug: Check incoming sector data
+    console.log(`ChordInit - Received ${sectorData.length} sectors:`);
+    sectorData.forEach((s, i) => {
+        console.log(`  Sector ${i}: ${s.sector}`);
+    });
+    
     // Create nodes array - sectors first, then indicators for proper positioning
     const nodes = [
         // Add sectors first (will be on left side)

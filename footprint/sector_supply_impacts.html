@@ -114,6 +114,7 @@
       const sectors = await model.sectors();
       // Use first sector for consistent results instead of random
       const sector = sectors[0];
+      console.log(`Base analysis sector: ${sector.code} - ${sector.name}`);
       info.textContent = `Analyzing sector '${sector.name}' based on ${demandId}`;
 
       const analysis = await useeio.SectorAnalysis.of(model, sector, demandId);
@@ -125,17 +126,18 @@
         byIndicator[indicator.code] = await analysis.getSupplyChainImpacts(indicator);
       }
       const results = [];
-      for (const sector of sectors) {
+      console.log(`Processing ${sectors.length} sectors for supply chain impacts`);
+      for (const sectorItem of sectors) {
           // Store raw values for proper sorting
-          const rawTotal = Math.abs(total[sector.index]);
+          const rawTotal = Math.abs(total[sectorItem.index]);
           const result = {
-              sector: `${sector.code} - ${sector.name}`,
+              sector: `${sectorItem.code} - ${sectorItem.name}`,
               total: rawTotal,
               totalRaw: rawTotal, // Add raw value for sorting
               sortValue: rawTotal // Explicit sort value
           };
           indicators.forEach(i => {
-              const value = byIndicator[i.code][sector.index];
+              const value = byIndicator[i.code][sectorItem.index];
               result[i.code] = value;
           });
           results.push(result);
@@ -424,7 +426,28 @@
         
         // Ensure results are sorted by total impact (descending)
         const sortedResults = [...results].sort((a, b) => b.sortValue - a.sortValue);
-        const top10Results = sortedResults.slice(0, 10);
+        
+        // Debug: Check all sector names before filtering
+        console.log(`All sectors from results (first 15):`, sortedResults.slice(0, 15).map(s => s.sector));
+        
+        // Get unique sectors (avoid duplicate sector names)
+        const uniqueSectors = [];
+        const seenSectors = new Set();
+        
+        for (const result of sortedResults) {
+            console.log(`Checking sector: ${result.sector}, already seen: ${seenSectors.has(result.sector)}, current count: ${uniqueSectors.length}`);
+            if (!seenSectors.has(result.sector) && uniqueSectors.length < 10) {
+                uniqueSectors.push(result);
+                seenSectors.add(result.sector);
+                console.log(`Added unique sector: ${result.sector}`);
+            }
+        }
+        
+        console.log(`Found ${uniqueSectors.length} unique sectors out of ${sortedResults.length} total results`);
+        console.log(`Unique sectors:`, uniqueSectors.map(s => s.sector));
+        console.log(`First few sorted results:`, sortedResults.slice(0, 5).map(s => ({ sector: s.sector, sortValue: s.sortValue.toFixed(3) })));
+        
+        const top10Results = uniqueSectors;
         
         // Sort indicators alphabetically for consistent display
         const sortedIndicators = [...indicators].sort((a, b) => a.code.localeCompare(b.code));
