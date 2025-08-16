@@ -47,7 +47,23 @@
 <body>
   
   <!-- D3 Separated chord chart -->
-  <div id="chart2"></div>
+  <div style="position: relative;">
+    <div id="chart2"></div>
+    <!-- Control Dropdowns -->
+    <div style="position: absolute; top: 10px; right: 10px; z-index: 1000; display: flex; gap: 8px;">
+      <select id="scaling-method" style="padding: 4px 8px; font-size: 12px; border: 1px solid #ccc; border-radius: 4px; background: white;">
+        <option value="raw" selected>No Scaling</option>
+        <option value="square-root">Square Root</option>
+        <option value="proportional">Proportional</option>
+        <option value="logarithmic">Logarithmic</option>
+      </select>
+      <select id="edge-style" style="padding: 4px 8px; font-size: 12px; border: 1px solid #ccc; border-radius: 4px; background: white;">
+        <option value="none">No Edge</option>
+        <option value="light" selected>Light Edge</option>
+        <option value="dark">Dark Edge</option>
+      </select>
+    </div>
+  </div>
 
   <div style="padding-left:60px;padding-right:18px;">
     <div id="relocatedStateMenu"></div>
@@ -443,11 +459,9 @@
         const seenSectors = new Set();
         
         for (const result of sortedResults) {
-            console.log(`Checking sector: ${result.sector}, already seen: ${seenSectors.has(result.sector)}, current count: ${uniqueSectors.length}`);
             if (!seenSectors.has(result.sector) && uniqueSectors.length < 10) {
                 uniqueSectors.push(result);
                 seenSectors.add(result.sector);
-                console.log(`Added unique sector: ${result.sector}`);
             }
         }
         
@@ -462,7 +476,16 @@
         console.log(`Total indicators: ${sortedIndicators.length}, limiting to top 10 for chord diagram`);
         const top10Indicators = sortedIndicators.slice(0, 10);
         
-        await initializeChordDiagram(top10Results, top10Indicators, { containerId: '#chart2' });
+        // Store data globally for dropdown changes
+        window.currentChordData = { sectors: top10Results, indicators: top10Indicators };
+        
+        await initializeChordDiagram(top10Results, top10Indicators, { 
+          containerId: '#chart2',
+          chordBorder: {
+            style: 'light',
+            width: '1px'
+          }
+        });
         
         // Display debug info for consistency checking
         displayDebugInfo(top10Results, top10Indicators);
@@ -547,6 +570,46 @@
     }
 
     main();
+
+    // Add event listeners for control dropdowns
+    document.addEventListener('DOMContentLoaded', function() {
+      const scalingSelect = document.getElementById('scaling-method');
+      const edgeSelect = document.getElementById('edge-style');
+      
+      function updateChordDiagram() {
+        if (window.currentChordData) {
+          const selectedScaling = scalingSelect ? scalingSelect.value : 'raw';
+          const selectedEdge = edgeSelect ? edgeSelect.value : 'light';
+          
+          console.log(`Updating chart - Scaling: ${selectedScaling}, Edge: ${selectedEdge}`);
+          
+          try {
+            initializeChordDiagram(
+              window.currentChordData.sectors, 
+              window.currentChordData.indicators, 
+              { 
+                containerId: '#chart2',
+                scalingMethod: selectedScaling,
+                chordBorder: {
+                  style: selectedEdge,
+                  width: "1px"
+                }
+              }
+            );
+          } catch (error) {
+            console.error('Error updating chord diagram:', error);
+          }
+        }
+      }
+      
+      if (scalingSelect) {
+        scalingSelect.addEventListener('change', updateChordDiagram);
+      }
+      
+      if (edgeSelect) {
+        edgeSelect.addEventListener('change', updateChordDiagram);
+      }
+    });
 
   </script>
 

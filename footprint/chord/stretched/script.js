@@ -1116,7 +1116,7 @@ class ChordDiagram {
 
         // Draw chords
         const chords = this.chordLayout.chords();
-        console.log(`Rendering ${chords.length} chords:`, chords);
+        console.log(`Rendering ${chords.length} chords`);
         
         this.wrapper.selectAll("path.chord")
             .data(chords)
@@ -1153,7 +1153,6 @@ class ChordDiagram {
             .style("pointer-events", "all") // Ensure entire chord area is hoverable
             .attr("d", (d, i) => {
                 const pathData = path(d);
-                console.log(`Chord ${i} path:`, pathData);
                 return pathData;
             })
             .on("mouseover", (event, d) => {

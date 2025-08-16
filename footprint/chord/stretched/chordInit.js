@@ -13,12 +13,26 @@ const defaultConfig = {
 let chordDiagram;
 
 // Function to process sector supply data into chord diagram format
-function processSectorData(sectorData, indicators) {
+function processSectorData(sectorData, indicators, scalingMethod = 'raw') {
     // Limit to 10 indicators
     const limitedIndicators = indicators.slice(0, 10);
     
-    // Debug: Check incoming sector data
+    // Debug: Check incoming sector data and identify the problem
     console.log(`ChordInit - Received ${sectorData.length} sectors:`);
+    
+    // Check the 10th sector (index 9) specifically
+    if (sectorData.length >= 10) {
+        const sector10 = sectorData[9];
+        console.log(`DEBUGGING 10th sector: ${sector10.sector}`);
+        
+        // Check its values compared to others
+        const indicatorSample = limitedIndicators[0]; // First indicator as test
+        console.log(`Sample values for ${indicatorSample.code}:`);
+        sectorData.slice(0, 10).forEach((sector, i) => {
+            const value = sector[indicatorSample.code];
+            console.log(`  Sector ${i}: ${sector.sector} = ${value ? value.toFixed(6) : 'undefined'}`);
+        });
+    }
     sectorData.forEach((s, i) => {
         console.log(`  Sector ${i}: ${s.sector}`);
     });
@@ -98,43 +112,114 @@ function processSectorData(sectorData, indicators) {
     const sectorScale = targetMaxValue / Math.max(maxSectorTotal, 1);
     const indicatorScale = targetMaxValue / Math.max(maxIndicatorTotal, 1);
     
-    console.log(`Scaling - Max sector: ${maxSectorTotal.toFixed(2)}, Max indicator: ${maxIndicatorTotal.toFixed(2)}`);
-    console.log(`Scale factors - Sectors: ${sectorScale.toFixed(3)}, Indicators: ${indicatorScale.toFixed(3)}`);
+    // Reduced logging
+    console.log(`Max sector total: ${maxSectorTotal.toFixed(2)}, Max indicator total: ${maxIndicatorTotal.toFixed(2)}`);
     
     // Normalize data to prevent extreme outliers from dominating
-    // Find all values first
+    // Find all values first and analyze by sector
     const allValues = [];
+    const sectorMaxValues = [];
+    
     sectorData.forEach((sector, sectorIndex) => {
+        let sectorMax = 0;
         limitedIndicators.forEach((indicator, indicatorIndex) => {
             const value = sector[indicator.code];
             if (value !== undefined && value !== 0) {
-                allValues.push(Math.abs(value));
+                const absValue = Math.abs(value);
+                allValues.push(absValue);
+                sectorMax = Math.max(sectorMax, absValue);
             }
         });
+        sectorMaxValues.push(sectorMax);
+        // Only log problematic sectors
+        if (sectorIndex === 9 || sectorMax > 1000) {
+            console.log(`Sector ${sectorIndex} (${sector.sector}) max value: ${sectorMax.toFixed(6)}`);
+        }
     });
     
-    // Use median and cap outliers
+    // Use a more balanced capping approach
     allValues.sort((a, b) => a - b);
-    const median = allValues[Math.floor(allValues.length / 2)];
     const q3 = allValues[Math.floor(allValues.length * 0.75)];
-    const maxReasonable = q3 * 3; // Cap at 3x the 75th percentile
+    const q99 = allValues[Math.floor(allValues.length * 0.99)]; // 99th percentile instead of Q3*2
     
-    console.log(`Data normalization - Median: ${median.toFixed(3)}, Q3: ${q3.toFixed(3)}, Cap: ${maxReasonable.toFixed(3)}`);
+    // Also check sector balance 
+    sectorMaxValues.sort((a, b) => a - b);
+    const medianSectorMax = sectorMaxValues[Math.floor(sectorMaxValues.length / 2)];
+    const sectorCap = medianSectorMax * 20; // Allow more variation (20x instead of 5x)
+    
+    // Use the larger of the two to preserve meaningful differences
+    const finalCap = Math.max(q99, sectorCap); // Use MAX instead of MIN to be less aggressive
+    
+    console.log(`Final cap applied: ${finalCap.toFixed(6)} (from Q99: ${q99.toFixed(6)}, sector balance: ${sectorCap.toFixed(6)})`);
 
-    // Create balanced links array with capped values
+    // Apply chosen scaling method
     const links = [];
+    const allNonZeroValues = [];
+    
+    // First pass: collect all non-zero values for scaling reference
     sectorData.forEach((sector, sectorIndex) => {
         limitedIndicators.forEach((indicator, indicatorIndex) => {
             const originalValue = sector[indicator.code];
             if (originalValue !== undefined && originalValue !== 0) {
-                // Cap extreme outliers to prevent one value from dominating
-                const absValue = Math.abs(originalValue);
-                const cappedValue = Math.min(absValue, maxReasonable);
+                allNonZeroValues.push(Math.abs(originalValue));
+            }
+        });
+    });
+    
+    allNonZeroValues.sort((a, b) => a - b);
+    const minValue = allNonZeroValues[0];
+    const maxValue = allNonZeroValues[allNonZeroValues.length - 1];
+    
+    console.log(`Scaling method: ${scalingMethod}, min=${minValue.toFixed(6)}, max=${maxValue.toFixed(6)}`);
+    
+    // Function to apply different scaling methods
+    function scaleValue(value, method) {
+        const absValue = Math.abs(value);
+        
+        switch (method) {
+            case 'logarithmic': {
+                const logMin = Math.log10(minValue);
+                const logMax = Math.log10(maxValue);
+                const logRange = logMax - logMin;
+                const logValue = Math.log10(absValue);
+                const normalizedLog = (logValue - logMin) / logRange;
+                return normalizedLog * 0.1 + 0.001; // Scale to 0.001-0.101 range
+            }
+            
+            case 'proportional': {
+                // Simple min-max normalization
+                const normalized = (absValue - minValue) / (maxValue - minValue);
+                return normalized * 0.1 + 0.001; // Scale to 0.001-0.101 range
+            }
+            
+            case 'square-root': {
+                // Square root scaling reduces extreme differences less aggressively than log
+                const sqrtValue = Math.sqrt(absValue);
+                const sqrtMin = Math.sqrt(minValue);
+                const sqrtMax = Math.sqrt(maxValue);
+                const normalized = (sqrtValue - sqrtMin) / (sqrtMax - sqrtMin);
+                return normalized * 0.1 + 0.001;
+            }
+            
+            case 'raw':
+            default: {
+                // Use raw values with minimal cap
+                return Math.min(absValue, finalCap);
+            }
+        }
+    }
+    
+    // Second pass: create links with chosen scaling
+    sectorData.forEach((sector, sectorIndex) => {
+        limitedIndicators.forEach((indicator, indicatorIndex) => {
+            const originalValue = sector[indicator.code];
+            if (originalValue !== undefined && originalValue !== 0) {
+                const scaledValue = scaleValue(originalValue, scalingMethod);
                 
                 links.push({
                     source: sector.sector,
                     target: indicator.code,
-                    value: cappedValue,
+                    value: scaledValue,
                     originalValue: originalValue // Store original for tooltips
                 });
             }
@@ -148,7 +233,8 @@ function processSectorData(sectorData, indicators) {
 export async function initializeChordDiagram(sectorData, indicators, config = {}) {
     try {
         const combinedConfig = { ...defaultConfig, ...config };
-        const chordData = processSectorData(sectorData, indicators);
+        const scalingMethod = config.scalingMethod || 'raw';
+        const chordData = processSectorData(sectorData, indicators, scalingMethod);
         
         // Destroy existing diagram if it exists
         if (chordDiagram) {
