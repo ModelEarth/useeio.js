@@ -56,8 +56,16 @@ Where `{URL}` is some API endpoint. Formerly https://smmtool.app.cloud.gov/api.
 If the API requires a key, append --apikey [Add API key here]
 You can [register for an API key](https://github.com/USEPA/USEEIO_API/wiki/Use-the-API) via the US EPA's contact link.
 
+## Loading of json files
 
 The 50 state json files are pre-generated for you at [useeio-json/models](https://github.com/ModelEarth/useeio-json/tree/main/models)
+
+1. D3 Detection in build from src/webapi.ts. Checks if D3 is already loaded on the page.
+2. Automatic Loading: If D3 is missing, dynamically loads it from [CloudFlare CDN](https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js)
+3. CORS-friendly Fetching: Uses D3's d3.json() method which handles CORS better than XMLHttpRequest
+4. Graceful Fallback: If D3 loading or usage fails, falls back to the original XMLHttpRequest method which works only when useeio-json folder is adjacent to usseeio.js folder.
+
+## Run on Github Page
 
 Model.earth developers use the following [http-server setup steps](https://model.earth/localsite/start/steps/) with port 8887.
 

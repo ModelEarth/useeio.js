@@ -466,39 +466,61 @@
          * @param path the path segments of the request
          * @returns a promise of the requested resource
          */
+        // Used by getModel() in config.js
         WebApi.prototype.getJson = function () {
             var path = [];
             for (var _i = 0; _i < arguments.length; _i++) {
                 path[_i] = arguments[_i];
             }
             return __awaiter(this, void 0, void 0, function () {
-                var url, req;
+                var url, d3, data, err_1, req;
                 return __generator(this, function (_a) {
-                    url = this._target.apply(this, path);
-                    if (this._config.asJsonFiles) {
-                        if (!url.endsWith(".json")) {
-                            url += ".json";
-                        }
+                    switch (_a.label) {
+                        case 0:
+                            url = this._target.apply(this, path);
+                            if (this._config.asJsonFiles) {
+                                if (!url.endsWith(".json")) {
+                                    url += ".json";
+                                }
+                            }
+                            _a.label = 1;
+                        case 1:
+                            _a.trys.push([1, 5, , 6]);
+                            return [4 /*yield*/, this._ensureD3()];
+                        case 2:
+                            d3 = _a.sent();
+                            if (!(d3 && d3.json)) return [3 /*break*/, 4];
+                            return [4 /*yield*/, d3.json(url)];
+                        case 3:
+                            data = _a.sent();
+                            return [2 /*return*/, data];
+                        case 4: return [3 /*break*/, 6];
+                        case 5:
+                            err_1 = _a.sent();
+                            // Fall back to XMLHttpRequest if D3 loading/usage fails
+                            console.warn("D3 fetch failed, falling back to XMLHttpRequest:", err_1);
+                            return [3 /*break*/, 6];
+                        case 6:
+                            req = this._request("GET", url);
+                            return [2 /*return*/, new Promise(function (resolve, reject) {
+                                    req.onload = function () {
+                                        if (req.status === 200) {
+                                            try {
+                                                var t = JSON.parse(req.responseText);
+                                                resolve(t);
+                                            }
+                                            catch (err) {
+                                                reject("failed to parse response for: "
+                                                    + url + ": " + err);
+                                            }
+                                        }
+                                        else {
+                                            reject("request ".concat(url, " failed: ").concat(req.statusText));
+                                        }
+                                    };
+                                    req.send();
+                                })];
                     }
-                    req = this._request("GET", url);
-                    return [2 /*return*/, new Promise(function (resolve, reject) {
-                            req.onload = function () {
-                                if (req.status === 200) {
-                                    try {
-                                        var t = JSON.parse(req.responseText);
-                                        resolve(t);
-                                    }
-                                    catch (err) {
-                                        reject("failed to parse response for: "
-                                            + url + ": " + err);
-                                    }
-                                }
-                                else {
-                                    reject("request ".concat(url, " failed: ").concat(req.statusText));
-                                }
-                            };
-                            req.send();
-                        })];
                 });
             });
         };
@@ -598,11 +620,41 @@
         WebApi.prototype._request = function (method, url) {
             var req = new XMLHttpRequest();
             req.open(method, url);
+            // Enable CORS for cross-origin requests
+            req.withCredentials = false;
             req.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
             if (this._config.apikey) {
                 req.setRequestHeader("x-api-key", this._config.apikey);
             }
             return req;
+        };
+        WebApi.prototype._ensureD3 = function () {
+            return __awaiter(this, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    // Check if D3 is already available
+                    if (typeof window.d3 !== 'undefined') {
+                        return [2 /*return*/, window.d3];
+                    }
+                    // Try to load D3 dynamically
+                    return [2 /*return*/, new Promise(function (resolve, reject) {
+                            var script = document.createElement('script');
+                            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js';
+                            script.onload = function () {
+                                // Give D3 a moment to initialize
+                                setTimeout(function () {
+                                    if (typeof window.d3 !== 'undefined') {
+                                        resolve(window.d3);
+                                    }
+                                    else {
+                                        reject(new Error('D3 failed to load properly'));
+                                    }
+                                }, 100);
+                            };
+                            script.onerror = function () { return reject(new Error('Failed to load D3 script')); };
+                            document.head.appendChild(script);
+                        })];
+                });
+            });
         };
         return WebApi;
     }());

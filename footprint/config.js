@@ -32,16 +32,16 @@ function getModelFolderName() {
 }
 function getModel() {
     let theModel = getModelFolderName()
-    return useeio.modelOf({
+    return useeio.modelOf({ // Calls the getJson() method set in webapi.ts
       //endpoint: 'http://localhost:8887/useeio-json/models/2020',
-
-      // CORS error
-      endpoint: 'https://raw.githubusercontent.com/ModelEarth/useeio-json/main/models/2020',
-      endpoint: 'https://model.earth/useeio-json/main/models/2020',
 
       // So clone the useeio-json repo into the same webroot.
       endpoint: '/useeio-json/models/2020',
 
+      // CORS error
+      endpoint: 'https://model.earth/useeio-json/main/models/2020',
+      endpoint: 'https://raw.githubusercontent.com/ModelEarth/useeio-json/main/models/2020',
+      
       model: theModel,
       asJsonFiles: true,
     });

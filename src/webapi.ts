@@ -103,6 +103,8 @@ export class WebApi {
    * @param path the path segments of the request
    * @returns a promise of the requested resource
    */
+
+   // Used by getModel() in config.js
   async getJson<T>(...path: string[]): Promise<T> {
 
     // construct the URL
@@ -113,7 +115,19 @@ export class WebApi {
       }
     }
 
-    // perform the request
+    // Try to use D3 for better CORS handling, load it if missing
+    try {
+      const d3 = await this._ensureD3();
+      if (d3 && d3.json) {
+        const data = await d3.json(url);
+        return data as T;
+      }
+    } catch (err) {
+      // Fall back to XMLHttpRequest if D3 loading/usage fails
+      console.warn("D3 fetch failed, falling back to XMLHttpRequest:", err);
+    }
+
+    // perform the request with XMLHttpRequest (fallback)
     const req = this._request("GET", url);
     return new Promise<T>((resolve, reject) => {
       req.onload = () => {
@@ -205,14 +219,44 @@ export class WebApi {
   private _request(method: "GET" | "POST", url: string): XMLHttpRequest {
     const req = new XMLHttpRequest();
     req.open(method, url);
+    
+    // Enable CORS for cross-origin requests
+    req.withCredentials = false;
+    
     req.setRequestHeader(
       "Content-Type",
       "application/json;charset=UTF-8");
+    
     if (this._config.apikey) {
       req.setRequestHeader(
         "x-api-key", this._config.apikey);
     }
     return req;
+  }
+
+  private async _ensureD3(): Promise<any> {
+    // Check if D3 is already available
+    if (typeof (window as any).d3 !== 'undefined') {
+      return (window as any).d3;
+    }
+
+    // Try to load D3 dynamically
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js';
+      script.onload = () => {
+        // Give D3 a moment to initialize
+        setTimeout(() => {
+          if (typeof (window as any).d3 !== 'undefined') {
+            resolve((window as any).d3);
+          } else {
+            reject(new Error('D3 failed to load properly'));
+          }
+        }, 100);
+      };
+      script.onerror = () => reject(new Error('Failed to load D3 script'));
+      document.head.appendChild(script);
+    });
   }
 }
 

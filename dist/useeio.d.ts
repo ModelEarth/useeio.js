@@ -378,6 +378,7 @@ declare module "webapi" {
          */
         private _target;
         private _request;
+        private _ensureD3;
     }
     /**
      * This type describes a sector aggregation. In case of multi-regional models we
