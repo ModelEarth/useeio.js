@@ -452,8 +452,8 @@ const margin = {left: 50, top: 10, right: 50, bottom: 10};
 const width = Math.min(screenWidth, 800) - margin.left - margin.right;
 const height = (mobileScreen ? 300 : Math.min(screenWidth, 800)*5/6) - margin.top - margin.bottom;
 
-// Chart1 display
-const ENABLE_CHART1 = true;
+// Chart1 DISPLAY
+const ENABLE_CHART1 = false;
 
 // Shared variables used by both charts
 let svg, wrapper, titleWrapper; // Declare but don't create for chart1
@@ -904,13 +904,64 @@ class ChordDiagram {
     }
 
     createGradients() {
-        // Create gradients for chords
+        // Create defs for gradients
         const defs = this.svg.append("defs");
-        const colors = d3.schemeCategory10;
         
+        // Define consistent color scheme for nodes
+        this.nodeColors = [
+            "#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEAA7",
+            "#DDA0DD", "#98D8C8", "#F7DC6F", "#BB8FCE", "#85C1E9",
+            "#F8C471", "#82E0AA", "#F1948A", "#85C1E9", "#D7BDE2",
+            "#A9CCE3", "#A3E4D7", "#D5DBDB", "#FADBD8", "#D6EAF8"
+        ];
+    }
+
+    createChordGradients() {
+        if (!this.svg.select("defs").node()) {
+            this.svg.append("defs");
+        }
+        const defs = this.svg.select("defs");
+        
+        // Create gradients for each chord based on connected node colors
         this.chordLayout.chords().forEach((d, i) => {
-            // Create gradient logic here
-            // ...existing gradient creation code...
+            // Get colors for source and target nodes
+            const sourceColor = this.nodeColors[d.source.index % this.nodeColors.length];
+            const targetColor = this.nodeColors[d.target.index % this.nodeColors.length];
+            
+            // Create lighter versions for the gradient
+            const sourceLightColor = d3.color(sourceColor).brighter(0.4);
+            const targetLightColor = d3.color(targetColor).brighter(0.4);
+            
+            const gradient = defs.append("linearGradient")
+                .attr("id", `chord-gradient-${i}`)
+                .attr("gradientUnits", "userSpaceOnUse")
+                .attr("x1", "0%")
+                .attr("y1", "0%")
+                .attr("x2", "100%")
+                .attr("y2", "0%");
+                
+            // Start with source node color
+            gradient.append("stop")
+                .attr("offset", "0%")
+                .attr("stop-color", sourceColor)
+                .attr("stop-opacity", 0.8);
+                
+            // Blend in the middle with lighter colors
+            gradient.append("stop")
+                .attr("offset", "25%")
+                .attr("stop-color", sourceLightColor)
+                .attr("stop-opacity", 0.7);
+                
+            gradient.append("stop")
+                .attr("offset", "75%")
+                .attr("stop-color", targetLightColor)
+                .attr("stop-opacity", 0.7);
+                
+            // End with target node color
+            gradient.append("stop")
+                .attr("offset", "100%")
+                .attr("stop-color", targetColor)
+                .attr("stop-opacity", 0.8);
         });
     }
 
@@ -952,8 +1003,8 @@ class ChordDiagram {
 
         // Add arc paths
         g.append("path")
-            .style("stroke", (d, i) => colors[i % colors.length])
-            .style("fill", (d, i) => colors[i % colors.length])
+            .style("stroke", (d, i) => this.nodeColors[d.index % this.nodeColors.length])
+            .style("fill", (d, i) => this.nodeColors[d.index % this.nodeColors.length])
             .style("opacity", this.options.opacity.default)
             .attr("d", arc)
             .attr("transform", (d) => {
@@ -964,6 +1015,9 @@ class ChordDiagram {
     }
 
     renderChords() {
+        // Create gradients for chords first
+        this.createChordGradients();
+        
         // Create stretched chord path generator with offset
         const path = stretchedChord()
             .radius(this.innerRadius)
@@ -979,32 +1033,7 @@ class ChordDiagram {
             .join("path")
             .attr("class", "chord")
             .style("stroke", "none")
-            .style("fill", (d, i) => {
-                console.log(`Chord ${i}: source=${d.source.index}, target=${d.target.index}, value=${d.source.value}`);
-                
-                // Create diverse color scheme based on source and target
-                const colors = [
-                    "#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEAA7",
-                    "#DDA0DD", "#98D8C8", "#F7DC6F", "#BB8FCE", "#85C1E9",
-                    "#F8C471", "#82E0AA", "#F1948A", "#85C1E9", "#D7BDE2",
-                    "#A9CCE3", "#A3E4D7", "#D5DBDB", "#FADBD8", "#D6EAF8"
-                ];
-                
-                // Use source index to determine base color
-                const sourceColor = colors[d.source.index % colors.length];
-                
-                // Slightly modify color based on target for variation
-                const targetShift = d.target.index % 3;
-                if (targetShift === 1) {
-                    // Slightly darker
-                    return d3.color(sourceColor).darker(0.3);
-                } else if (targetShift === 2) {
-                    // Slightly brighter  
-                    return d3.color(sourceColor).brighter(0.3);
-                }
-                
-                return sourceColor;
-            })
+            .style("fill", (d, i) => `url(#chord-gradient-${i})`)
             .style("opacity", this.options.opacity.default)
             .style("pointer-events", "all") // Ensure entire chord area is hoverable
             .attr("d", (d, i) => {
