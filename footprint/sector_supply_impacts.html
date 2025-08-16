@@ -112,8 +112,8 @@
       }
 
       const sectors = await model.sectors();
-      const i = Math.round(Math.random() * (sectors.length - 1));
-      const sector = sectors[i];
+      // Use first sector for consistent results instead of random
+      const sector = sectors[0];
       info.textContent = `Analyzing sector '${sector.name}' based on ${demandId}`;
 
       const analysis = await useeio.SectorAnalysis.of(model, sector, demandId);
@@ -419,15 +419,102 @@
       console.log('Chord data generated:', chartData);
 
       try {
-        // Limit to top 10 sectors for the chord diagram
+        // Sort and limit data for consistent chord diagram display
         console.log(`Total sectors: ${results.length}, limiting to top 10 for chord diagram`);
-        const top10Results = results.slice(0, 10);
-        await initializeChordDiagram(top10Results, indicators, { containerId: '#chart2' });
+        
+        // Ensure results are sorted by total impact (descending)
+        const sortedResults = [...results].sort((a, b) => b.sortValue - a.sortValue);
+        const top10Results = sortedResults.slice(0, 10);
+        
+        // Sort indicators alphabetically for consistent display
+        const sortedIndicators = [...indicators].sort((a, b) => a.code.localeCompare(b.code));
+        console.log(`Total indicators: ${sortedIndicators.length}, limiting to top 10 for chord diagram`);
+        const top10Indicators = sortedIndicators.slice(0, 10);
+        
+        await initializeChordDiagram(top10Results, top10Indicators, { containerId: '#chart2' });
+        
+        // Display debug info for consistency checking
+        displayDebugInfo(top10Results, top10Indicators);
       } catch (error) {
         console.error('Error creating chord diagram:', error);
       }
 
     }
+
+    // Debug function to display the sorted lists
+    function displayDebugInfo(sectors, indicators) {
+      const sectorsDiv = document.getElementById('sectors-list');
+      const indicatorsDiv = document.getElementById('indicators-list');
+      
+      // Display sectors list
+      sectorsDiv.innerHTML = `
+        <h5>Top 10 Sectors (sorted by impact, descending):</h5>
+        <ol>
+          ${sectors.map((s, i) => `<li>${s.sector} (${s.sortValue.toFixed(2)})</li>`).join('')}
+        </ol>
+      `;
+      
+      // Display indicators list
+      indicatorsDiv.innerHTML = `
+        <h5>Indicators (sorted alphabetically by code):</h5>
+        <ol>
+          ${indicators.map(ind => `<li>${ind.code} - ${ind.name || 'No name'}</li>`).join('')}
+        </ol>
+      `;
+      
+      // Display the matrix data (sector-indicator amounts)
+      const matrixDiv = document.createElement('div');
+      
+      // Calculate column totals
+      const columnTotals = indicators.map(ind => {
+        return sectors.reduce((sum, sector) => {
+          const value = sector[ind.code];
+          return sum + (value !== undefined ? Math.abs(value) : 0);
+        }, 0);
+      });
+      
+      matrixDiv.innerHTML = `
+        <h5>Sector-Indicator Values Matrix:</h5>
+        <table style="border-collapse: collapse; margin-top: 10px; font-size: 10px;">
+          <thead>
+            <tr>
+              <th style="border: 1px solid #ccc; padding: 4px; background: #e9ecef;">Sector</th>
+              ${indicators.map(ind => `<th style="border: 1px solid #ccc; padding: 4px; background: #e9ecef; writing-mode: vertical-rl; text-orientation: mixed; min-width: 30px;">${ind.code}</th>`).join('')}
+              <th style="border: 1px solid #ccc; padding: 4px; background: #e9ecef; font-weight: bold;">Row Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${sectors.map(sector => {
+              // Calculate row total
+              const rowTotal = indicators.reduce((sum, ind) => {
+                const value = sector[ind.code];
+                return sum + (value !== undefined ? Math.abs(value) : 0);
+              }, 0);
+              
+              return `
+              <tr>
+                <td style="border: 1px solid #ccc; padding: 4px; font-weight: bold; max-width: 200px; overflow: hidden; text-overflow: ellipsis;">${sector.sector}</td>
+                ${indicators.map(ind => {
+                  const value = sector[ind.code];
+                  return `<td style="border: 1px solid #ccc; padding: 4px; text-align: right;">${value !== undefined ? value.toFixed(3) : 'N/A'}</td>`;
+                }).join('')}
+                <td style="border: 1px solid #ccc; padding: 4px; text-align: right; font-weight: bold; background: #f8f9fa;">${rowTotal.toFixed(3)}</td>
+              </tr>
+              `;
+            }).join('')}
+            <tr style="background: #e9ecef; font-weight: bold;">
+              <td style="border: 1px solid #ccc; padding: 4px;">Column Total</td>
+              ${columnTotals.map(total => `<td style="border: 1px solid #ccc; padding: 4px; text-align: right;">${total.toFixed(3)}</td>`).join('')}
+              <td style="border: 1px solid #ccc; padding: 4px; background: #f8f9fa;"></td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+      
+      // Append matrix after indicators list
+      indicatorsDiv.appendChild(matrixDiv);
+    }
+
     main();
 
   </script>
@@ -467,6 +554,13 @@ path.chord {
 <!-- D3 Separated chord charts -->
 <div id="chart1"></div>
 <div id="chart2"></div>
+
+<!-- Debug output for chart2 data -->
+<div id="chart2-debug" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px; font-family: monospace; font-size: 12px;">
+  <h4>Chart2 Data:</h4>
+  <div id="sectors-list"></div>
+  <div id="indicators-list"></div>
+</div>
 <svg height="0cm" width="0cm">
   <defs>
     <linearGradient id="gradientLinear" x1="-100%" y1="0%" x2="100%" y2="0%" gradientUnits="userSpaceOnUse">

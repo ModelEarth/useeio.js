@@ -647,6 +647,8 @@ class ChordDiagram {
     }
 
     render() {
+        // Render titles
+        this.renderTitles();
         // Render arcs
         this.renderArcs();
         // Render chords
@@ -737,7 +739,51 @@ class ChordDiagram {
                        `translate(20,0)` +
                        (d.angle > Math.PI ? "rotate(180)" : "");
             })
-            .text((d, i) => `Label ${i}`);
+            .text((d, i) => {
+                // Get the node name from the original data
+                if (this.data.nodes && this.data.nodes[i]) {
+                    return this.data.nodes[i].name || this.data.nodes[i].id;
+                }
+                return `Label ${i}`;
+            });
+    }
+
+    renderTitles() {
+        // Titles on top
+        const titleWrapper = this.svg.append("g").attr("class", "chordTitleWrapper");
+        const mobileScreen = this.width <= 500;
+        const titleOffset = mobileScreen ? 15 : 40;
+        const titleSeparate = mobileScreen ? 30 : 0;
+
+        // Title top left
+        titleWrapper.append("text")
+            .attr("class", "title left")
+            .style("font-size", mobileScreen ? "12px" : "16px")
+            .attr("x", (this.width/2 + this.options.margin.left - this.outerRadius - titleSeparate))
+            .attr("y", titleOffset)
+            .text(this.options.titles.left || "Left side");
+
+        titleWrapper.append("line")
+            .attr("class", "titleLine left")
+            .attr("x1", (this.width/2 + this.options.margin.left - this.outerRadius - titleSeparate)*0.6)
+            .attr("x2", (this.width/2 + this.options.margin.left - this.outerRadius - titleSeparate)*1.4)
+            .attr("y1", titleOffset+8)
+            .attr("y2", titleOffset+8);
+
+        // Title top right
+        titleWrapper.append("text")
+            .attr("class", "title right")
+            .style("font-size", mobileScreen ? "12px" : "16px")
+            .attr("x", (this.width/2 + this.options.margin.left + this.outerRadius + titleSeparate))
+            .attr("y", titleOffset)
+            .text(this.options.titles.right || "Right side");
+
+        titleWrapper.append("line")
+            .attr("class", "titleLine right")
+            .attr("x1", (this.width/2 + this.options.margin.left - this.outerRadius - titleSeparate)*0.6 + 2*(this.outerRadius + titleSeparate))
+            .attr("x2", (this.width/2 + this.options.margin.left - this.outerRadius - titleSeparate)*1.4 + 2*(this.outerRadius + titleSeparate))
+            .attr("y1", titleOffset+8)
+            .attr("y2", titleOffset+8);
     }
 
     fade(opacity) {
