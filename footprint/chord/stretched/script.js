@@ -136,7 +136,8 @@ function customChordLayout() {
         padding = 0,
         sortGroups,
         sortSubgroups,
-        sortChords;
+        sortChords,
+        numSectors = 0;  // Number of sectors for separated layout
 
     function relayout() {
         let subgroups = {};
@@ -173,31 +174,124 @@ function customChordLayout() {
             });
         }
         
-        k = (τ - padding * n) / k;
-        x = 0, i = -1;
-        while (++i < n) {
-            let di = groupIndex[i]; // Define di here
-            x0 = x, j = -1;
-            while (++j < n) {
-                let dj = subgroupIndex[di][j];
-                let v = matrix[di][dj];
-                let a0 = x;
-                let a1 = x += v * k;
-                subgroups[di + "-" + dj] = {
-                    index: di,
-                    subindex: dj,
-                    startAngle: a0,
-                    endAngle: a1,
-                    value: v
-                };
+        // Check if this is a separated chord layout (numSectors > 0)
+        if (numSectors > 0) {
+            // SEPARATED CHORD LAYOUT for chart2
+            const numIndicators = n - numSectors;
+            
+            // Calculate scaling factors for each side
+            let indicatorSum = 0;
+            let sectorSum = 0;
+            
+            // Since indicators come first in the reordered matrix (0 to numIndicators-1)
+            for (let i = 0; i < numIndicators; i++) {
+                for (let j = 0; j < n; j++) {
+                    indicatorSum += matrix[i][j];
+                }
             }
-            groups[di] = { // Use di as the index for groups
-                index: di,
-                startAngle: x0,
-                endAngle: x,
-                value: (x - x0) / k
-            };
-            x += padding;
+            
+            // Sectors come second in the reordered matrix (numIndicators to n-1)
+            for (let i = numIndicators; i < n; i++) {
+                for (let j = 0; j < n; j++) {
+                    sectorSum += matrix[i][j];
+                }
+            }
+            
+            // Each side gets half the circle (π radians each)
+            const indicatorScale = indicatorSum > 0 ? (Math.PI - padding * numIndicators) / indicatorSum : 0;
+            const sectorScale = sectorSum > 0 ? (Math.PI - padding * numSectors) / sectorSum : 0;
+            
+            // Position indicators on right side (0 to π)
+            x = 0;
+            for (let i = 0; i < numIndicators; i++) {
+                let di = groupIndex[i];
+                x0 = x;
+                let groupValue = 0;
+                
+                j = -1;
+                while (++j < n) {
+                    let dj = subgroupIndex[di][j];
+                    let v = matrix[di][dj];
+                    let a0 = x;
+                    let a1 = x += v * indicatorScale;
+                    groupValue += v;
+                    subgroups[di + "-" + dj] = {
+                        index: di,
+                        subindex: dj,
+                        startAngle: a0,
+                        endAngle: a1,
+                        value: v
+                    };
+                }
+                
+                groups[di] = {
+                    index: di,
+                    startAngle: x0,
+                    endAngle: x,
+                    value: groupValue
+                };
+                x += padding;
+            }
+            
+            // Position sectors on left side (π to 2π)
+            x = Math.PI;
+            for (let i = numIndicators; i < n; i++) {
+                let di = groupIndex[i];
+                x0 = x;
+                let groupValue = 0;
+                
+                j = -1;
+                while (++j < n) {
+                    let dj = subgroupIndex[di][j];
+                    let v = matrix[di][dj];
+                    let a0 = x;
+                    let a1 = x += v * sectorScale;
+                    groupValue += v;
+                    subgroups[di + "-" + dj] = {
+                        index: di,
+                        subindex: dj,
+                        startAngle: a0,
+                        endAngle: a1,
+                        value: v
+                    };
+                }
+                
+                groups[di] = {
+                    index: di,
+                    startAngle: x0,
+                    endAngle: x,
+                    value: groupValue
+                };
+                x += padding;
+            }
+        } else {
+            // NORMAL CHORD LAYOUT for chart1
+            k = (τ - padding * n) / k;
+            x = 0, i = -1;
+            while (++i < n) {
+                let di = groupIndex[i];
+                x0 = x, j = -1;
+                while (++j < n) {
+                    let dj = subgroupIndex[di][j];
+                    let v = matrix[di][dj];
+                    let a0 = x;
+                    let a1 = x += v * k;
+                    subgroups[di + "-" + dj] = {
+                        index: di,
+                        subindex: dj,
+                        startAngle: a0,
+                        endAngle: a1,
+                        value: v
+                    };
+                }
+                groups[di] = {
+                    index: di,
+                    startAngle: x0,
+                    endAngle: x,
+                    value: (x - x0) / k
+                };
+                x += padding;
+            }
         }
         
         i = -1;
@@ -268,6 +362,13 @@ function customChordLayout() {
     chord.groups = function() {
         if (!groups) relayout();
         return groups;
+    };
+    
+    chord.numSectors = function(x) {
+        if (!arguments.length) return numSectors;
+        numSectors = x;
+        chords = groups = null;
+        return chord;
     };
     
     return chord;
@@ -659,29 +760,37 @@ class ChordDiagram {
         // Convert JSON data to matrix format
         this.matrix = this.createMatrix(this.data);
         
-        // Create chord layout
+        // Get sector count for separated layout
+        const sectors = this.data.nodes.filter(node => node.type === 'sector');
+        const indicators = this.data.nodes.filter(node => node.type === 'indicator');
+        
+        // Create chord layout with separation info
+        // Since we reordered to [indicators, sectors], pass the number of sectors for proper positioning
         this.chordLayout = customChordLayout()
             .padding(.02)
             .sortChords(d3.descending)
+            .numSectors(sectors.length)  // Pass actual number of sectors (even though indicators come first in matrix)
             .matrix(this.matrix);
     }
 
     createMatrix(data) {
-        // Create matrix from nodes and links - ensure sectors come first, then indicators
+        // Create matrix from nodes and links for separated chord layout
         const sectors = data.nodes.filter(node => node.type === 'sector');
         const indicators = data.nodes.filter(node => node.type === 'indicator');
         
-        // Reorder nodes: all sectors first, then all indicators
-        const orderedNodes = [...sectors, ...indicators];
+        // For separated chord: place indicators on right side (0 to π), sectors on left side (π to 2π)
+        // This means we need indicators first (positions 0 to numIndicators-1), then sectors
+        const orderedNodes = [...indicators, ...sectors];
         const numSectors = sectors.length;
         const numIndicators = indicators.length;
         const totalNodes = orderedNodes.length;
         
-        console.log(`Matrix creation: ${numSectors} sectors (0-${numSectors-1}), ${numIndicators} indicators (${numSectors}-${totalNodes-1})`);
+        console.log(`Separated chord layout: ${numIndicators} indicators (right side), ${numSectors} sectors (left side)`);
         
         const matrix = Array(totalNodes).fill().map(() => Array(totalNodes).fill(0));
         
         // Fill in the matrix using the reordered nodes
+        // Since we reordered to [indicators, sectors], we need to adjust the links
         data.links.forEach(link => {
             const sourceIndex = orderedNodes.findIndex(node => node.id === link.source);
             const targetIndex = orderedNodes.findIndex(node => node.id === link.target);
@@ -830,10 +939,7 @@ class ChordDiagram {
                        (d.angle > Math.PI ? "rotate(180)" : "");
             })
             .text((d, i) => {
-                // Debug: Log what we're getting for each label
-                console.log(`Label ${i}: d.index=${d.index}, orderedNodes[${i}]=${this.orderedNodes[i] ? this.orderedNodes[i].name || this.orderedNodes[i].id : 'undefined'}`);
-                
-                // Get the node name from the ordered nodes data using d.index
+                // Get the node name from the ordered nodes data using d.index (which is the correct mapping)
                 if (this.orderedNodes && this.orderedNodes[d.index]) {
                     return this.orderedNodes[d.index].name || this.orderedNodes[d.index].id;
                 }
