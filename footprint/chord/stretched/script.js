@@ -11,6 +11,10 @@ const config = {
     titles: {
         left: "Sectors",
         right: "Indicators"
+    },
+    chordBorder: {
+        style: "light", // Options: "none", "light", "dark"
+        width: "1px"
     }
 };
 
@@ -1118,7 +1122,32 @@ class ChordDiagram {
             .data(chords)
             .join("path")
             .attr("class", "chord")
-            .style("stroke", "none")
+            .style("stroke", (d, i) => {
+                const borderStyle = this.options.chordBorder.style;
+                if (borderStyle === "none") {
+                    return "none";
+                }
+                
+                const sourceColor = this.nodeColors[d.source.index % this.nodeColors.length];
+                const targetColor = this.nodeColors[d.target.index % this.nodeColors.length];
+                
+                if (borderStyle === "dark") {
+                    // Use the darker source node color
+                    return sourceColor;
+                } else if (borderStyle === "light") {
+                    // Use extremely light version that matches the connection gradient
+                    const sourceLightColor = d3.color(sourceColor).brighter(1.5);
+                    const targetLightColor = d3.color(targetColor).brighter(1.5);
+                    // Blend the two extremely light colors
+                    const blended = d3.interpolate(sourceLightColor, targetLightColor)(0.5);
+                    return blended;
+                }
+                
+                return "none"; // fallback
+            })
+            .style("stroke-width", (d, i) => {
+                return this.options.chordBorder.style === "none" ? "0" : this.options.chordBorder.width;
+            })
             .style("fill", (d, i) => `url(#chord-gradient-${i})`)
             .style("opacity", this.options.opacity.default)
             .style("pointer-events", "all") // Ensure entire chord area is hoverable
