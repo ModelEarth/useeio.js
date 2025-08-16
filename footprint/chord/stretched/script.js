@@ -183,23 +183,35 @@ function customChordLayout() {
             let indicatorSum = 0;
             let sectorSum = 0;
             
-            // Since indicators come first in the reordered matrix (0 to numIndicators-1)
+            // For indicators: sum the data flowing TO them (from all sources)
             for (let i = 0; i < numIndicators; i++) {
                 for (let j = 0; j < n; j++) {
-                    indicatorSum += matrix[i][j];
+                    indicatorSum += matrix[j][i]; // Column sum for indicator i
                 }
             }
             
-            // Sectors come second in the reordered matrix (numIndicators to n-1)
+            // For sectors: sum the data flowing FROM them (to all targets)
             for (let i = numIndicators; i < n; i++) {
                 for (let j = 0; j < n; j++) {
-                    sectorSum += matrix[i][j];
+                    sectorSum += matrix[i][j]; // Row sum for sector i
                 }
             }
             
-            // Each side gets half the circle (π radians each)
-            const indicatorScale = indicatorSum > 0 ? (Math.PI - padding * numIndicators) / indicatorSum : 0;
-            const sectorScale = sectorSum > 0 ? (Math.PI - padding * numSectors) / sectorSum : 0;
+            // Calculate target space for each side
+            const indicatorTargetSpace = Math.PI - (padding * numIndicators); // Right side minus padding
+            const sectorTargetSpace = (2 * Math.PI) / 3 - (padding * numSectors); // Left side minus padding
+            
+            // Force indicators to fill their target space completely
+            const indicatorScale = indicatorSum > 0 ? indicatorTargetSpace / indicatorSum : 0;
+            
+            // Scale sectors to fit 1/3 of circumference
+            const sectorScale = sectorSum > 0 ? sectorTargetSpace / sectorSum : 0;
+            
+            // Console log the calculations
+            console.log(`Scaling calculations:`);
+            console.log(`  Indicators: sum=${indicatorSum.toFixed(6)}, target=${indicatorTargetSpace.toFixed(3)} rad, scale=${indicatorScale.toFixed(3)} (forced to fill right side)`);
+            console.log(`  Sectors: sum=${sectorSum.toFixed(6)}, target=${sectorTargetSpace.toFixed(3)} rad (${(sectorTargetSpace/(2*Math.PI)*100).toFixed(1)}% of circle), scale=${sectorScale.toFixed(3)}`);
+            console.log(`  Padding: ${padding} per node, total indicator padding=${(padding * numIndicators).toFixed(3)}, total sector padding=${(padding * numSectors).toFixed(3)}`);
             
             // Position indicators on right side (0 to π)
             x = 0;
@@ -208,20 +220,66 @@ function customChordLayout() {
                 x0 = x;
                 let groupValue = 0;
                 
-                j = -1;
-                while (++j < n) {
-                    let dj = subgroupIndex[di][j];
-                    let v = matrix[di][dj];
-                    let a0 = x;
-                    let a1 = x += v * indicatorScale;
-                    groupValue += v;
-                    subgroups[di + "-" + dj] = {
-                        index: di,
-                        subindex: dj,
-                        startAngle: a0,
-                        endAngle: a1,
-                        value: v
-                    };
+                console.log(`  Positioning indicator ${i} (index ${di}): starting at ${x0.toFixed(3)}`);
+                
+                // For indicators, use their incoming data (column sum) to determine their arc size
+                if (i < numIndicators) {
+                    // This is an indicator - calculate its size based on incoming data
+                    let indicatorIncomingSum = 0;
+                    for (let k = 0; k < n; k++) {
+                        indicatorIncomingSum += matrix[k][di]; // Column sum for this indicator
+                    }
+                    
+                    // Give this indicator a proportional share of the target space (but limit to prevent overflow)
+                    const maxIndicatorSpace = indicatorTargetSpace * 0.8; // Use only 80% to prevent overflow
+                    const indicatorShare = indicatorSum > 0 ? (indicatorIncomingSum / indicatorSum) * maxIndicatorSpace : maxIndicatorSpace / numIndicators;
+                    
+                    console.log(`    Indicator ${di} incoming sum: ${indicatorIncomingSum.toFixed(6)}, share: ${indicatorShare.toFixed(3)} rad`);
+                    
+                    // Still need to create all subgroups for compatibility with chord rendering
+                    j = -1;
+                    while (++j < n) {
+                        let dj = subgroupIndex[di][j];
+                        let v = matrix[di][dj];
+                        let a0 = x;
+                        
+                        // For the main indicator arc, use the calculated share, for others use zero
+                        let arcSize = (j === 0) ? indicatorShare : 0;
+                        let a1 = x + arcSize;
+                        if (j === 0) x = a1; // Only advance x for the main arc
+                        
+                        groupValue += (j === 0) ? indicatorIncomingSum : v;
+                        
+                        subgroups[di + "-" + dj] = {
+                            index: di,
+                            subindex: dj,
+                            startAngle: a0,
+                            endAngle: a1,
+                            value: (j === 0) ? indicatorIncomingSum : v
+                        };
+                    }
+                } else {
+                    // This is a sector - use original logic
+                    j = -1;
+                    while (++j < n) {
+                        let dj = subgroupIndex[di][j];
+                        let v = matrix[di][dj];
+                        let a0 = x;
+                        let a1 = x += v * sectorScale; // Use sectorScale for sectors
+                        groupValue += v;
+                        
+                        if (v > 0) {
+                            console.log(`    Subgroup ${di}-${dj}: value=${v.toFixed(6)}, scaled=${(v * sectorScale).toFixed(3)}, angle ${a0.toFixed(3)} to ${a1.toFixed(3)}`);
+                        }
+                        
+                        subgroups[di + "-" + dj] = {
+                            index: di,
+                            subindex: dj,
+                            startAngle: a0,
+                            endAngle: a1,
+                            value: v
+                        };
+                    }
                 }
                 
                 groups[di] = {
@@ -230,10 +288,18 @@ function customChordLayout() {
                     endAngle: x,
                     value: groupValue
                 };
+                
+                console.log(`  Indicator ${i} final: ${x0.toFixed(3)} to ${x.toFixed(3)}, span=${(x-x0).toFixed(3)}, groupValue=${groupValue.toFixed(6)}`);
                 x += padding;
+                console.log(`  After padding: x = ${x.toFixed(3)}`);
             }
             
-            // Position sectors on left side (π to 2π)
+            // Log final positioning after indicators
+            const finalIndicatorSpace = x; // x after indicators positioning
+            console.log(`Final positioning:`);
+            console.log(`  Indicators occupy: 0 to ${finalIndicatorSpace.toFixed(3)} rad (${(finalIndicatorSpace/Math.PI*100).toFixed(1)}% of π)`);
+            
+            // Position sectors on left side (starting at π, taking 1/3 of total circumference)
             x = Math.PI;
             for (let i = numIndicators; i < n; i++) {
                 let di = groupIndex[i];
@@ -264,6 +330,9 @@ function customChordLayout() {
                 };
                 x += padding;
             }
+            
+            // Log final positioning after sectors
+            console.log(`  Sectors occupy: π (${Math.PI.toFixed(3)}) to ${x.toFixed(3)} rad, total span: ${(x-Math.PI).toFixed(3)} rad (${((x-Math.PI)/(2*Math.PI)*100).toFixed(1)}% of full circle)`);
         } else {
             // NORMAL CHORD LAYOUT for chart1
             k = (τ - padding * n) / k;
@@ -383,8 +452,18 @@ const margin = {left: 50, top: 10, right: 50, bottom: 10};
 const width = Math.min(screenWidth, 800) - margin.left - margin.right;
 const height = (mobileScreen ? 300 : Math.min(screenWidth, 800)*5/6) - margin.top - margin.bottom;
 
-// Create SVG
-const svg = d3.select("#chart1").append("svg")
+// Chart1 display
+const ENABLE_CHART1 = true;
+
+// Shared variables used by both charts
+let svg, wrapper, titleWrapper; // Declare but don't create for chart1
+
+// Set pullout size based on screen (needed by both charts)
+pullOutSize = (mobileScreen ? 20 : 50); // Pull distance for arcs
+
+if (ENABLE_CHART1) {
+// Create SVG for chart1
+svg = d3.select("#chart1").append("svg")
     .attr("width", (width + margin.left + margin.right))
     .attr("height", (height + margin.top + margin.bottom));
 
@@ -399,8 +478,7 @@ const innerRadius = outerRadius * 0.95;
 const opacityDefault = 0.7; // default opacity of chords
 const opacityLow = 0.02; // hover opacity of those chords not hovered over
 
-// Set pullout size based on screen
-pullOutSize = (mobileScreen ? 20 : 50); // Pull distance for arcs
+// pullOutSize already set above
 
 // Titles on top
 const titleWrapper = svg.append("g").attr("class", "chordTitleWrapper");
@@ -676,7 +754,9 @@ function wrapChord(text, width) {
     });
 }
 
-// Tooltip functions for chart1
+} // End ENABLE_CHART1 conditional
+
+// Shared tooltip functions needed by both charts
 function showTooltip(event, d, index) {
     const tooltip = document.getElementById('chord-tooltip');
     if (tooltip) {
@@ -891,20 +971,53 @@ class ChordDiagram {
             .endAngle(d => d.endAngle + this.offset);
 
         // Draw chords
+        const chords = this.chordLayout.chords();
+        console.log(`Rendering ${chords.length} chords:`, chords);
+        
         this.wrapper.selectAll("path.chord")
-            .data(this.chordLayout.chords())
+            .data(chords)
             .join("path")
             .attr("class", "chord")
             .style("stroke", "none")
-            .style("fill", (d, i) => `url(#gradient-${i})`)
+            .style("fill", (d, i) => {
+                console.log(`Chord ${i}: source=${d.source.index}, target=${d.target.index}, value=${d.source.value}`);
+                
+                // Create diverse color scheme based on source and target
+                const colors = [
+                    "#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEAA7",
+                    "#DDA0DD", "#98D8C8", "#F7DC6F", "#BB8FCE", "#85C1E9",
+                    "#F8C471", "#82E0AA", "#F1948A", "#85C1E9", "#D7BDE2",
+                    "#A9CCE3", "#A3E4D7", "#D5DBDB", "#FADBD8", "#D6EAF8"
+                ];
+                
+                // Use source index to determine base color
+                const sourceColor = colors[d.source.index % colors.length];
+                
+                // Slightly modify color based on target for variation
+                const targetShift = d.target.index % 3;
+                if (targetShift === 1) {
+                    // Slightly darker
+                    return d3.color(sourceColor).darker(0.3);
+                } else if (targetShift === 2) {
+                    // Slightly brighter  
+                    return d3.color(sourceColor).brighter(0.3);
+                }
+                
+                return sourceColor;
+            })
             .style("opacity", this.options.opacity.default)
-            .attr("d", path)
+            .style("pointer-events", "all") // Ensure entire chord area is hoverable
+            .attr("d", (d, i) => {
+                const pathData = path(d);
+                console.log(`Chord ${i} path:`, pathData);
+                return pathData;
+            })
             .on("mouseover", (event, d) => {
-                this.fadeOnChord(event, d);
+                d3.select(event.target).style("opacity", 0.9); // Highlight on hover
                 this.showChordTooltip(event, d);
             })
             .on("mouseout", (event, d) => {
-                this.fade(this.options.opacity.default)(d);
+                d3.select(event.target).style("opacity", this.options.opacity.default);
                 this.hideTooltip();
             });
     }
