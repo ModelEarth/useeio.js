@@ -46,9 +46,10 @@
 
 <body>
   <div style="padding-left:60px;padding-right:18px;">
-    <div style="margin-bottom:10px">
-        <a id="footprintLink" href="./" >State Impact Reports</a>
-    </div>
+
+    <!-- D3 Separated chord chart -->
+    <div id="chart2"></div>
+
     <div id="relocatedStateMenu"></div>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
         <p id="info" style="margin: 0;">Loading ...</p>
@@ -60,7 +61,7 @@
     </div>
     <div id="table"></div>
     <div style="display:block; margin: 10px 0 20px 0;">
-      <a href="#" id="showAllLink">Show all rows</a>
+      <a href="#" id="showAllLink">Show all rows</a>  | <a id="footprintLink" href="./" >More State Impact Reports</a>
     </div>
   </div>
   
@@ -131,10 +132,17 @@
           // Store raw values for proper sorting
           const rawTotal = Math.abs(total[sectorItem.index]);
           const result = {
-              sector: `${sectorItem.code} - ${sectorItem.name}`,
+              sector: sectorItem.name, // Just the name without NAICS code
               total: rawTotal,
               totalRaw: rawTotal, // Add raw value for sorting
-              sortValue: rawTotal // Explicit sort value
+              sortValue: rawTotal, // Explicit sort value
+              // Additional metadata for popups
+              metadata: {
+                  NAICS: sectorItem.code,
+                  fullName: `${sectorItem.code} - ${sectorItem.name}`,
+                  index: sectorItem.index,
+                  location: sectorItem.location || 'N/A'
+              }
           };
           indicators.forEach(i => {
               const value = byIndicator[i.code][sectorItem.index];
@@ -564,9 +572,8 @@ path.chord {
 </style>
 
 <div class="content contentpadding">
-<!-- D3 Separated chord charts -->
+<!-- D3 Separated chord chart - initial test chart -->
 <div id="chart1"></div>
-<div id="chart2"></div>
 
 <!-- Tooltip for chart hover effects -->
 <div id="chord-tooltip" style="position: absolute; background: rgba(0,0,0,0.8); color: white; padding: 8px 12px; border-radius: 4px; font-size: 12px; pointer-events: none; z-index: 1000; opacity: 0; transition: opacity 0.2s;"></div>

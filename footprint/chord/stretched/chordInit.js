@@ -30,14 +30,21 @@ function processSectorData(sectorData, indicators) {
             id: s.sector,
             name: s.sector,
             type: 'sector',
-            group: 1
+            group: 1,
+            metadata: s.metadata || {} // Include metadata for popups
         })),
         // Add indicators second (will be on right side)  
         ...limitedIndicators.map(i => ({
             id: i.code,
             name: i.name || i.code,
             type: 'indicator',
-            group: 2
+            group: 2,
+            metadata: {
+                code: i.code,
+                fullName: i.name,
+                unit: i.unit || 'N/A',
+                category: i.category || 'Environmental'
+            }
         }))
     ];
     

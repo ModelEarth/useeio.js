@@ -83,8 +83,11 @@ function stretchedChord() {
     function chord(d) {
         let s = subgroup(this, source, d);
         let t = subgroup(this, target, d);
+        
+        // Apply correct sign for pullout based on position
+        let sSign = (s.p0[0] >= 0 ? 1 : -1);
                 
-        return "M" + (s.p0[0] + pullOutSize) + "," + s.p0[1] + 
+        return "M" + (s.p0[0] + sSign*pullOutSize) + "," + s.p0[1] + 
                 arc(s.r, s.p1, s.a1 - s.a0) + 
                 curve(t.p0) + 
                 arc(t.r, t.p1, t.a1 - t.a0) + 
@@ -259,17 +262,34 @@ function customChordLayout() {
                         };
                     }
                 } else {
-                    // This is a sector - use original logic
+                    // This is a sector - calculate its size based on outgoing data
+                    let sectorOutgoingSum = 0;
+                    for (let k = 0; k < n; k++) {
+                        sectorOutgoingSum += matrix[di][k]; // Row sum for this sector
+                    }
+                    
+                    // Give this sector a proportional share of the target space
+                    const sectorShare = sectorSum > 0 ? (sectorOutgoingSum / sectorSum) * sectorTargetSpace : sectorTargetSpace / numSectors;
+                    
+                    console.log(`    Sector ${di} outgoing sum: ${sectorOutgoingSum.toFixed(6)}, share: ${sectorShare.toFixed(3)} rad`);
+                    
+                    // Create subgroups proportional to the connections
                     j = -1;
+                    let currentX = x;
                     while (++j < n) {
                         let dj = subgroupIndex[di][j];
                         let v = matrix[di][dj];
-                        let a0 = x;
-                        let a1 = x += v * sectorScale; // Use sectorScale for sectors
+                        let a0 = currentX;
+                        
+                        // Proportional size within this sector's share
+                        let connectionShare = sectorOutgoingSum > 0 ? (v / sectorOutgoingSum) * sectorShare : 0;
+                        let a1 = currentX + connectionShare;
+                        currentX = a1;
+                        
                         groupValue += v;
                         
                         if (v > 0) {
-                            console.log(`    Subgroup ${di}-${dj}: value=${v.toFixed(6)}, scaled=${(v * sectorScale).toFixed(3)}, angle ${a0.toFixed(3)} to ${a1.toFixed(3)}`);
+                            console.log(`    Subgroup ${di}-${dj}: value=${v.toFixed(6)}, share=${connectionShare.toFixed(3)}, angle ${a0.toFixed(3)} to ${a1.toFixed(3)}`);
                         }
                         
                         subgroups[di + "-" + dj] = {
@@ -280,6 +300,9 @@ function customChordLayout() {
                             value: v
                         };
                     }
+                    
+                    // Update x to the end of this sector's space
+                    x = x + sectorShare;
                 }
                 
                 groups[di] = {
@@ -796,15 +819,42 @@ class ChordDiagram {
         this.init();
     }
 
-    init() {
-        // Setup dimensions
-        const screenWidth = window.innerWidth;
-        const mobileScreen = screenWidth <= 500;
-        this.width = Math.min(screenWidth, 800) - this.options.margin.left - this.options.margin.right;
-        this.height = (mobileScreen ? 300 : Math.min(screenWidth, 800)*5/6) - 
+    updateDimensions() {
+        // Get container dimensions for responsiveness
+        const container = document.querySelector(this.containerId);
+        const containerWidth = container ? container.clientWidth : window.innerWidth;
+        
+        this.mobileScreen = containerWidth <= 500;
+        // Use full container width minus margins
+        this.width = containerWidth - this.options.margin.left - this.options.margin.right;
+        this.height = (this.mobileScreen ? 300 : this.width * 0.8) - 
                      this.options.margin.top - this.options.margin.bottom;
         
-        this.pullOutSize = mobileScreen ? 20 : 50;
+        // Ensure minimum dimensions
+        this.width = Math.max(this.width, 300);
+        this.height = Math.max(this.height, 250);
+    }
+
+    redraw() {
+        // Clear and recreate the chart with new dimensions
+        d3.select(this.containerId).select("svg").remove();
+        this.setupSVG();
+        this.processData();
+        this.createGradients();
+        this.render();
+    }
+
+    init() {
+        // Setup responsive dimensions
+        this.updateDimensions();
+        
+        // Add resize listener for responsiveness
+        window.addEventListener('resize', () => {
+            this.updateDimensions();
+            this.redraw();
+        });
+        
+        this.pullOutSize = this.mobileScreen ? 20 : 50;
         
         // Add offset for separated chord layout like chart1
         const totalNodes = this.data.nodes.length;
@@ -907,12 +957,12 @@ class ChordDiagram {
         // Create defs for gradients
         const defs = this.svg.append("defs");
         
-        // Define consistent color scheme for nodes
+        // Define consistent color scheme for nodes (darker, no duplicate yellows)
         this.nodeColors = [
-            "#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEAA7",
-            "#DDA0DD", "#98D8C8", "#F7DC6F", "#BB8FCE", "#85C1E9",
-            "#F8C471", "#82E0AA", "#F1948A", "#85C1E9", "#D7BDE2",
-            "#A9CCE3", "#A3E4D7", "#D5DBDB", "#FADBD8", "#D6EAF8"
+            "#E74C3C", "#16A085", "#2980B9", "#27AE60", "#F39C12",
+            "#8E44AD", "#34495E", "#E67E22", "#9B59B6", "#3498DB",
+            "#1565C0", "#2ECC71", "#E91E63", "#795548", "#607D8B",
+            "#FF5722", "#009688", "#673AB7", "#FF9800", "#4CAF50"
         ];
     }
 
@@ -1075,22 +1125,26 @@ class ChordDiagram {
             })
             .attr("transform", function(d) { 
                 const c = arc.centroid(d);
+                // Adjust label distance based on side to prevent cropping
+                const labelDistance = d.angle > Math.PI ? 15 : 15; // Reduce distance to keep labels in view
                 return `translate(${c[0] + d.pullOutSize},${c[1]})` +
                        `rotate(${(d.angle * 180 / Math.PI - 90)})` +
-                       `translate(20,0)` +
+                       `translate(${labelDistance},0)` +
                        (d.angle > Math.PI ? "rotate(180)" : "");
             })
             .text((d, i) => {
                 // Get the node name from the ordered nodes data using d.index (which is the correct mapping)
+                let labelText = '';
                 if (this.orderedNodes && this.orderedNodes[d.index]) {
-                    return this.orderedNodes[d.index].name || this.orderedNodes[d.index].id;
+                    labelText = this.orderedNodes[d.index].name || this.orderedNodes[d.index].id;
+                } else if (this.orderedNodes && this.orderedNodes[i]) {
+                    labelText = this.orderedNodes[i].name || this.orderedNodes[i].id;
+                } else {
+                    labelText = `Label ${i}`;
                 }
                 
-                // Fallback to positional index if d.index doesn't work
-                if (this.orderedNodes && this.orderedNodes[i]) {
-                    return this.orderedNodes[i].name || this.orderedNodes[i].id;
-                }
-                return `Label ${i}`;
+                // Limit to 40 characters
+                return labelText.length > 40 ? labelText.substring(0, 37) + '...' : labelText;
             });
     }
 
@@ -1164,7 +1218,30 @@ class ChordDiagram {
             const node = this.orderedNodes[index];
             const name = node.name || node.id;
             const type = node.type || 'Unknown';
-            tooltip.innerHTML = `<strong>${name}</strong><br>Type: ${type}<br>Index: ${index}<br>Value: ${d.value || 'N/A'}`;
+            const metadata = node.metadata || {};
+            
+            let tooltipContent = `<strong>${name}</strong><br>Type: ${type}`;
+            
+            // Add metadata information
+            if (metadata.NAICS) {
+                tooltipContent += `<br>NAICS: ${metadata.NAICS}`;
+            }
+            if (metadata.code && metadata.code !== metadata.NAICS) {
+                tooltipContent += `<br>Code: ${metadata.code}`;
+            }
+            if (metadata.unit) {
+                tooltipContent += `<br>Unit: ${metadata.unit}`;
+            }
+            if (metadata.location && metadata.location !== 'N/A') {
+                tooltipContent += `<br>Location: ${metadata.location}`;
+            }
+            if (metadata.category) {
+                tooltipContent += `<br>Category: ${metadata.category}`;
+            }
+            
+            tooltipContent += `<br>Value: ${d.value || 'N/A'}`;
+            
+            tooltip.innerHTML = tooltipContent;
             tooltip.style.opacity = 1;
             tooltip.style.left = (event.pageX + 10) + 'px';
             tooltip.style.top = (event.pageY - 10) + 'px';
@@ -1179,14 +1256,27 @@ class ChordDiagram {
             const sourceName = sourceNode ? (sourceNode.name || sourceNode.id) : `Source ${d.source.index}`;
             const targetName = targetNode ? (targetNode.name || targetNode.id) : `Target ${d.target.index}`;
             
+            // Get metadata for additional info
+            const sourceMetadata = sourceNode ? sourceNode.metadata || {} : {};
+            const targetMetadata = targetNode ? targetNode.metadata || {} : {};
+            
             // Get original value if stored in matrix
             const originalKey = `${d.source.index}-${d.target.index}`;
             const originalValue = this.matrix.originalValues && this.matrix.originalValues[originalKey];
             
-            let valueText = `Value: ${originalValue !== undefined ? originalValue.toFixed(3) : 'N/A'}`;
-            valueText += `<br>Scaled: ${d.source.value.toFixed(3)}`;
+            let tooltipContent = `<strong>Connection</strong><br>From: ${sourceName}`;
+            if (sourceMetadata.NAICS) {
+                tooltipContent += ` (${sourceMetadata.NAICS})`;
+            }
+            tooltipContent += `<br>To: ${targetName}`;
+            if (targetMetadata.code && targetMetadata.code !== sourceMetadata.NAICS) {
+                tooltipContent += ` (${targetMetadata.code})`;
+            }
             
-            tooltip.innerHTML = `<strong>Connection</strong><br>From: ${sourceName}<br>To: ${targetName}<br>${valueText}`;
+            tooltipContent += `<br>Value: ${originalValue !== undefined ? originalValue.toFixed(6) : 'N/A'}`;
+            tooltipContent += `<br>Scaled: ${d.source.value.toFixed(6)}`;
+            
+            tooltip.innerHTML = tooltipContent;
             tooltip.style.opacity = 1;
             tooltip.style.left = (event.pageX + 10) + 'px';
             tooltip.style.top = (event.pageY - 10) + 'px';
