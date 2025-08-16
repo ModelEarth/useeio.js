@@ -65,6 +65,13 @@ The 50 state json files are pre-generated for you at [useeio-json/models](https:
 3. CORS-friendly Fetching: Uses D3's d3.json() method which handles CORS better than XMLHttpRequest
 4. Graceful Fallback: If D3 loading or usage fails, falls back to the original XMLHttpRequest method which works only when useeio-json folder is adjacent to usseeio.js folder.
 
+**Load Times**  
+Adjacent: 2.5 sec  
+D3 load in frontend javascript: 3 sec  
+D3 load in built dist: 3.5 sec  
+
+TO DO: Store adjacentJson in browser session if useeio-json folder is adjacent and avoid D3. Detect by using useeio-json/models/[year]/... (sepecfic model).  Then avoid checking again if true or false is found.
+
 ## Run on Github Page
 
 Model.earth developers use the following [http-server setup steps](https://model.earth/localsite/start/steps/) with port 8887.
