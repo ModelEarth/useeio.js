@@ -624,6 +624,13 @@ class ChordDiagram {
                      this.options.margin.top - this.options.margin.bottom;
         
         this.pullOutSize = mobileScreen ? 20 : 50;
+        
+        // Add offset for separated chord layout like chart1
+        const totalNodes = this.data.nodes.length;
+        const emptyPerc = 0.5; // What % of the circle should become empty
+        const emptyStroke = Math.round(totalNodes * emptyPerc);
+        this.offset = (2 * Math.PI) * (emptyStroke/(totalNodes + emptyStroke))/4;
+        
         this.setupSVG();
         this.processData();
         this.createGradients();
@@ -662,56 +669,56 @@ class ChordDiagram {
     createMatrix(data) {
         // Create matrix from nodes and links
         const nodes = data.nodes;
-        const n = nodes.length;
-        const matrix = Array(n).fill().map(() => Array(n).fill(0));
-        
-        // Separate sectors and indicators
         const numSectors = nodes.filter(node => node.type === 'sector').length;
         const numIndicators = nodes.filter(node => node.type === 'indicator').length;
         
-        // Fill in the raw matrix
+        console.log(`Matrix creation: ${numSectors} sectors (indices 0-${numSectors-1}), ${numIndicators} indicators (indices ${numSectors}-${numSectors+numIndicators-1})`);
+        
+        // Add empty padding nodes to help separate the two sides
+        const paddingNodes = 2; // Add 2 empty nodes for separation
+        const totalNodes = nodes.length + paddingNodes;
+        const matrix = Array(totalNodes).fill().map(() => Array(totalNodes).fill(0));
+        
+        // Add empty nodes to the data structure for proper spacing
+        const extendedNodes = [
+            ...nodes.slice(0, numSectors), // sectors
+            { id: 'empty1', name: '', type: 'empty' }, // separator 1
+            { id: 'empty2', name: '', type: 'empty' }, // separator 2  
+            ...nodes.slice(numSectors) // indicators
+        ];
+        
+        // Fill in the raw matrix (only sectors to indicators, skip empty nodes)
         data.links.forEach(link => {
             const sourceIndex = nodes.findIndex(node => node.id === link.source);
             const targetIndex = nodes.findIndex(node => node.id === link.target);
-            matrix[sourceIndex][targetIndex] = link.value;
-            // Store original value for tooltips
-            if (!matrix.originalValues) matrix.originalValues = {};
-            matrix.originalValues[`${sourceIndex}-${targetIndex}`] = link.originalValue || link.value;
+            
+            // Adjust target index to account for empty nodes
+            const adjustedTargetIndex = targetIndex >= numSectors ? targetIndex + paddingNodes : targetIndex;
+            
+            if (sourceIndex !== -1 && targetIndex !== -1) {
+                matrix[sourceIndex][adjustedTargetIndex] = link.value;
+                // Store original value for tooltips
+                if (!matrix.originalValues) matrix.originalValues = {};
+                matrix.originalValues[`${sourceIndex}-${adjustedTargetIndex}`] = link.originalValue || link.value;
+            }
         });
         
-        // Calculate current row and column sums
+        // Update the chord layout to use extended nodes
+        this.extendedNodes = extendedNodes;
+        
+        // Debug: show matrix structure
         const rowSums = matrix.map(row => row.reduce((sum, val) => sum + val, 0));
-        const colSums = Array(n).fill(0);
-        for (let i = 0; i < n; i++) {
-            for (let j = 0; j < n; j++) {
+        const colSums = Array(totalNodes).fill(0);
+        for (let i = 0; i < totalNodes; i++) {
+            for (let j = 0; j < totalNodes; j++) {
                 colSums[j] += matrix[i][j];
             }
         }
         
-        // Find max sums for each side
-        const maxSectorSum = Math.max(...rowSums.slice(0, numSectors));
-        const maxIndicatorSum = Math.max(...colSums.slice(numSectors));
-        
-        // Scale to target max arc size - need much smaller values to reduce arc size
-        // Look at chart1's matrix values - they're in hundreds, not thousands/millions
-        const targetMaxArc = 500; // Target similar to chart1's largest values
-        const sectorScale = maxSectorSum > 0 ? targetMaxArc / maxSectorSum : 1;
-        const indicatorScale = maxIndicatorSum > 0 ? targetMaxArc / maxIndicatorSum : 1;
-        
-        console.log(`Matrix scaling - Sector: ${sectorScale.toFixed(3)}, Indicator: ${indicatorScale.toFixed(3)}`);
-        console.log(`Max sums - Sector: ${maxSectorSum.toFixed(2)}, Indicator: ${maxIndicatorSum.toFixed(2)}`);
-        
-        // Apply scaling to matrix
-        for (let i = 0; i < n; i++) {
-            for (let j = 0; j < n; j++) {
-                if (matrix[i][j] > 0) {
-                    // Scale based on whether it's sector->indicator
-                    if (i < numSectors && j >= numSectors) {
-                        matrix[i][j] *= sectorScale * indicatorScale;
-                    }
-                }
-            }
-        }
+        console.log(`Matrix after normalization (with ${paddingNodes} empty nodes):`);
+        console.log(`Row sums:`, rowSums.map(sum => sum.toFixed(2)));
+        console.log(`Col sums:`, colSums.map(sum => sum.toFixed(2)));
+        console.log(`Extended nodes:`, extendedNodes.map(n => `${n.name || n.id} (${n.type})`));
         
         return matrix;
     }
@@ -756,29 +763,49 @@ class ChordDiagram {
         // Create a color scale
         const colors = d3.schemeCategory10;
 
-        // Create arc generator
+        // Create arc generator with offset for separation
         const arc = d3.arc()
             .innerRadius(this.innerRadius)
             .outerRadius(this.outerRadius)
-            .startAngle(d => d.startAngle)
-            .endAngle(d => d.endAngle);
+            .startAngle(d => d.startAngle + this.offset)
+            .endAngle(d => d.endAngle + this.offset);
 
         // Add arc paths
         g.append("path")
-            .style("stroke", (d, i) => colors[i % colors.length])
-            .style("fill", (d, i) => colors[i % colors.length])
-            .style("opacity", this.options.opacity.default)
+            .style("stroke", (d, i) => {
+                // Hide empty nodes
+                if (this.extendedNodes && this.extendedNodes[i] && this.extendedNodes[i].type === 'empty') return "none";
+                return colors[i % colors.length];
+            })
+            .style("fill", (d, i) => {
+                // Hide empty nodes
+                if (this.extendedNodes && this.extendedNodes[i] && this.extendedNodes[i].type === 'empty') return "none";
+                return colors[i % colors.length];
+            })
+            .style("opacity", (d, i) => {
+                // Hide empty nodes
+                if (this.extendedNodes && this.extendedNodes[i] && this.extendedNodes[i].type === 'empty') return 0;
+                return this.options.opacity.default;
+            })
+            .style("pointer-events", (d, i) => {
+                // Disable interaction for empty nodes
+                if (this.extendedNodes && this.extendedNodes[i] && this.extendedNodes[i].type === 'empty') return "none";
+                return "auto";
+            })
             .attr("d", arc)
             .attr("transform", (d) => {
-                d.pullOutSize = this.pullOutSize * (d.startAngle + 0.001 > Math.PI ? -1 : 1);
+                // Pull the two slices apart (add offset for proper calculation)
+                d.pullOutSize = this.pullOutSize * ((d.startAngle + this.offset + 0.001) > Math.PI ? -1 : 1);
                 return `translate(${d.pullOutSize},0)`;
             });
     }
 
     renderChords() {
-        // Create stretched chord path generator
+        // Create stretched chord path generator with offset
         const path = stretchedChord()
-            .radius(this.innerRadius);
+            .radius(this.innerRadius)
+            .startAngle(d => d.startAngle + this.offset)
+            .endAngle(d => d.endAngle + this.offset);
 
         // Draw chords
         this.wrapper.selectAll("path.chord")
@@ -800,12 +827,12 @@ class ChordDiagram {
     }
 
     renderLabels() {
-        // Create arc generator for label positioning
+        // Create arc generator for label positioning with offset
         const arc = d3.arc()
             .innerRadius(this.innerRadius)
             .outerRadius(this.outerRadius)
-            .startAngle(d => d.startAngle)
-            .endAngle(d => d.endAngle);
+            .startAngle(d => d.startAngle + this.offset)
+            .endAngle(d => d.endAngle + this.offset);
 
         // Add labels to arcs
         this.wrapper.selectAll("g.group")
@@ -813,8 +840,8 @@ class ChordDiagram {
             .data(d => [d])
             .join("text")
             .each(function(d) { 
-                d.angle = (d.startAngle + d.endAngle) / 2;
-            })
+                d.angle = ((d.startAngle + d.endAngle) / 2) + this.offset;
+            }.bind(this))
             .attr("dy", ".35em")
             .attr("class", "titles")
             .style("font-size", "10px")
@@ -829,9 +856,11 @@ class ChordDiagram {
                        (d.angle > Math.PI ? "rotate(180)" : "");
             })
             .text((d, i) => {
-                // Get the node name from the original data
-                if (this.data.nodes && this.data.nodes[i]) {
-                    return this.data.nodes[i].name || this.data.nodes[i].id;
+                // Get the node name from the extended nodes data
+                if (this.extendedNodes && this.extendedNodes[i]) {
+                    const node = this.extendedNodes[i];
+                    if (node.type === 'empty') return ''; // Don't show labels for empty nodes
+                    return node.name || node.id;
                 }
                 return `Label ${i}`;
             });
@@ -926,7 +955,7 @@ class ChordDiagram {
             const originalKey = `${d.source.index}-${d.target.index}`;
             const originalValue = this.matrix.originalValues && this.matrix.originalValues[originalKey];
             
-            let valueText = `Original: ${originalValue !== undefined ? originalValue.toFixed(3) : 'N/A'}`;
+            let valueText = `Value: ${originalValue !== undefined ? originalValue.toFixed(3) : 'N/A'}`;
             valueText += `<br>Scaled: ${d.source.value.toFixed(3)}`;
             
             tooltip.innerHTML = `<strong>Connection</strong><br>From: ${sourceName}<br>To: ${targetName}<br>${valueText}`;
