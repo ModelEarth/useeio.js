@@ -43,6 +43,7 @@ function stretchedChord() {
     let radius = d => d.radius;
     let startAngle = d => d.startAngle;
     let endAngle = d => d.endAngle;
+    let pullOutDistance = pullOutSize; // Default to global, can be overridden
     
     const π = Math.PI;
     const halfπ = π / 2;
@@ -63,12 +64,12 @@ function stretchedChord() {
 
     function arc(r, p, a) {
         let sign = (p[0] >= 0 ? 1 : -1);
-        return "A" + r + "," + r + " 0 " + +(a > π) + ",1 " + (p[0] + sign*pullOutSize) + "," + p[1];
+        return "A" + r + "," + r + " 0 " + +(a > π) + ",1 " + (p[0] + sign*pullOutDistance) + "," + p[1];
     }
 
     function curve(p1) {
         let sign = (p1[0] >= 0 ? 1 : -1);
-        return "Q 0,0 " + (p1[0] + sign*pullOutSize) + "," + p1[1];
+        return "Q 0,0 " + (p1[0] + sign*pullOutDistance) + "," + p1[1];
     }
 
     /*
@@ -87,7 +88,7 @@ function stretchedChord() {
         // Apply correct sign for pullout based on position
         let sSign = (s.p0[0] >= 0 ? 1 : -1);
                 
-        return "M" + (s.p0[0] + sSign*pullOutSize) + "," + s.p0[1] + 
+        return "M" + (s.p0[0] + sSign*pullOutDistance) + "," + s.p0[1] + 
                 arc(s.r, s.p1, s.a1 - s.a0) + 
                 curve(t.p0) + 
                 arc(t.r, t.p1, t.a1 - t.a0) + 
@@ -122,6 +123,12 @@ function stretchedChord() {
     chord.endAngle = function(v) {
         if (!arguments.length) return endAngle;
         endAngle = typeof v === "function" ? v : () => v;
+        return chord;
+    };
+    
+    chord.pullOutSize = function(v) {
+        if (!arguments.length) return pullOutDistance;
+        pullOutDistance = v;
         return chord;
     };
     
@@ -825,14 +832,28 @@ class ChordDiagram {
         const containerWidth = container ? container.clientWidth : window.innerWidth;
         
         this.mobileScreen = containerWidth <= 500;
-        // Use full container width minus margins
-        this.width = containerWidth - this.options.margin.left - this.options.margin.right;
+        this.useCompactLabels = containerWidth < 600;
+        
+        // Adjust margins based on label type
+        const labelMargin = this.useCompactLabels ? 0 : 60; // Remove margins when using compact labels
+        const adjustedMargins = {
+            left: labelMargin,
+            top: this.options.margin.top,
+            right: labelMargin,
+            bottom: this.options.margin.bottom
+        };
+        
+        // Use full container width minus adjusted margins
+        this.width = containerWidth - adjustedMargins.left - adjustedMargins.right;
         this.height = (this.mobileScreen ? 300 : this.width * 0.8) - 
-                     this.options.margin.top - this.options.margin.bottom;
+                     adjustedMargins.top - adjustedMargins.bottom;
         
         // Ensure minimum dimensions
         this.width = Math.max(this.width, 300);
         this.height = Math.max(this.height, 250);
+        
+        // Store adjusted margins for use in setupSVG
+        this.adjustedMargins = adjustedMargins;
     }
 
     redraw() {
@@ -854,7 +875,7 @@ class ChordDiagram {
             this.redraw();
         });
         
-        this.pullOutSize = this.mobileScreen ? 20 : 50;
+        // pullOutSize is now set in setupSVG based on label mode
         
         // Add offset for separated chord layout like chart1
         const totalNodes = this.data.nodes.length;
@@ -869,21 +890,35 @@ class ChordDiagram {
     }
 
     setupSVG() {
+        // Use adjusted margins if available, otherwise use default
+        const margins = this.adjustedMargins || this.options.margin;
+        
         // Create main SVG
         this.svg = d3.select(this.containerId).append("svg")
-            .attr("width", this.width + this.options.margin.left + this.options.margin.right)
-            .attr("height", this.height + this.options.margin.top + this.options.margin.bottom);
+            .attr("width", this.width + margins.left + margins.right)
+            .attr("height", this.height + margins.top + margins.bottom);
 
         // Create wrapper group
         this.wrapper = this.svg.append("g")
             .attr("class", "chordWrapper")
-            .attr("transform", `translate(${this.width/2 + this.options.margin.left},
-                                       ${this.height/2 + this.options.margin.top})`);
+            .attr("transform", `translate(${this.width/2 + margins.left},
+                                       ${this.height/2 + margins.top})`);
 
-        // Setup dimensions
+        // Setup dimensions with expanded radius for compact labels
         const mobileScreen = this.width <= 500;
-        this.outerRadius = Math.min(this.width, this.height) / 2 - (mobileScreen ? 80 : 100);
+        
+        // For compact labels, maximize the chart size since we have no text extending outward
+        const radiusReduction = this.useCompactLabels ? 
+            (mobileScreen ? 25 : 30) :  // Minimal reduction for compact labels
+            (mobileScreen ? 80 : 100);  // More reduction for full labels
+        
+        this.outerRadius = Math.min(this.width, this.height) / 2 - radiusReduction;
         this.innerRadius = this.outerRadius * 0.95;
+        
+        // Update pullOutSize based on current dimensions and label mode
+        this.pullOutSize = this.useCompactLabels ? 
+            (mobileScreen ? 15 : 20) :  // Smaller pullout for compact labels
+            (mobileScreen ? 20 : 50);   // Standard pullout for full labels
     }
 
     processData() {
@@ -1072,7 +1107,8 @@ class ChordDiagram {
         const path = stretchedChord()
             .radius(this.innerRadius)
             .startAngle(d => d.startAngle + this.offset)
-            .endAngle(d => d.endAngle + this.offset);
+            .endAngle(d => d.endAngle + this.offset)
+            .pullOutSize(this.pullOutSize); // Use instance pullOutSize
 
         // Draw chords
         const chords = this.chordLayout.chords();
@@ -1102,12 +1138,110 @@ class ChordDiagram {
     }
 
     renderLabels() {
+        // Use the stored useCompactLabels property set in updateDimensions
+        if (this.useCompactLabels) {
+            this.renderCompactLabels();
+        } else {
+            this.renderFullLabels();
+        }
+    }
+
+    renderCompactLabels() {
+        // Create arc generator for positioning
+        const arc = d3.arc()
+            .innerRadius(this.innerRadius)
+            .outerRadius(this.outerRadius)
+            .startAngle(d => d.startAngle + this.offset)
+            .endAngle(d => d.endAngle + this.offset);
+
+        // Remove existing labels
+        this.wrapper.selectAll("g.group").selectAll("text").remove();
+        this.wrapper.selectAll("g.group").selectAll("circle").remove();
+
+        // Add circles with numbers/letters
+        this.wrapper.selectAll("g.group")
+            .each((d, i) => {
+                const group = d3.select(this.wrapper.selectAll("g.group").nodes()[i]);
+                d.angle = ((d.startAngle + d.endAngle) / 2) + this.offset;
+                
+                const c = arc.centroid(d);
+                const node = this.orderedNodes[d.index];
+                const isIndicator = node && node.type === 'indicator';
+                
+                // Determine label and colors
+                let label, circleColor, textColor;
+                if (isIndicator) {
+                    // Letters for indicators (A, B, C, etc.) on dark rust circles
+                    const indicatorIndex = d.index; // Since indicators come first in orderedNodes
+                    label = String.fromCharCode(65 + indicatorIndex); // A, B, C...
+                    circleColor = "#B7472A"; // Darker rust color
+                    textColor = "white";
+                } else {
+                    // Numbers for sectors (inverted order: 10, 9, 8, etc.) on charcoal circles
+                    const totalSectors = this.orderedNodes.filter(n => n.type === 'sector').length;
+                    const sectorIndex = d.index - this.orderedNodes.filter(n => n.type === 'indicator').length;
+                    label = (totalSectors - sectorIndex).toString(); // Inverted order
+                    circleColor = "#36454F"; // Charcoal color
+                    textColor = "white";
+                }
+
+                // Calculate position to avoid overlaps
+                const baseDistance = 20;
+                const circleRadius = 9; // Smaller circles
+                let posX = c[0] + d.pullOutSize;
+                let posY = c[1];
+                
+                // Check for nearby labels and adjust position
+                const nearbyGroups = this.wrapper.selectAll("g.group").nodes();
+                for (let j = 0; j < i; j++) {
+                    const otherGroup = d3.select(nearbyGroups[j]);
+                    const otherCircle = otherGroup.select("circle");
+                    if (!otherCircle.empty()) {
+                        const otherX = parseFloat(otherCircle.attr("cx"));
+                        const otherY = parseFloat(otherCircle.attr("cy"));
+                        const distance = Math.sqrt((posX - otherX)**2 + (posY - otherY)**2);
+                        
+                        if (distance < circleRadius * 2.2) { // Reduced offset multiplier
+                            // Adjust position to avoid overlap with smaller offset
+                            const angle = Math.atan2(posY - otherY, posX - otherX);
+                            posX = otherX + Math.cos(angle) * circleRadius * 2.2;
+                            posY = otherY + Math.sin(angle) * circleRadius * 2.2;
+                        }
+                    }
+                }
+
+                // Add circle
+                group.append("circle")
+                    .attr("cx", posX)
+                    .attr("cy", posY)
+                    .attr("r", circleRadius)
+                    .style("fill", circleColor)
+                    .style("stroke", "white")
+                    .style("stroke-width", "2px");
+
+                // Add text
+                group.append("text")
+                    .attr("x", posX)
+                    .attr("y", posY)
+                    .attr("dy", ".35em")
+                    .attr("text-anchor", "middle")
+                    .style("fill", textColor)
+                    .style("font-size", "8px") // Smaller font for smaller circles
+                    .style("font-weight", "bold")
+                    .text(label);
+            });
+    }
+
+    renderFullLabels() {
         // Create arc generator for label positioning with offset
         const arc = d3.arc()
             .innerRadius(this.innerRadius)
             .outerRadius(this.outerRadius)
             .startAngle(d => d.startAngle + this.offset)
             .endAngle(d => d.endAngle + this.offset);
+
+        // Remove existing circles
+        this.wrapper.selectAll("g.group").selectAll("circle").remove();
 
         // Add labels to arcs
         this.wrapper.selectAll("g.group")
