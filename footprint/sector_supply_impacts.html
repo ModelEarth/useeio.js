@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 <head>
   <meta charset='utf-8'>
   <title>Sector Analysis - Impacts of supply chain</title>
@@ -68,6 +67,7 @@
   <script src="./config.js"></script>
   <script type="module">
     // Importing chord diagram initialization function
+    // chordInit.js loads script.js in same folder.
     import { initializeChordDiagram } from './chord/stretched/chordInit.js';
     // Add at the top level of the script, outside any function
     let isShowingAllRows = false;
@@ -307,7 +307,7 @@
           const tableConfig = {
               data: isShowingAllRows ? allResults : sortedResults,
               layout: "fitColumns",
-              initialSort: [{column: "sortValue", dir: "desc"}], // Use sortValue for initial sorting
+              initialSort: [{column: "total", dir: "desc"}], // Use total for initial sorting
               columns: [
                   { 
                       title: "Sector", 
@@ -328,7 +328,6 @@
                       field: "total",
                       width: 180,
                       sorter: "number", // Add numeric sorter
-                      sortField: "totalRaw", // Use raw value for sorting
                       formatter: function(cell) {
                           return formatNumber(cell.getValue(), formatType);
                       },
@@ -420,7 +419,10 @@
       console.log('Chord data generated:', chartData);
 
       try {
-        await initializeChordDiagram(results, indicators);
+        // Limit to top 10 sectors for the chord diagram
+        console.log(`Total sectors: ${results.length}, limiting to top 10 for chord diagram`);
+        const top10Results = results.slice(0, 10);
+        await initializeChordDiagram(top10Results, indicators, { containerId: '#chart2' });
       } catch (error) {
         console.error('Error creating chord diagram:', error);
       }
@@ -462,8 +464,9 @@ path.chord {
 }    
 </style>
 
-<!-- D3 Separated chord chart -->
-<div id="chart"></div>
+<!-- D3 Separated chord charts -->
+<div id="chart1"></div>
+<div id="chart2"></div>
 <svg height="0cm" width="0cm">
   <defs>
     <linearGradient id="gradientLinear" x1="-100%" y1="0%" x2="100%" y2="0%" gradientUnits="userSpaceOnUse">
@@ -505,7 +508,6 @@ path.chord {
     </linearGradient>
   </defs>
 </svg>
-<script src="chord/stretched/script.js"></script>
 
 </body>
 </html>

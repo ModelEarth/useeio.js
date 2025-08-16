@@ -283,7 +283,7 @@ const width = Math.min(screenWidth, 800) - margin.left - margin.right;
 const height = (mobileScreen ? 300 : Math.min(screenWidth, 800)*5/6) - margin.top - margin.bottom;
 
 // Create SVG
-const svg = d3.select("#chart").append("svg")
+const svg = d3.select("#chart1").append("svg")
     .attr("width", (width + margin.left + margin.right))
     .attr("height", (height + margin.top + margin.bottom));
 
@@ -604,6 +604,7 @@ class ChordDiagram {
                                        ${this.height/2 + this.options.margin.top})`);
 
         // Setup dimensions
+        const mobileScreen = this.width <= 500;
         this.outerRadius = Math.min(this.width, this.height) / 2 - (mobileScreen ? 80 : 100);
         this.innerRadius = this.outerRadius * 0.95;
     }
@@ -654,7 +655,116 @@ class ChordDiagram {
         this.renderLabels();
     }
 
-    // ... Add other necessary methods ...
+    renderArcs() {
+        // Draw outer Arcs
+        const g = this.wrapper.selectAll("g.group")
+            .data(this.chordLayout.groups())
+            .join("g")
+            .attr("class", "group")
+            .on("mouseover", (event, d) => {
+                this.fade(this.options.opacity.low)(d);
+            })
+            .on("mouseout", (event, d) => {
+                this.fade(this.options.opacity.default)(d);
+            });
+
+        // Create a color scale
+        const colors = d3.schemeCategory10;
+
+        // Create arc generator
+        const arc = d3.arc()
+            .innerRadius(this.innerRadius)
+            .outerRadius(this.outerRadius)
+            .startAngle(d => d.startAngle)
+            .endAngle(d => d.endAngle);
+
+        // Add arc paths
+        g.append("path")
+            .style("stroke", (d, i) => colors[i % colors.length])
+            .style("fill", (d, i) => colors[i % colors.length])
+            .style("opacity", this.options.opacity.default)
+            .attr("d", arc)
+            .attr("transform", (d) => {
+                d.pullOutSize = this.pullOutSize * (d.startAngle + 0.001 > Math.PI ? -1 : 1);
+                return `translate(${d.pullOutSize},0)`;
+            });
+    }
+
+    renderChords() {
+        // Create stretched chord path generator
+        const path = stretchedChord()
+            .radius(this.innerRadius);
+
+        // Draw chords
+        this.wrapper.selectAll("path.chord")
+            .data(this.chordLayout.chords())
+            .join("path")
+            .attr("class", "chord")
+            .style("stroke", "none")
+            .style("fill", (d, i) => `url(#gradient-${i})`)
+            .style("opacity", this.options.opacity.default)
+            .attr("d", path)
+            .on("mouseover", (event, d) => this.fadeOnChord(event, d))
+            .on("mouseout", (event, d) => this.fade(this.options.opacity.default)(d));
+    }
+
+    renderLabels() {
+        // Create arc generator for label positioning
+        const arc = d3.arc()
+            .innerRadius(this.innerRadius)
+            .outerRadius(this.outerRadius)
+            .startAngle(d => d.startAngle)
+            .endAngle(d => d.endAngle);
+
+        // Add labels to arcs
+        this.wrapper.selectAll("g.group")
+            .selectAll("text")
+            .data(d => [d])
+            .join("text")
+            .each(function(d) { 
+                d.angle = (d.startAngle + d.endAngle) / 2;
+            })
+            .attr("dy", ".35em")
+            .attr("class", "titles")
+            .style("font-size", "10px")
+            .attr("text-anchor", function(d) { 
+                return d.angle > Math.PI ? "end" : null; 
+            })
+            .attr("transform", function(d) { 
+                const c = arc.centroid(d);
+                return `translate(${c[0] + d.pullOutSize},${c[1]})` +
+                       `rotate(${(d.angle * 180 / Math.PI - 90)})` +
+                       `translate(20,0)` +
+                       (d.angle > Math.PI ? "rotate(180)" : "");
+            })
+            .text((d, i) => `Label ${i}`);
+    }
+
+    fade(opacity) {
+        return (d) => {
+            this.wrapper.selectAll("path.chord")
+                .filter(function(d2) { 
+                    return d2.source.index != d.index && d2.target.index != d.index; 
+                })
+                .transition()
+                .style("opacity", opacity);
+        };
+    }
+
+    fadeOnChord(event, d) {
+        const chosen = d;
+        const opacityDefault = this.options.opacity.default;
+        const opacityLow = this.options.opacity.low;
+        this.wrapper.selectAll("path.chord")
+            .transition()
+            .style("opacity", function(d) {
+                if (d.source.index == chosen.source.index && d.target.index == chosen.target.index) {
+                    return opacityDefault;
+                } else { 
+                    return opacityLow; 
+                }
+            });
+    }
 }
 
 // Export for ES6 modules
