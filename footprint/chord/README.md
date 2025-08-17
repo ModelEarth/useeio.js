@@ -67,6 +67,60 @@ const darkBorderOptions = { chordBorder: { style: "dark", width: "2px" } };
 const customLightOptions = { chordBorder: { style: "light", width: "1.5px" } };
 ```
 
+### Chart Preferences System
+
+The chord diagram includes a persistent preferences system that saves user settings across page loads and can be shared across multiple chart pages.
+
+**Include the preferences system:**
+```html
+<script src="./chord/chartPreferences.js"></script>
+```
+
+**Basic Usage:**
+```javascript
+// Load saved preferences
+const prefs = window.ChartPreferences.load();
+
+// Create chart with saved preferences
+const chordDiagram = new ChordDiagram('#chart', chartData, {
+  scalingMethod: prefs.scalingMethod,
+  chordBorder: {
+    style: prefs.edgeStyle,
+    width: "1px"
+  }
+});
+
+// Setup dropdowns with automatic saving
+window.ChartPreferences.setupEventListeners(function(newPrefs) {
+  // This callback runs when user changes preferences
+  // Recreate chart with new settings
+  new ChordDiagram('#chart', chartData, {
+    scalingMethod: newPrefs.scalingMethod,
+    chordBorder: {
+      style: newPrefs.edgeStyle,
+      width: "1px"
+    }
+  });
+});
+```
+
+**Scaling Methods:**
+- `"raw"` - No scaling (shows original data relationships)
+- `"square-root"` - Square root scaling (moderate compression)
+- `"proportional"` - Linear min-max normalization
+- `"logarithmic"` - Logarithmic scaling (maximum compression for extreme ranges)
+
+**Edge Styles:**
+- `"none"` - No borders on chord connections
+- `"light"` - Light borders using blended gradient colors
+- `"dark"` - Dark borders using source node colors
+
+**Preferences Storage:**
+Preferences are automatically saved to `localStorage` and persist across:
+- Page reloads
+- Browser sessions
+- Different chart pages (when using the same preferences system)
+
 ### Stretched chord visualization
 
 [Stretched Chord Starter (in current folder)](stretched) in [our github repo](https://github.com/ModelEarth/useeio.js/tree/dev/footprint/chord)

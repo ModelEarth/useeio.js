@@ -1247,6 +1247,20 @@ class ChordDiagram {
                     .style("stroke", "white")
                     .style("stroke-width", "2px");
 
+                // Get container width for responsive compact label sizing
+                const container = document.querySelector(this.containerId);
+                const containerWidth = container ? container.clientWidth : window.innerWidth;
+                
+                // Determine compact label font size based on container width
+                let compactFontSize;
+                if (containerWidth > 1400) {
+                    compactFontSize = "10px"; // Larger compact labels for wide screens
+                } else if (containerWidth > 800) {
+                    compactFontSize = "9px";  // Medium compact labels
+                } else {
+                    compactFontSize = "8px";  // Default compact size
+                }
+
                 // Add text
                 group.append("text")
                     .attr("x", posX)
@@ -1254,7 +1268,7 @@ class ChordDiagram {
                     .attr("dy", ".35em")
                     .attr("text-anchor", "middle")
                     .style("fill", textColor)
-                    .style("font-size", "8px") // Smaller font for smaller circles
+                    .style("font-size", compactFontSize)
                     .style("font-weight", "bold")
                     .text(label);
             });
@@ -1281,7 +1295,18 @@ class ChordDiagram {
             }.bind(this))
             .attr("dy", ".35em")
             .attr("class", "titles")
-            .style("font-size", "10px")
+            .style("font-size", () => {
+                const container = document.querySelector(this.containerId);
+                const containerWidth = container ? container.clientWidth : window.innerWidth;
+                
+                if (containerWidth > 1400) {
+                    return "14px"; // Larger labels for wide screens
+                } else if (containerWidth > 800) {
+                    return "12px"; // Medium labels for medium screens
+                } else {
+                    return "10px"; // Default size for smaller screens
+                }
+            })
             .attr("text-anchor", function(d) { 
                 return d.angle > Math.PI ? "end" : null; 
             })
@@ -1305,8 +1330,8 @@ class ChordDiagram {
                     labelText = `Label ${i}`;
                 }
                 
-                // Limit to 40 characters
-                return labelText.length > 40 ? labelText.substring(0, 37) + '...' : labelText;
+                // Limit to 32 characters
+                return labelText.length > 32 ? labelText.substring(0, 29) + '...' : labelText;
             });
     }
 
@@ -1317,10 +1342,26 @@ class ChordDiagram {
         const titleOffset = mobileScreen ? 15 : 40;
         const titleSeparate = mobileScreen ? 30 : 0;
 
+        // Get container width for responsive title sizing
+        const container = document.querySelector(this.containerId);
+        const containerWidth = container ? container.clientWidth : window.innerWidth;
+        
+        // Determine title font size based on container width
+        let titleFontSize;
+        if (containerWidth > 1400) {
+            titleFontSize = "20px"; // Larger titles for wide screens
+        } else if (containerWidth > 800) {
+            titleFontSize = "18px"; // Medium titles for medium screens
+        } else if (mobileScreen) {
+            titleFontSize = "12px"; // Small titles for mobile
+        } else {
+            titleFontSize = "16px"; // Default size
+        }
+
         // Title top left
         titleWrapper.append("text")
             .attr("class", "title left")
-            .style("font-size", mobileScreen ? "12px" : "16px")
+            .style("font-size", titleFontSize)
             .attr("x", (this.width/2 + this.options.margin.left - this.outerRadius - titleSeparate))
             .attr("y", titleOffset)
             .text(this.options.titles.left || "Left side");
@@ -1335,7 +1376,7 @@ class ChordDiagram {
         // Title top right
         titleWrapper.append("text")
             .attr("class", "title right")
-            .style("font-size", mobileScreen ? "12px" : "16px")
+            .style("font-size", titleFontSize)
             .attr("x", (this.width/2 + this.options.margin.left + this.outerRadius + titleSeparate))
             .attr("y", titleOffset)
             .text(this.options.titles.right || "Right side");

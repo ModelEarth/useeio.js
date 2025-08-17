@@ -10,15 +10,15 @@
   <script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.2.7/dist/js/tabulator.min.js"></script>
 
   <!-- The id here prevents the older file from loading -->
-  <script type="text/javascript" srcX="/localsite/js/d3.v5.min.js" id="/localsite/js/d3.v5.min.js"></script>
-  <script type="text/javascript" srcX="/localsite/js/jquery.min.js" id="/localsite/js/jquery.min.js"></script>
+  <script type="text/javascript" srcX="../../localsite/js/d3.v5.min.js" id="/localsite/js/d3.v5.min.js"></script>
+  <script type="text/javascript" srcX="../../localsite/js/jquery.min.js" id="/localsite/js/jquery.min.js"></script>
 
   <!-- instead we use newer files -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
 
-  <script type="text/javascript" src="https://model.earth/localsite/js/localsite.js?showheader=true&showsearch=true"></script>
+  <script type="text/javascript" src="../../localsite/js/localsite.js?showheader=true&showsearch=true"></script>
   <script src="../dist/useeio.js"></script>
   <style>
     #table {
@@ -41,6 +41,17 @@
     .tabulator {
       height: auto !important;
     }
+    .controlDD {
+      width: 90px;
+      padding: 4px 8px;
+      font-size: 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background: white; /* covers down arrow */
+    }
+    .dark .controlDD {
+      background: #333;
+    }
   </style>
 </head>
 
@@ -50,14 +61,18 @@
   <div style="position: relative;">
     <div id="chart2"></div>
     <!-- Control Dropdowns -->
-    <div style="position: absolute; top: 10px; right: 10px; z-index: 1000; display: flex; gap: 8px;">
-      <select id="scaling-method" style="padding: 4px 8px; font-size: 12px; border: 1px solid #ccc; border-radius: 4px; background: white;">
+    <div style="position: absolute; top: 10px; right: 10px; z-index: 1000;">
+      <select id="theme-mode" class="controlDD">
+        <option value="light" selected>Light Mode</option>
+        <option value="dark">Dark Mode</option>
+      </select><br>
+      <select id="scaling-method" class="controlDD">
         <option value="raw" selected>No Scaling</option>
         <option value="square-root">Square Root</option>
         <option value="proportional">Proportional</option>
         <option value="logarithmic">Logarithmic</option>
-      </select>
-      <select id="edge-style" style="padding: 4px 8px; font-size: 12px; border: 1px solid #ccc; border-radius: 4px; background: white;">
+      </select><br>
+      <select id="edge-style" class="controlDD">
         <option value="none">No Edge</option>
         <option value="light" selected>Light Edge</option>
         <option value="dark">Dark Edge</option>
@@ -479,10 +494,14 @@
         // Store data globally for dropdown changes
         window.currentChordData = { sectors: top10Results, indicators: top10Indicators };
         
+        // Load saved preferences for initial chart creation
+        const initialPrefs = window.ChartPreferences ? window.ChartPreferences.load() : { scalingMethod: 'raw', edgeStyle: 'light' };
+        
         await initializeChordDiagram(top10Results, top10Indicators, { 
           containerId: '#chart2',
+          scalingMethod: initialPrefs.scalingMethod,
           chordBorder: {
-            style: 'light',
+            style: initialPrefs.edgeStyle,
             width: '1px'
           }
         });
@@ -504,7 +523,7 @@
       sectorsDiv.innerHTML = `
         <h5>Top 10 Sectors (sorted by impact, descending):</h5>
         <ol>
-          ${sectors.map((s, i) => `<li>${s.sector} (${s.sortValue.toFixed(2)})</li>`).join('')}
+          ${sectors.map((s, i) => `<li>${s.sector}</li>`).join('')}
         </ol>
       `;
       
@@ -532,9 +551,9 @@
         <table style="border-collapse: collapse; margin-top: 10px; font-size: 10px;">
           <thead>
             <tr>
-              <th style="border: 1px solid #ccc; padding: 4px; background: #e9ecef;">Sector</th>
-              ${indicators.map(ind => `<th style="border: 1px solid #ccc; padding: 4px; background: #e9ecef; writing-mode: vertical-rl; text-orientation: mixed; min-width: 30px;">${ind.code}</th>`).join('')}
-              <th style="border: 1px solid #ccc; padding: 4px; background: #e9ecef; font-weight: bold;">Row Total</th>
+              <th style="border: 1px solid #ccc; padding: 4px;">Sector</th>
+              ${indicators.map(ind => `<th style="border: 1px solid #ccc; padding: 4px; writing-mode: vertical-rl; text-orientation: mixed; min-width: 30px;">${ind.code}</th>`).join('')}
+              <th style="border: 1px solid #ccc; padding: 4px; font-weight: bold;">Row Total</th>
             </tr>
           </thead>
           <tbody>
@@ -552,14 +571,14 @@
                   const value = sector[ind.code];
                   return `<td style="border: 1px solid #ccc; padding: 4px; text-align: right;">${value !== undefined ? value.toFixed(3) : 'N/A'}</td>`;
                 }).join('')}
-                <td style="border: 1px solid #ccc; padding: 4px; text-align: right; font-weight: bold; background: #f8f9fa;">${rowTotal.toFixed(3)}</td>
+                <td style="border: 1px solid #ccc; padding: 4px; text-align: right; font-weight: bold;">${rowTotal.toFixed(3)}</td>
               </tr>
               `;
             }).join('')}
-            <tr style="background: #e9ecef; font-weight: bold;">
+            <tr style="font-weight: bold;">
               <td style="border: 1px solid #ccc; padding: 4px;">Column Total</td>
               ${columnTotals.map(total => `<td style="border: 1px solid #ccc; padding: 4px; text-align: right;">${total.toFixed(3)}</td>`).join('')}
-              <td style="border: 1px solid #ccc; padding: 4px; background: #f8f9fa;"></td>
+              <td style="border: 1px solid #ccc; padding: 4px;"></td>
             </tr>
           </tbody>
         </table>
@@ -569,17 +588,90 @@
       indicatorsDiv.appendChild(matrixDiv);
     }
 
+    // Chart preferences management with localStorage
+    const ChartPreferences = {
+      // Default values
+      defaults: {
+        scalingMethod: 'raw',
+        edgeStyle: 'light',
+        themeMode: 'light'
+      },
+      
+      // Save preferences to localStorage
+      save: function(scalingMethod, edgeStyle, themeMode) {
+        const prefs = {
+          scalingMethod: scalingMethod || this.defaults.scalingMethod,
+          edgeStyle: edgeStyle || this.defaults.edgeStyle,
+          themeMode: themeMode || this.defaults.themeMode,
+          timestamp: Date.now()
+        };
+        localStorage.setItem('chartPreferences', JSON.stringify(prefs));
+        console.log('Chart preferences saved:', prefs);
+      },
+      
+      // Load preferences from localStorage
+      load: function() {
+        try {
+          const stored = localStorage.getItem('chartPreferences');
+          if (stored) {
+            const prefs = JSON.parse(stored);
+            console.log('Chart preferences loaded:', prefs);
+            return {
+              scalingMethod: prefs.scalingMethod || this.defaults.scalingMethod,
+              edgeStyle: prefs.edgeStyle || this.defaults.edgeStyle,
+              themeMode: prefs.themeMode || this.defaults.themeMode
+            };
+          }
+        } catch (error) {
+          console.warn('Error loading chart preferences:', error);
+        }
+        return this.defaults;
+      },
+      
+      // Apply preferences to dropdowns
+      applyToDropdowns: function(scalingSelect, edgeSelect, themeSelect) {
+        const prefs = this.load();
+        if (scalingSelect && scalingSelect.value !== prefs.scalingMethod) {
+          scalingSelect.value = prefs.scalingMethod;
+        }
+        if (edgeSelect && edgeSelect.value !== prefs.edgeStyle) {
+          edgeSelect.value = prefs.edgeStyle;
+        }
+        if (themeSelect && themeSelect.value !== prefs.themeMode) {
+          themeSelect.value = prefs.themeMode;
+        }
+        return prefs;
+      }
+    };
+    
+    // Make ChartPreferences globally available for other pages
+    window.ChartPreferences = ChartPreferences;
+
     main();
 
     // Add event listeners for control dropdowns
     document.addEventListener('DOMContentLoaded', function() {
       const scalingSelect = document.getElementById('scaling-method');
       const edgeSelect = document.getElementById('edge-style');
+      const themeSelect = document.getElementById('theme-mode');
+      
+      // Load and apply saved preferences on page load
+      const savedPrefs = ChartPreferences.applyToDropdowns(scalingSelect, edgeSelect, themeSelect);
+      console.log('Applied saved chart preferences:', savedPrefs);
+      
+      // Apply theme mode on page load if setSitelook function exists
+      if (typeof setSitelook === 'function') {
+        setSitelook(savedPrefs.themeMode);
+      }
       
       function updateChordDiagram() {
         if (window.currentChordData) {
-          const selectedScaling = scalingSelect ? scalingSelect.value : 'raw';
-          const selectedEdge = edgeSelect ? edgeSelect.value : 'light';
+          const selectedScaling = scalingSelect ? scalingSelect.value : savedPrefs.scalingMethod;
+          const selectedEdge = edgeSelect ? edgeSelect.value : savedPrefs.edgeStyle;
+          const selectedTheme = themeSelect ? themeSelect.value : savedPrefs.themeMode;
+          
+          // Save preferences whenever they change
+          ChartPreferences.save(selectedScaling, selectedEdge, selectedTheme);
           
           console.log(`Updating chart - Scaling: ${selectedScaling}, Edge: ${selectedEdge}`);
           
@@ -609,6 +701,26 @@
       if (edgeSelect) {
         edgeSelect.addEventListener('change', updateChordDiagram);
       }
+      
+      if (themeSelect) {
+        themeSelect.addEventListener('change', function() {
+          const selectedTheme = this.value;
+          console.log(`Theme changed to: ${selectedTheme}`);
+          
+          // Apply theme change using setSitelook function if available
+          if (typeof setSitelook === 'function') {
+            setSitelook(selectedTheme);
+          }
+          
+          // Update preferences and chart
+          updateChordDiagram();
+        });
+      }
+      
+      // Trigger initial update with saved preferences if data is already loaded
+      if (window.currentChordData) {
+        updateChordDiagram();
+      }
     });
 
   </script>
@@ -625,12 +737,47 @@ path.chord {
 .title {
   text-anchor: middle;
   fill: #3B3B3B;
-  font-weight: 300;
+  font-weight: bold;
   font-size: 16px;
 }
 .titleLine {
   stroke: #DCDCDC;
   shape-rendering: crispEdges;
+}
+
+/* Dark mode styling */
+.dark .title {
+  fill: white;
+}
+.dark .titleLine {
+  stroke: #666;
+}
+.dark text.titles {
+  fill: white;
+}
+.dark #scaling-method,
+.dark #edge-style {
+  background: #333;
+  color: white;
+  border-color: #555;
+}
+.dark #scaling-method option,
+.dark #edge-style option {
+  background: #333;
+  color: white;
+}
+
+/* Dark mode for matrix table */
+.dark #chart2-debug {
+  color: white;
+}
+.dark #chart2-debug table {
+  border-color: #555;
+}
+.dark #chart2-debug th,
+.dark #chart2-debug td {
+  border-color: #555;
+  color: white;
 }    
 </style>
 
@@ -642,8 +789,8 @@ path.chord {
 <div id="chord-tooltip" style="position: absolute; background: rgba(0,0,0,0.8); color: white; padding: 8px 12px; border-radius: 4px; font-size: 12px; pointer-events: none; z-index: 1000; opacity: 0; transition: opacity 0.2s;"></div>
 
 <!-- Debug output for chart2 data -->
-<div id="chart2-debug" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px; font-family: monospace; font-size: 12px;">
-  <h4>Chart2 Data:</h4>
+<div id="chart2-debug">
+  <h4>Chord Chart Data:</h4>
   <div id="sectors-list"></div>
   <div id="indicators-list"></div>
 </div>
@@ -688,6 +835,7 @@ path.chord {
     </linearGradient>
   </defs>
 </svg>
+<br>
 
 <b><a href="chord/">Our Stretched Chord Chart documentation</a></b><br>
 
